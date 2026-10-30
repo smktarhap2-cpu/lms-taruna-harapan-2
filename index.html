@@ -61,34 +61,51 @@
             { nis: "252610001", nama: "Cucu Amelia", kelas: "XI TSM" }
         ];
 
-        // Database localStorage untuk Sinkronisasi Guru & Siswa
+        // Database localStorage kosong (bersih dari data dummy)
         function getMateriDB() {
-            const data = localStorage.getItem('th2_materi');
+            const data = localStorage.getItem('th2_materi_clean');
             if (!data) {
-                const initial = [
-                    { id: 1, pertemuan: 'PERT. 6', judul: 'Penerapan SPLDV dalam Kehidupan Sehari-hari', format: 'Word', tanggal: 'Selasa, 27 Oktober 2026', hadir: '21/24', link: '#' },
-                    { id: 2, pertemuan: 'PERT. 5', judul: 'Metode Eliminasi dan Gabungan', format: 'PPT', tanggal: 'Selasa, 20 Oktober 2026', hadir: '23/24', link: '#' }
-                ];
-                localStorage.setItem('th2_materi', JSON.stringify(initial));
+                const initial = [];
+                localStorage.setItem('th2_materi_clean', JSON.stringify(initial));
                 return initial;
             }
             return JSON.parse(data);
         }
 
         function saveMateriDB(list) {
-            localStorage.setItem('th2_materi', JSON.stringify(list));
+            localStorage.setItem('th2_materi_clean', JSON.stringify(list));
         }
 
-        let tugasList = [
-            { id: 1, judul: 'Tugas Mandiri 1: Analisis Soal Cerita', deadline: 'Senin, 02 Nov 2026, 23:59 WIB', status: 'Dibuka' }
-        ];
+        function getTugasDB() {
+            const data = localStorage.getItem('th2_tugas_clean');
+            if (!data) {
+                const initial = [];
+                localStorage.setItem('th2_tugas_clean', JSON.stringify(initial));
+                return initial;
+            }
+            return JSON.parse(data);
+        }
 
-        let kuisList = [
-            { id: 1, judul: 'Kuis 2: Menyelesaikan SPLDV', waktu: '30 Menit', status: 'Sedang dibuka' }
-        ];
+        function saveTugasDB(list) {
+            localStorage.setItem('th2_tugas_clean', JSON.stringify(list));
+        }
+
+        function getKuisDB() {
+            const data = localStorage.getItem('th2_kuis_clean');
+            if (!data) {
+                const initial = [];
+                localStorage.setItem('th2_kuis_clean', JSON.stringify(initial));
+                return initial;
+            }
+            return JSON.parse(data);
+        }
+
+        function saveKuisDB(list) {
+            localStorage.setItem('th2_kuis_clean', JSON.stringify(list));
+        }
 
         let diskusiList = [
-            { pengirim: 'Rina Kartikasari, S.Pd (Guru)', pesan: 'Silakan pelajari modul pertemuan 6 yang telah diunggah.', waktu: '08:00 WIB' }
+            { pengirim: 'Admin Sekolah', pesan: 'Selamat datang di portal PJJ SMK Taruna Harapan 2. Silakan gunakan fitur dengan tertib.', waktu: '08:00 WIB' }
         ];
 
         const appContainer = document.getElementById('app');
@@ -153,7 +170,7 @@
                 } else if (role === 'siswa') {
                     const siswaMatch = masterSiswaLogin.find(s => s.nama.toLowerCase() === namaInput.toLowerCase() && s.kelas.toLowerCase() === passInput.toLowerCase());
                     if (siswaMatch) {
-                        currentUser = { nama: siswaMatch.nama, role: 'siswa', kelas: siswaMatch.kelas, mapel: 'Matematika' };
+                        currentUser = { nama: siswaMatch.nama, role: 'siswa', kelas: siswaMatch.kelas, mapel: 'Pelajaran PJJ' };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
@@ -244,12 +261,10 @@
                         <h3 class="font-bold text-lg text-slate-900">Jadwal Mata Pelajaran PJJ / Daring SMK Taruna Harapan 2</h3>
                         <p class="text-xs text-slate-500">Sesuai dokumen resmi kurikulum semester ganjil tahun pelajaran 2026/2027.</p>
                         <div class="p-4 bg-slate-50 border rounded-xl space-y-2 text-xs">
-                            <p class="font-bold text-primary">📌 Ketentuan Umum:</p>
+                            <p class="font-bold text-primary">📌 Ketentuan Pembelajaran:</p>
                             <ul class="list-disc pl-5 space-y-1 text-slate-600">
-                                <li>Presensi & Pembiasaan Karakter dimulai pukul 07.00 WIB setiap hari.</li>
-                                <li>Senin & Selasa: Fokus Normatif, Adaptif, dan Produktif (PAI, MTK, IPAS, B. Inggris, DD TSM, AK Keuangan).</li>
-                                <li>Rabu & Kamis: Fokus Sejarah, Informatika, Pramuka, dan Praktikum Jurusan.</li>
-                                <li>Jumat: Fokus Pendidikan Agama Islam (PAI) dan Praktik Al-Islam.</li>
+                                <li>Presensi & Pembiasaan Karakter dimulai pukul 07.00 WIB.</li>
+                                <li>Materi diunggah oleh guru pengampu sesuai jadwal harian kelas.</li>
                             </ul>
                         </div>
                     </div>
@@ -260,8 +275,8 @@
                         <h3 class="font-bold text-lg text-slate-900">Pengumuman Resmi Sekolah</h3>
                         <div class="p-4 border rounded-xl bg-slate-50 space-y-1">
                             <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded">Penting</span>
-                            <h4 class="font-bold text-sm text-slate-800">Pelaksanaan PJJ 100% Online</h4>
-                            <p class="text-xs text-slate-600">Seluruh guru dapat mengunggah bahan ajar (Word, Excel, PPT, Gambar, Video) dan siswa dapat mengumpulkan tugas langsung di LMS.</p>
+                            <h4 class="font-bold text-sm text-slate-800">Portal PJJ Siap Digunakan</h4>
+                            <p class="text-xs text-slate-600">Guru silakan mengunggah bahan ajar, tugas, dan kuis melalui tombol di ruang belajar.</p>
                         </div>
                     </div>
                 `;
@@ -269,7 +284,7 @@
                 mainView.innerHTML = `
                     <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                         <h3 class="font-bold text-lg text-slate-900">Leger Nilai Seluruh Kelas</h3>
-                        <p class="text-xs text-slate-500">Rekapitulasi nilai tugas, kuis, dan presensi siswa.</p>
+                        <p class="text-xs text-slate-500">Rekapitulasi nilai siswa.</p>
                     </div>
                 `;
             } else {
@@ -277,31 +292,33 @@
             }
         }
 
-        // ================= RUANG BELAJAR PERSIS REFERENSI =================
+        // ================= RUANG BELAJAR BERSIH =================
         function renderRuangBelajar(container) {
             const materiList = getMateriDB();
-            const mapelName = currentUser.role === 'guru' ? currentUser.mapel : 'Matematika';
+            const tugasList = getTugasDB();
+            const kuisList = getKuisDB();
+            const mapelName = currentUser.role === 'guru' ? currentUser.mapel : 'Pelajaran PJJ';
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
-                    <!-- HEADER RUANG BELAJAR GAYA BARU -->
+                    <!-- HEADER RUANG BELAJAR -->
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'X TKJ 1 / AKL'}</p>
+                                <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'Semua Kelas'}</p>
                                 <h1 class="text-2xl font-bold text-slate-900">${mapelName}</h1>
                                 <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 mt-2">
-                                    <span class="bg-slate-100 px-2.5 py-1 rounded-md font-medium">📦 ${currentUser.kelas || 'X TKJ 1'}</span>
+                                    <span class="bg-slate-100 px-2.5 py-1 rounded-md font-medium">📦 ${currentUser.kelas || 'Jurusan'}</span>
                                     <span>👤 ${currentUser.nama}</span>
                                     <span>⭐ KKM 75</span>
                                 </div>
                             </div>
 
-                            <!-- TOMBOL AKSI GURU PERSIS GAMBAR REFERENSI -->
+                            <!-- TOMBOL AKSI GURU -->
                             ${currentUser.role === 'guru' ? `
                                 <div class="flex flex-wrap gap-2">
                                     <button id="btn-modal-pertemuan" class="bg-primary hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
-                                        <i class="ph ph-plus font-bold"></i><span>Pertemuan</span>
+                                        <i class="ph ph-plus font-bold"></i><span>+ Pertemuan / Materi</span>
                                     </button>
                                     <button id="btn-modal-tugas" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
                                         <i class="ph ph-file-text font-bold"></i><span>+ Tugas</span>
@@ -315,22 +332,22 @@
 
                         <!-- TAB MENU RUANG BELAJAR -->
                         <div class="flex overflow-x-auto space-x-2 border-t pt-4 text-xs font-semibold text-slate-600">
-                            <button data-tab="materi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'materi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Materi</button>
-                            <button data-tab="tugas" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'tugas' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Tugas</button>
-                            <button data-tab="kuis" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'kuis' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Kuis</button>
+                            <button data-tab="materi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'materi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Materi (${materiList.length})</button>
+                            <button data-tab="tugas" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'tugas' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Tugas (${tugasList.length})</button>
+                            <button data-tab="kuis" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'kuis' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Kuis (${kuisList.length})</button>
                             <button data-tab="presensi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'presensi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Presensi</button>
                             <button data-tab="nilai" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'nilai' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Nilai</button>
                             <button data-tab="diskusi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'diskusi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Diskusi</button>
                         </div>
                     </div>
 
-                    <!-- MODAL FORM UNGGAH MATERI / PERTEMUAN -->
+                    <!-- MODAL FORM UNGGAH MATERI OLEH GURU -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
                         <h3 class="font-bold text-slate-900 text-sm">Unggah Media Bahan Ajar (Word, Excel, PPT, Gambar, Video)</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div>
                                 <label class="block font-bold uppercase mb-1">Judul Materi / Pertemuan</label>
-                                <input type="text" id="m-judul" placeholder="Contoh: Modul Pertemuan Baru" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="m-judul" placeholder="Contoh: Modul Pertemuan 1" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Format File</label>
@@ -359,11 +376,11 @@
                         <form id="form-add-tugas" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul & Instruksi Tugas</label>
-                                <input type="text" id="t-judul" placeholder="Contoh: Tugas Mandiri Bab 3" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="t-judul" placeholder="Contoh: Tugas Mandiri" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Tenggat Waktu (Deadline)</label>
-                                <input type="text" id="t-deadline" placeholder="Contoh: Senin, 02 Nov 2026, 23:59 WIB" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="t-deadline" placeholder="Contoh: Senin, 03 Nov 2026, 23:59 WIB" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Tugas</button>
@@ -378,7 +395,7 @@
                         <form id="form-add-kuis" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Kuis</label>
-                                <input type="text" id="k-judul" placeholder="Contoh: Kuis Evaluasi Bab 2" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="k-judul" placeholder="Contoh: Kuis Evaluasi Bab" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Durasi Pengerjaan</label>
@@ -429,7 +446,9 @@
                 document.getElementById('batal-tugas').addEventListener('click', () => document.getElementById('modal-form-tugas').classList.add('hidden'));
                 document.getElementById('form-add-tugas').addEventListener('submit', (e) => {
                     e.preventDefault();
-                    tugasList.unshift({ id: Date.now(), judul: document.getElementById('t-judul').value, deadline: document.getElementById('t-deadline').value, status: 'Dibuka' });
+                    const list = getTugasDB();
+                    list.unshift({ id: Date.now(), judul: document.getElementById('t-judul').value, deadline: document.getElementById('t-deadline').value, status: 'Dibuka' });
+                    saveTugasDB(list);
                     alert('Tugas berhasil dibuat!');
                     document.getElementById('modal-form-tugas').classList.add('hidden');
                     renderRuangBelajar(container);
@@ -442,7 +461,9 @@
                 document.getElementById('batal-kuis').addEventListener('click', () => document.getElementById('modal-form-kuis').classList.add('hidden'));
                 document.getElementById('form-add-kuis').addEventListener('submit', (e) => {
                     e.preventDefault();
-                    kuisList.unshift({ id: Date.now(), judul: document.getElementById('k-judul').value, waktu: document.getElementById('k-waktu').value, status: 'Sedang dibuka' });
+                    const list = getKuisDB();
+                    list.unshift({ id: Date.now(), judul: document.getElementById('k-judul').value, waktu: document.getElementById('k-waktu').value, status: 'Sedang dibuka' });
+                    saveKuisDB(list);
                     alert('Kuis berhasil dibuat!');
                     document.getElementById('modal-form-kuis').classList.add('hidden');
                     renderRuangBelajar(container);
@@ -455,12 +476,19 @@
         function renderTabContent() {
             const tabContent = document.getElementById('tab-content');
             const materiList = getMateriDB();
+            const tugasList = getTugasDB();
+            const kuisList = getKuisDB();
 
             if (currentTabRuang === 'materi') {
                 tabContent.innerHTML = `
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 space-y-4">
-                            ${materiList.map(m => `
+                            ${materiList.length === 0 ? `
+                                <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-2">
+                                    <p class="text-sm font-bold text-slate-700">Belum ada materi pembelajaran yang diunggah.</p>
+                                    <p class="text-xs text-slate-400">${currentUser.role === 'guru' ? 'Silakan tekan tombol "+ Pertemuan / Materi" di atas untuk mulai mengunggah.' : 'Silakan menunggu guru pengampu mengunggah materi.'}</p>
+                                </div>
+                            ` : materiList.map(m => `
                                 <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center justify-between">
                                     <div class="flex items-start space-x-4">
                                         <div class="w-12 h-12 rounded-full border-2 border-slate-300 flex items-center justify-center font-bold text-xs bg-slate-50">${m.pertemuan}</div>
@@ -478,7 +506,7 @@
                             `).join('')}
                         </div>
 
-                        <!-- CATATAN & JADWAL KELAS DARING PERSIS REFERENSI -->
+                        <!-- CATATAN & JADWAL KELAS DARING -->
                         <div class="space-y-6">
                             <div class="bg-white p-5 rounded-2xl border-l-4 border-primary shadow-sm space-y-2">
                                 <h4 class="font-bold text-slate-900 text-sm">Catatan guru</h4>
@@ -504,7 +532,12 @@
                 tabContent.innerHTML = `
                     <div class="max-w-4xl mx-auto space-y-4">
                         <h3 class="font-bold text-lg text-slate-900">Daftar Tugas & Pengumpulan Siswa</h3>
-                        ${tugasList.map(t => `
+                        ${tugasList.length === 0 ? `
+                            <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-2">
+                                <p class="text-sm font-bold text-slate-700">Belum ada tugas yang diberikan.</p>
+                                <p class="text-xs text-slate-400">${currentUser.role === 'guru' ? 'Silakan buat tugas baru menggunakan tombol "+ Tugas" di atas.' : 'Belum ada tugas aktif dari guru.'}</p>
+                            </div>
+                        ` : tugasList.map(t => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
                                     <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${t.status}</span>
@@ -516,7 +549,7 @@
                                         <input type="file" id="file-tugas-${t.id}" class="text-xs border p-2 rounded-xl bg-slate-50">
                                         <button onclick="alert('File tugas berhasil dikumpulkan ke guru!')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700 w-full sm:w-auto">Kumpulkan Tugas</button>
                                     ` : `
-                                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Status: 21 Siswa Mengumpulkan</span>
+                                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Status: Menunggu Pengumpulan Siswa</span>
                                     `}
                                 </div>
                             </div>
@@ -527,7 +560,12 @@
                 tabContent.innerHTML = `
                     <div class="max-w-4xl mx-auto space-y-4">
                         <h3 class="font-bold text-lg text-slate-900">Kuis & Ujian CBT Online</h3>
-                        ${kuisList.map(k => `
+                        ${kuisList.length === 0 ? `
+                            <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-2">
+                                <p class="text-sm font-bold text-slate-700">Belum ada kuis atau ujian online.</p>
+                                <p class="text-xs text-slate-400">${currentUser.role === 'guru' ? 'Silakan buat kuis baru menggunakan tombol "+ Kuis" di atas.' : 'Belum ada kuis aktif.'}</p>
+                            </div>
+                        ` : kuisList.map(k => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-center">
                                 <div class="space-y-1">
                                     <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded">${k.status}</span>
