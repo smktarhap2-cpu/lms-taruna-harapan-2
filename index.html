@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS PJJ - SMK TARUNA HARAPAN 2 CIKALONG WETAN</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D32F2F',
+                        sidebarbg: '#172554',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased h-screen overflow-hidden">
+
+    <div id="app" class="h-full flex flex-col"></div>
+
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+
+        let currentUser = null;
+        let currentView = 'ruang_belajar';
+        let currentTabRuang = 'materi';
+
+        // Master Guru & Siswa SMK Taruna Harapan 2
+        const masterGuruLogin = [
+            { nama: "Anen S.Pd", mapel: "PAI" },
+            { nama: "Windriani Rantiani andini, S.Pd", mapel: "MTK" },
+            { nama: "Difki Muhamad Fahri S.Pd", mapel: "Projek IPAS" },
+            { nama: "Aan Hasanah, S.Pd", mapel: "B. INGGRIS" },
+            { nama: "Intan Rustianti, S.E", mapel: "DD TSM" },
+            { nama: "Rahmi Kurniawati, S.Pd", mapel: "SEJARAH" },
+            { nama: "Intan Dewi Purwanti, S.Pd., Gr.", mapel: "B. INDONESIA" },
+            { nama: "Riska Nurjanah, S.E", mapel: "AK. Keuangan" },
+            { nama: "Wahyudin", mapel: "PJOK" },
+            { nama: "Toto Sugiarto, S.T", mapel: "DD TSM" },
+            { nama: "R.M Moch Iqbal A.A, S.H., Gr", mapel: "Body Repair" },
+            { nama: "Dini Syifa Qolbiah, S.E", mapel: "DD AK" },
+            { nama: "Dzikri Fahmi Mustofa, S.IT", mapel: "KIK" },
+            { nama: "Diarti Alpionita, S.Pd", mapel: "PKN" }
+        ];
+
+        const masterSiswaLogin = [
+            { nis: "262707018", nama: "Almira Nuraeni", kelas: "X AKL" },
+            { nis: "262707019", nama: "Anggi Fitria Anggraeni", kelas: "X AKL" },
+            { nis: "262707020", nama: "Annisa Rahmawati", kelas: "X AKL" },
+            { nis: "262707021", nama: "Destia Nurhabibah", kelas: "X AKL" },
+            { nis: "262707001", nama: "Ahmad Rijik", kelas: "X TSM" },
+            { nis: "262707002", nama: "Aries Rizky Nuryana", kelas: "X TSM" },
+            { nis: "252610007", nama: "Andre Aprilyansyah", kelas: "XI AKL" },
+            { nis: "252610001", nama: "Cucu Amelia", kelas: "XI TSM" }
+        ];
+
+        // Database Interaktif
+        let materiList = [
+            { id: 1, pertemuan: 'PERT. 6', judul: 'Penerapan SPLDV dalam Kehidupan Sehari-hari', format: 'Word', tanggal: 'Selasa, 27 Oktober 2026', hadir: '21/24', link: '#' },
+            { id: 2, pertemuan: 'PERT. 5', judul: 'Metode Eliminasi dan Gabungan', format: 'PPT', tanggal: 'Selasa, 20 Oktober 2026', hadir: '23/24', link: '#' }
+        ];
+
+        let diskusiList = [
+            { pengirim: 'Anen S.Pd (Guru)', pesan: 'Silakan pelajari materi Pertemuan 6 yang sudah diunggah.', waktu: '08:00 WIB' },
+            { pengirim: 'Almira Nuraeni (Siswa)', pesan: 'Baik Pak, modul Word sudah saya unduh.', waktu: '08:05 WIB' }
+        ];
+
+        let masterLegerNilai = [
+            { nis: "262707018", nama: "Almira Nuraeni", kelas: "X AKL", absensi: "96%", tugas: 88, kuis: 85, utscbt: 90, akhir: 88, status: "TUNTAS" },
+            { nis: "262707001", nama: "Ahmad Rijik", kelas: "X TSM", absensi: "90%", tugas: 85, kuis: 82, utscbt: 84, akhir: 84, status: "TUNTAS" },
+            { nis: "252610007", nama: "Andre Aprilyansyah", kelas: "XI AKL", absensi: "95%", tugas: 90, kuis: 88, utscbt: 92, akhir: 90, status: "TUNTAS" },
+            { nis: "252610001", nama: "Cucu Amelia", kelas: "XI TSM", absensi: "94%", tugas: 86, kuis: 84, utscbt: 88, akhir: 86, status: "TUNTAS" }
+        ];
+
+        const appContainer = document.getElementById('app');
+
+        function renderLogin() {
+            appContainer.innerHTML = `
+                <div class="flex h-full w-full bg-slate-900 items-center justify-center p-4">
+                    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 space-y-6">
+                        <div class="text-center space-y-2">
+                            <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
+                            <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Siap Uji Coba</p>
+                        </div>
+                        <form id="login-form" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pilih Role Login</label>
+                                <select id="role-select" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary bg-slate-50" required>
+                                    <option value="">-- Pilih Role --</option>
+                                    <option value="guru">Guru Pengampu</option>
+                                    <option value="siswa">Peserta Didik (Siswa)</option>
+                                    <option value="admin">Admin Sekolah</option>
+                                    <option value="kepsek">Kepala Sekolah</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Lengkap / Identitas</label>
+                                <input type="text" id="input-nama" placeholder="Masukkan nama Anda" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+                                <input type="password" id="input-pass" placeholder="Guru: Mapel | Siswa: Kelas | Admin/Kepsek: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                            </div>
+                            <button type="submit" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm">Masuk ke LMS PJJ</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const role = document.getElementById('role-select').value;
+                const namaInput = document.getElementById('input-nama').value.trim();
+                const passInput = document.getElementById('input-pass').value.trim();
+
+                if (role === 'admin' || role === 'kepsek') {
+                    if (passInput === 'SMK TARUNA HARAPAN 2') {
+                        currentUser = { nama: namaInput, role: role };
+                        currentView = 'ruang_belajar';
+                        renderMainDashboard();
+                    } else {
+                        alert('Password salah! Gunakan: SMK TARUNA HARAPAN 2');
+                    }
+                } else if (role === 'guru') {
+                    const guruMatch = masterGuruLogin.find(g => g.nama.toLowerCase() === namaInput.toLowerCase() && g.mapel.toLowerCase() === passInput.toLowerCase());
+                    if (guruMatch) {
+                        currentUser = { nama: guruMatch.nama, role: 'guru', mapel: guruMatch.mapel };
+                        currentView = 'ruang_belajar';
+                        renderMainDashboard();
+                    } else {
+                        alert('Nama guru atau password Mata Pelajaran tidak cocok.');
+                    }
+                } else if (role === 'siswa') {
+                    const siswaMatch = masterSiswaLogin.find(s => s.nama.toLowerCase() === namaInput.toLowerCase() && s.kelas.toLowerCase() === passInput.toLowerCase());
+                    if (siswaMatch) {
+                        currentUser = { nama: siswaMatch.nama, role: 'siswa', kelas: siswaMatch.kelas };
+                        currentView = 'ruang_belajar';
+                        renderMainDashboard();
+                    } else {
+                        alert('Nama siswa atau password Kelas (contoh: X AKL) tidak cocok.');
+                    }
+                }
+            });
+        }
+
+        function renderMainDashboard() {
+            appContainer.innerHTML = `
+                <div class="flex h-full w-full overflow-hidden">
+                    <!-- SIDEBAR KIRI -->
+                    <aside class="w-64 bg-sidebarbg text-slate-300 flex flex-col justify-between p-4 shadow-xl z-20">
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-3 px-2 py-3 border-b border-blue-900/50">
+                                <div class="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center text-slate-900 font-bold text-sm shadow">🏫</div>
+                                <div>
+                                    <h2 class="font-bold text-white text-xs tracking-wide">SMK Taruna Harapan 2</h2>
+                                    <p class="text-[10px] text-blue-300">LMS PJJ - Semester Ganjil</p>
+                                </div>
+                            </div>
+                            <nav class="space-y-1.5 text-sm" id="sidebar-nav"></nav>
+                        </div>
+                        <div class="pt-4 border-t border-blue-900/50 space-y-3">
+                            <div class="flex items-center space-x-3 px-2">
+                                <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow">${currentUser.nama.substring(0, 2).toUpperCase()}</div>
+                                <div class="overflow-hidden">
+                                    <p class="font-bold text-white text-xs truncate">${currentUser.nama}</p>
+                                    <p class="text-[10px] text-blue-300 capitalize">${currentUser.role}</p>
+                                </div>
+                            </div>
+                            <button id="btn-logout" class="w-full flex items-center justify-center space-x-2 bg-blue-950/60 hover:bg-primary text-slate-200 hover:text-white py-2 rounded-xl text-xs font-semibold transition">
+                                <i class="ph ph-sign-out text-sm"></i><span>Keluar</span>
+                            </button>
+                        </div>
+                    </aside>
+
+                    <!-- KONTEN UTAMA -->
+                    <main id="main-view" class="flex-1 overflow-y-auto bg-slate-100 p-8"></main>
+                </div>
+            `;
+
+            setupSidebarNav();
+            document.getElementById('btn-logout').addEventListener('click', () => { currentUser = null; renderLogin(); });
+            renderActiveView();
+        }
+
+        function setupSidebarNav() {
+            const nav = document.getElementById('sidebar-nav');
+            let menus = [];
+
+            if (currentUser.role === 'admin' || currentUser.role === 'kepsek') {
+                menus = [
+                    { id: 'ruang_belajar', title: 'Ruang Belajar PJJ', icon: 'ph-book-open' },
+                    { id: 'monitoring_kehadiran', title: 'Pemantauan Kehadiran', icon: 'ph-users-three' },
+                    { id: 'monitoring_keaktifan', title: 'Pemantauan Keaktifan', icon: 'ph-chart-bar' },
+                    { id: 'leger_nilai', title: 'Leger Nilai Seluruh Kelas', icon: 'ph-file-text' },
+                    { id: 'jadwal', title: 'Jadwal PJJ', icon: 'ph-calendar' }
+                ];
+            } else {
+                menus = [
+                    { id: 'ruang_belajar', title: 'Ruang Belajar', icon: 'ph-book-open' },
+                    { id: 'jadwal', title: 'Jadwal Harian', icon: 'ph-calendar' },
+                    { id: 'pengumuman', title: 'Pengumuman', icon: 'ph-megaphone' }
+                ];
+            }
+
+            nav.innerHTML = menus.map(m => `
+                <a href="#" data-view="${m.id}" class="nav-link flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition ${currentView === m.id ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-blue-800/60 text-slate-300'}">
+                    <i class="ph ${m.icon} text-lg"></i><span>${m.title}</span>
+                </a>
+            `).join('');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentView = e.currentTarget.getAttribute('data-view');
+                    setupSidebarNav();
+                    renderActiveView();
+                });
+            });
+        }
+
+        function renderActiveView() {
+            const mainView = document.getElementById('main-view');
+
+            if (currentView === 'ruang_belajar') {
+                renderRuangBelajar(mainView);
+            } else if (currentView === 'monitoring_kehadiran') {
+                renderMonitoringKehadiran(mainView);
+            } else if (currentView === 'monitoring_keaktifan') {
+                renderMonitoringKeaktifan(mainView);
+            } else if (currentView === 'leger_nilai') {
+                renderLegerNilai(mainView);
+            } else if (currentView === 'jadwal') {
+                mainView.innerHTML = `
+                    <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                        <h3 class="font-bold text-lg text-slate-900">Jadwal PJJ SMK Taruna Harapan 2</h3>
+                        <p class="text-xs text-slate-500">Jadwal lengkap kegiatan belajar mengajar jarak jauh semester ganjil 2026/2027.</p>
+                    </div>
+                `;
+            } else if (currentView === 'pengumuman') {
+                mainView.innerHTML = `
+                    <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-3">
+                        <h3 class="font-bold text-lg text-slate-900">Pengumuman Sekolah</h3>
+                        <div class="p-4 border rounded-xl bg-slate-50 space-y-1">
+                            <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded">Penting</span>
+                            <h4 class="font-bold text-sm text-slate-800">Uji Coba LMS PJJ Hari Ini</h4>
+                            <p class="text-xs text-slate-600">Seluruh guru dan siswa dapat mencoba mengunggah materi, presensi, dan diskusi agar hari Senin siap digunakan 100%.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ================= RUANG BELAJAR LENGKAP & INTERAKTIF =================
+        function renderRuangBelajar(container) {
+            container.innerHTML = `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'X AKL / TSM'}</p>
+                                <h1 class="text-2xl font-bold text-slate-900">${currentUser.role === 'guru' ? currentUser.mapel : 'Matematika & Produktif PJJ'}</h1>
+                                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 mt-2">
+                                    <span class="bg-slate-100 px-2.5 py-1 rounded-md font-medium">📦 ${currentUser.kelas || 'Semua Jurusan'}</span>
+                                    <span>👤 ${currentUser.nama}</span>
+                                    <span>⭐ KKM 75</span>
+                                </div>
+                            </div>
+                            ${currentUser.role === 'guru' ? `
+                                <button id="btn-buka-upload" class="bg-primary hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow transition">+ Unggah Materi Baru</button>
+                            ` : ''}
+                        </div>
+
+                        <!-- TAB MENU RUANG BELAJAR -->
+                        <div class="flex overflow-x-auto space-x-2 border-t pt-4 text-xs font-semibold text-slate-600">
+                            <button data-tab="materi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'materi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Materi</button>
+                            <button data-tab="tugas" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'tugas' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Tugas</button>
+                            <button data-tab="kuis" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'kuis' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Kuis</button>
+                            <button data-tab="presensi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'presensi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Presensi</button>
+                            <button data-tab="nilai" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'nilai' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Nilai</button>
+                            <button data-tab="diskusi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'diskusi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Diskusi</button>
+                        </div>
+                    </div>
+
+                    <!-- FORM MODAL UNGGAH MATERI KHUSUS GURU -->
+                    <div id="modal-upload" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
+                        <h3 class="font-bold text-slate-900 text-sm">Form Unggah Media Bahan Ajar (Word, Excel, PPT, Gambar, Video)</h3>
+                        <form id="form-upload-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">Judul Materi / Pertemuan</label>
+                                <input type="text" id="up-judul" placeholder="Contoh: Modul Pertemuan Baru" class="w-full border p-2.5 rounded-xl text-xs" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">Format File</label>
+                                <select id="up-format" class="w-full border p-2.5 rounded-xl text-xs">
+                                    <option value="Word">Word (.doc/.docx)</option>
+                                    <option value="Excel">Excel (.xls/.xlsx)</option>
+                                    <option value="PPT">PowerPoint (.ppt/.pptx)</option>
+                                    <option value="Gambar">Gambar (.jpg/.png)</option>
+                                    <option value="Video">Video / YouTube</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold uppercase mb-1">Tautan File / URL (Google Drive / YouTube)</label>
+                                <input type="url" id="up-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl text-xs" required>
+                            </div>
+                            <div class="md:col-span-2 flex space-x-2">
+                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Simpan & Publikasikan</button>
+                                <button type="button" id="btn-batal" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs">Batal</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- KONTEN TAB -->
+                    <div id="tab-content"></div>
+                </div>
+            `;
+
+            document.querySelectorAll('.tab-ruang').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentTabRuang = e.currentTarget.getAttribute('data-tab');
+                    renderRuangBelajar(container);
+                });
+            });
+
+            const btnBukaUpload = document.getElementById('btn-buka-upload');
+            if (btnBukaUpload) {
+                btnBukaUpload.addEventListener('click', () => {
+                    document.getElementById('modal-upload').classList.toggle('hidden');
+                });
+                document.getElementById('btn-batal').addEventListener('click', () => {
+                    document.getElementById('modal-upload').classList.add('hidden');
+                });
+                document.getElementById('form-upload-materi').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const judul = document.getElementById('up-judul').value;
+                    const format = document.getElementById('up-format').value;
+                    const link = document.getElementById('up-link').value;
+
+                    materiList.unshift({
+                        id: Date.now(),
+                        pertemuan: `PERT. ${materiList.length + 1}`,
+                        judul, format,
+                        tanggal: 'Hari Ini',
+                        hadir: '0/24',
+                        link
+                    });
+                    alert(`Materi "${judul}" berformat [${format}] berhasil diunggah!`);
+                    document.getElementById('modal-upload').classList.add('hidden');
+                    renderRuangBelajar(container);
+                });
+            }
+
+            renderTabContent();
+        }
+
+        function renderTabContent() {
+            const tabContent = document.getElementById('tab-content');
+
+            if (currentTabRuang === 'materi') {
+                tabContent.innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-4">
+                            ${materiList.map(m => `
+                                <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center justify-between">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="w-12 h-12 rounded-full border-2 border-slate-300 flex items-center justify-center font-bold text-xs bg-slate-50">${m.pertemuan}</div>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${m.format}</span>
+                                            </div>
+                                            <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
+                                            <p class="text-xs text-slate-500">${m.tanggal}</p>
+                                            <span class="inline-block px-2.5 py-0.5 bg-green-100 text-green-700 font-bold text-[10px] rounded-full">✓ Hadir ${m.hadir}</span>
+                                        </div>
+                                    </div>
+                                    <a href="${m.link}" target="_blank" class="text-xs bg-primary text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-red-700">Akses File</a>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="bg-white p-5 rounded-2xl border-l-4 border-primary shadow-sm space-y-2">
+                                <h4 class="font-bold text-slate-900 text-sm italic">Catatan Guru</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    Selamat datang di kelas PJJ SMK Taruna Harapan 2.<br><br>
+                                    Setiap pertemuan: baca materi, tekan <b>Saya Hadir</b> saat presensi dibuka, lalu kerjakan kuis.<br><br>
+                                    Buku pegangan: Kurikulum Merdeka.
+                                </p>
+                            </div>
+                            <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
+                                <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                                    <i class="ph ph-video-camera text-primary"></i><span>Jadwal Kelas Daring</span>
+                                </h4>
+                                <div class="p-3 bg-slate-50 border rounded-xl space-y-1 text-xs">
+                                    <p class="font-bold text-slate-800">Sesi Tatap Muka Virtual</p>
+                                    <a href="https://meet.google.com/894-3dfe-cb7" target="_blank" class="text-blue-600 underline truncate block">https://meet.google.com/894-3dfe-cb7</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentTabRuang === 'presensi') {
+                tabContent.innerHTML = `
+                    <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                        <h3 class="font-bold text-lg text-slate-900">Form Presensi Daring</h3>
+                        <p class="text-xs text-slate-500">Silakan lakukan presensi kehadiran untuk sesi pembelajaran hari ini.</p>
+                        <button id="btn-hadir" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Saya Hadir</button>
+                    </div>
+                `;
+                document.getElementById('btn-hadir').addEventListener('click', () => {
+                    alert('Presensi Anda berhasil dicatat ke sistem!');
+                });
+            } else if (currentTabRuang === 'diskusi') {
+                tabContent.innerHTML = `
+                    <div class="max-w-4xl mx-auto bg-white rounded-2xl border shadow-sm flex flex-col h-[500px]">
+                        <div class="p-4 border-b font-bold text-slate-900 text-sm flex items-center space-x-2">
+                            <i class="ph ph-chats text-primary text-lg"></i>
+                            <span>Forum Diskusi Pembelajaran (Real-Time)</span>
+                        </div>
+                        <div id="chat-box" class="flex-1 p-5 overflow-y-auto space-y-3 text-xs">
+                            ${diskusiList.map(d => `
+                                <div class="p-3 rounded-xl bg-slate-50 border">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-primary">${d.pengirim}</span>
+                                        <span class="text-[10px] text-slate-400">${d.waktu}</span>
+                                    </div>
+                                    <p class="text-slate-800 leading-relaxed">${d.pesan}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <form id="form-chat" class="p-4 border-t flex space-x-2 bg-slate-50 rounded-b-2xl">
+                            <input type="text" id="input-chat" placeholder="Tulis pesan diskusi atau pertanyaan..." class="flex-1 border rounded-xl p-3 text-xs focus:outline-none focus:border-primary bg-white" required>
+                            <button type="submit" class="bg-primary text-white font-bold px-5 py-3 rounded-xl text-xs shadow hover:bg-red-700">Kirim</button>
+                        </form>
+                    </div>
+                `;
+                document.getElementById('form-chat').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const input = document.getElementById('input-chat');
+                    diskusiList.push({
+                        pengirim: `${currentUser.nama} (${currentUser.role.toUpperCase()})`,
+                        pesan: input.value,
+                        waktu: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
+                    renderRuangBelajar(document.getElementById('main-view'));
+                });
+            } else if (currentTabRuang === 'tugas') {
+                tabContent.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-4xl mx-auto space-y-4">
+                        <h3 class="font-bold text-lg text-slate-900">Pengumpulan Tugas Online</h3>
+                        <div class="p-4 border rounded-xl bg-slate-50 flex justify-between items-center text-xs">
+                            <div>
+                                <h4 class="font-bold text-sm">Tugas Mandiri / Praktikum</h4>
+                                <p class="text-slate-500">Tenggat waktu: Pukul 23.59 WIB.</p>
+                            </div>
+                            <button onclick="alert('Form unggah tugas dibuka')" class="px-4 py-2 bg-primary text-white font-bold rounded-xl hover:bg-red-700">Kumpulkan Tugas</button>
+                        </div>
+                    </div>
+                `;
+            } else if (currentTabRuang === 'kuis') {
+                tabContent.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-4xl mx-auto space-y-4">
+                        <h3 class="font-bold text-lg text-slate-900">Kuis & Ujian CBT Online</h3>
+                        <div class="p-4 border rounded-xl bg-slate-50 flex justify-between items-center text-xs">
+                            <div>
+                                <h4 class="font-bold text-sm">Kuis Evaluasi Bab Aktif</h4>
+                                <p class="text-slate-500">Durasi: 30 Menit • KKM 75</p>
+                            </div>
+                            <button onclick="alert('Memulai kuis online...')" class="px-4 py-2 bg-primary text-white font-bold rounded-xl hover:bg-red-700">Kerjakan Kuis</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                tabContent.innerHTML = `
+                    <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-3 max-w-4xl mx-auto">
+                        <h4 class="font-bold text-slate-800 text-base capitalize">Menu Tab: ${currentTabRuang}</h4>
+                        <p class="text-xs text-slate-500">Modul interaktif ${currentTabRuang} siap digunakan.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ================= MONITORING & LEGER NILAI =================
+        function renderMonitoringKehadiran(container) {
+            container.innerHTML = `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Pemantauan Kehadiran Daring Per Kelas</h3>
+                            <p class="text-xs text-slate-500">Rekap persentase presensi harian PJJ siswa SMK Taruna Harapan 2.</p>
+                        </div>
+                        <button onclick="alert('Mengunduh Laporan Kehadiran PDF...')" class="bg-primary text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-red-700">Cetak Laporan PDF</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-green-500"><p class="text-xs font-bold text-slate-400 uppercase">X AKL</p><p class="text-2xl font-bold text-slate-900 mt-1">96%</p></div>
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-blue-500"><p class="text-xs font-bold text-slate-400 uppercase">X TSM</p><p class="text-2xl font-bold text-slate-900 mt-1">90%</p></div>
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-purple-500"><p class="text-xs font-bold text-slate-400 uppercase">XI AKL</p><p class="text-2xl font-bold text-slate-900 mt-1">95%</p></div>
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-amber-500"><p class="text-xs font-bold text-slate-400 uppercase">XI TSM</p><p class="text-2xl font-bold text-slate-900 mt-1">92%</p></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMonitoringKeaktifan(container) {
+            container.innerHTML = `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg text-slate-900">Pemantauan Keaktifan PJJ & Tugas</h3><p class="text-xs text-slate-500">Tingkat partisipasi pengumpulan tugas dan kuis online.</p></div>
+                </div>
+            `;
+        }
+
+        function renderLegerNilai(container) {
+            container.innerHTML = `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Leger Nilai Seluruh Kelas (PJJ Ganjil)</h3>
+                            <p class="text-xs text-slate-500">Rekapitulasi komponen nilai tugas, kuis, UTS/CBT, dan nilai akhir.</p>
+                        </div>
+                        <button onclick="window.print()" class="bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs shadow">Cetak Leger</button>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 font-bold border-b">
+                                <tr><th class="p-3">NIS</th><th class="p-3">NAMA SISWA</th><th class="p-3">KELAS</th><th class="p-3">PRESENSI</th><th class="p-3">TUGAS</th><th class="p-3">KUIS</th><th class="p-3">NILAI AKHIR</th><th class="p-3">STATUS</th></tr>
+                            </thead>
+                            <tbody class="divide-y text-slate-700">
+                                ${masterLegerNilai.map(l => `
+                                    <tr><td class="p-3">${l.nis}</td><td class="p-3 font-bold">${l.nama}</td><td class="p-3">${l.kelas}</td><td class="p-3 text-green-600 font-semibold">${l.absensi}</td><td class="p-3">${l.tugas}</td><td class="p-3">${l.kuis}</td><td class="p-3 font-bold">${l.akhir}</td><td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-700 font-bold rounded text-[10px]">${l.status}</span></td></tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        renderLogin();
+    </script>
+</body>
+</html>
