@@ -34,7 +34,7 @@
 
         // Master Guru & Siswa SMK Taruna Harapan 2
         const masterGuruLogin = [
-            { nama: "Anen S.Pd", mapel: "PAI" },
+            { nama: "Anen S.Pd", mapel: "Pendidikan Agama Islam (PAI)" },
             { nama: "Windriani Rantiani andini, S.Pd", mapel: "MTK" },
             { nama: "Difki Muhamad Fahri S.Pd", mapel: "Projek IPAS" },
             { nama: "Aan Hasanah, S.Pd", mapel: "B. INGGRIS" },
@@ -61,22 +61,30 @@
             { nis: "252610001", nama: "Cucu Amelia", kelas: "XI TSM" }
         ];
 
-        // Database Interaktif
-        let materiList = [
-            { id: 1, pertemuan: 'PERT. 6', judul: 'Penerapan SPLDV dalam Kehidupan Sehari-hari', format: 'Word', tanggal: 'Selasa, 27 Oktober 2026', hadir: '21/24', link: '#' },
-            { id: 2, pertemuan: 'PERT. 5', judul: 'Metode Eliminasi dan Gabungan', format: 'PPT', tanggal: 'Selasa, 20 Oktober 2026', hadir: '23/24', link: '#' }
-        ];
+        // Sinkronisasi Database Materi via localStorage agar real-time antara Guru & Siswa
+        function getMateriDB() {
+            const data = localStorage.getItem('smk_th2_materi');
+            if (!data) {
+                const initial = [
+                    { id: 1, pertemuan: 'PERT. 1', mapel: 'Pendidikan Agama Islam (PAI)', judul: 'Modul Pembiasaan Karakter & Fiqih Ibadah', format: 'Word', tanggal: 'Jumat, 30 Oktober 2026', hadir: '0/24', link: 'https://docs.google.com' }
+                ];
+                localStorage.setItem('smk_th2_materi', JSON.stringify(initial));
+                return initial;
+            }
+            return JSON.parse(data);
+        }
+
+        function saveMateriDB(list) {
+            localStorage.setItem('smk_th2_materi', JSON.stringify(list));
+        }
 
         let diskusiList = [
-            { pengirim: 'Anen S.Pd (Guru)', pesan: 'Silakan pelajari materi Pertemuan 6 yang sudah diunggah.', waktu: '08:00 WIB' },
-            { pengirim: 'Almira Nuraeni (Siswa)', pesan: 'Baik Pak, modul Word sudah saya unduh.', waktu: '08:05 WIB' }
+            { pengirim: 'Anen S.Pd (Guru PAI)', pesan: 'Selamat pagi anak-anak, silakan absen dan pelajari modul PAI hari Jumat ini.', waktu: '07:30 WIB' }
         ];
 
         let masterLegerNilai = [
-            { nis: "262707018", nama: "Almira Nuraeni", kelas: "X AKL", absensi: "96%", tugas: 88, kuis: 85, utscbt: 90, akhir: 88, status: "TUNTAS" },
-            { nis: "262707001", nama: "Ahmad Rijik", kelas: "X TSM", absensi: "90%", tugas: 85, kuis: 82, utscbt: 84, akhir: 84, status: "TUNTAS" },
-            { nis: "252610007", nama: "Andre Aprilyansyah", kelas: "XI AKL", absensi: "95%", tugas: 90, kuis: 88, utscbt: 92, akhir: 90, status: "TUNTAS" },
-            { nis: "252610001", nama: "Cucu Amelia", kelas: "XI TSM", absensi: "94%", tugas: 86, kuis: 84, utscbt: 88, akhir: 86, status: "TUNTAS" }
+            { nis: "262707018", nama: "Almira Nuraeni", kelas: "X AKL", absensi: "Hadir", tugas: 88, kuis: 85, utscbt: 90, akhir: 88, status: "TUNTAS" },
+            { nis: "262707001", nama: "Ahmad Rijik", kelas: "X TSM", absensi: "Hadir", tugas: 85, kuis: 82, utscbt: 84, akhir: 84, status: "TUNTAS" }
         ];
 
         const appContainer = document.getElementById('app');
@@ -123,7 +131,7 @@
 
                 if (role === 'admin' || role === 'kepsek') {
                     if (passInput === 'SMK TARUNA HARAPAN 2') {
-                        currentUser = { nama: namaInput, role: role };
+                        currentUser = { nama: namaInput, role: role, mapel: 'Semua Mapel' };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
@@ -141,7 +149,7 @@
                 } else if (role === 'siswa') {
                     const siswaMatch = masterSiswaLogin.find(s => s.nama.toLowerCase() === namaInput.toLowerCase() && s.kelas.toLowerCase() === passInput.toLowerCase());
                     if (siswaMatch) {
-                        currentUser = { nama: siswaMatch.nama, role: 'siswa', kelas: siswaMatch.kelas };
+                        currentUser = { nama: siswaMatch.nama, role: 'siswa', kelas: siswaMatch.kelas, mapel: 'Pendidikan Agama Islam (PAI) & Karakter' };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
@@ -161,7 +169,7 @@
                                 <div class="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center text-slate-900 font-bold text-sm shadow">🏫</div>
                                 <div>
                                     <h2 class="font-bold text-white text-xs tracking-wide">SMK Taruna Harapan 2</h2>
-                                    <p class="text-[10px] text-blue-300">LMS PJJ - Semester Ganjil</p>
+                                    <p class="text-[10px] text-blue-300">Jumat, 30 Oktober 2026</p>
                                 </div>
                             </div>
                             <nav class="space-y-1.5 text-sm" id="sidebar-nav"></nav>
@@ -205,7 +213,7 @@
             } else {
                 menus = [
                     { id: 'ruang_belajar', title: 'Ruang Belajar', icon: 'ph-book-open' },
-                    { id: 'jadwal', title: 'Jadwal Harian', icon: 'ph-calendar' },
+                    { id: 'jadwal', title: 'Jadwal Hari Ini (Jumat)', icon: 'ph-calendar' },
                     { id: 'pengumuman', title: 'Pengumuman', icon: 'ph-megaphone' }
                 ];
             }
@@ -240,8 +248,8 @@
             } else if (currentView === 'jadwal') {
                 mainView.innerHTML = `
                     <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Jadwal PJJ SMK Taruna Harapan 2</h3>
-                        <p class="text-xs text-slate-500">Jadwal lengkap kegiatan belajar mengajar jarak jauh semester ganjil 2026/2027.</p>
+                        <h3 class="font-bold text-lg text-slate-900">Jadwal Hari Ini: Jumat, 30 Oktober 2026</h3>
+                        <p class="text-xs text-slate-500">Mata Pelajaran Aktif: Pendidikan Agama Islam (PAI), Praktik Al-Islam, & Pembiasaan Karakter.</p>
                     </div>
                 `;
             } else if (currentView === 'pengumuman') {
@@ -250,23 +258,26 @@
                         <h3 class="font-bold text-lg text-slate-900">Pengumuman Sekolah</h3>
                         <div class="p-4 border rounded-xl bg-slate-50 space-y-1">
                             <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded">Penting</span>
-                            <h4 class="font-bold text-sm text-slate-800">Uji Coba LMS PJJ Hari Ini</h4>
-                            <p class="text-xs text-slate-600">Seluruh guru dan siswa dapat mencoba mengunggah materi, presensi, dan diskusi agar hari Senin siap digunakan 100%.</p>
+                            <h4 class="font-bold text-sm text-slate-800">Uji Coba Sinkronisasi Real-Time LMS PJJ</h4>
+                            <p class="text-xs text-slate-600">Materi yang diunggah guru kini otomatis langsung muncul di akun siswa detik itu juga sesuai jadwal hari berjalan.</p>
                         </div>
                     </div>
                 `;
             }
         }
 
-        // ================= RUANG BELAJAR LENGKAP & INTERAKTIF =================
+        // ================= RUANG BELAJAR LENGKAP & SINKRON REAL-TIME =================
         function renderRuangBelajar(container) {
+            const materiList = getMateriDB();
+            const activeMapel = currentUser.role === 'guru' ? currentUser.mapel : (currentUser.kelas ? 'Pendidikan Agama Islam (PAI) & Karakter' : 'Semua Mapel');
+
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'X AKL / TSM'}</p>
-                                <h1 class="text-2xl font-bold text-slate-900">${currentUser.role === 'guru' ? currentUser.mapel : 'Matematika & Produktif PJJ'}</h1>
+                                <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'Jumat, 30 Okt 2026'}</p>
+                                <h1 class="text-2xl font-bold text-slate-900">${activeMapel}</h1>
                                 <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 mt-2">
                                     <span class="bg-slate-100 px-2.5 py-1 rounded-md font-medium">📦 ${currentUser.kelas || 'Semua Jurusan'}</span>
                                     <span>👤 ${currentUser.nama}</span>
@@ -295,7 +306,7 @@
                         <form id="form-upload-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold uppercase mb-1">Judul Materi / Pertemuan</label>
-                                <input type="text" id="up-judul" placeholder="Contoh: Modul Pertemuan Baru" class="w-full border p-2.5 rounded-xl text-xs" required>
+                                <input type="text" id="up-judul" placeholder="Contoh: Modul Pertemuan Jumat" class="w-full border p-2.5 rounded-xl text-xs" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase mb-1">Format File</label>
@@ -312,7 +323,7 @@
                                 <input type="url" id="up-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl text-xs" required>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Simpan & Publikasikan</button>
+                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Simpan & Publikasikan ke Siswa</button>
                                 <button type="button" id="btn-batal" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs">Batal</button>
                             </div>
                         </form>
@@ -344,15 +355,19 @@
                     const format = document.getElementById('up-format').value;
                     const link = document.getElementById('up-link').value;
 
-                    materiList.unshift({
+                    const currentList = getMateriDB();
+                    currentList.unshift({
                         id: Date.now(),
-                        pertemuan: `PERT. ${materiList.length + 1}`,
+                        pertemuan: `PERT. ${currentList.length + 1}`,
+                        mapel: currentUser.mapel || 'Pelajaran PJJ',
                         judul, format,
-                        tanggal: 'Hari Ini',
+                        tanggal: 'Jumat, 30 Oktober 2026',
                         hadir: '0/24',
                         link
                     });
-                    alert(`Materi "${judul}" berformat [${format}] berhasil diunggah!`);
+                    saveMateriDB(currentList);
+
+                    alert(`Materi "${judul}" berformat [${format}] berhasil diunggah dan langsung muncul di akun siswa!`);
                     document.getElementById('modal-upload').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -363,6 +378,7 @@
 
         function renderTabContent() {
             const tabContent = document.getElementById('tab-content');
+            const materiList = getMateriDB();
 
             if (currentTabRuang === 'materi') {
                 tabContent.innerHTML = `
@@ -375,6 +391,7 @@
                                         <div class="space-y-1">
                                             <div class="flex items-center space-x-2">
                                                 <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${m.format}</span>
+                                                <span class="text-xs text-slate-500 font-semibold">${m.mapel || 'Pendidikan Agama Islam'}</span>
                                             </div>
                                             <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
                                             <p class="text-xs text-slate-500">${m.tanggal}</p>
@@ -388,19 +405,19 @@
 
                         <div class="space-y-6">
                             <div class="bg-white p-5 rounded-2xl border-l-4 border-primary shadow-sm space-y-2">
-                                <h4 class="font-bold text-slate-900 text-sm italic">Catatan Guru</h4>
+                                <h4 class="font-bold text-slate-900 text-sm italic">Catatan Guru (Jumat)</h4>
                                 <p class="text-xs text-slate-600 leading-relaxed">
-                                    Selamat datang di kelas PJJ SMK Taruna Harapan 2.<br><br>
-                                    Setiap pertemuan: baca materi, tekan <b>Saya Hadir</b> saat presensi dibuka, lalu kerjakan kuis.<br><br>
-                                    Buku pegangan: Kurikulum Merdeka.
+                                    Selamat mengikuti PJJ hari Jumat di SMK Taruna Harapan 2.<br><br>
+                                    Fokus hari ini: Pendidikan Agama Islam (PAI), Praktik Al-Islam & Karakter. Silakan unduh materi dan lakukan presensi.<br><br>
+                                    Kurikulum Merdeka.
                                 </p>
                             </div>
                             <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
                                 <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
-                                    <i class="ph ph-video-camera text-primary"></i><span>Jadwal Kelas Daring</span>
+                                    <i class="ph ph-video-camera text-primary"></i><span>Jadwal Kelas Daring Jumat</span>
                                 </h4>
                                 <div class="p-3 bg-slate-50 border rounded-xl space-y-1 text-xs">
-                                    <p class="font-bold text-slate-800">Sesi Tatap Muka Virtual</p>
+                                    <p class="font-bold text-slate-800">07:00 - 10:05 WIB (Sesi Aktif)</p>
                                     <a href="https://meet.google.com/894-3dfe-cb7" target="_blank" class="text-blue-600 underline truncate block">https://meet.google.com/894-3dfe-cb7</a>
                                 </div>
                             </div>
@@ -410,8 +427,8 @@
             } else if (currentTabRuang === 'presensi') {
                 tabContent.innerHTML = `
                     <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Form Presensi Daring</h3>
-                        <p class="text-xs text-slate-500">Silakan lakukan presensi kehadiran untuk sesi pembelajaran hari ini.</p>
+                        <h3 class="font-bold text-lg text-slate-900">Form Presensi Daring Hari Ini (Jumat)</h3>
+                        <p class="text-xs text-slate-500">Silakan lakukan presensi kehadiran untuk mata pelajaran PAI & Karakter.</p>
                         <button id="btn-hadir" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Saya Hadir</button>
                     </div>
                 `;
@@ -437,7 +454,7 @@
                             `).join('')}
                         </div>
                         <form id="form-chat" class="p-4 border-t flex space-x-2 bg-slate-50 rounded-b-2xl">
-                            <input type="text" id="input-chat" placeholder="Tulis pesan diskusi atau pertanyaan..." class="flex-1 border rounded-xl p-3 text-xs focus:outline-none focus:border-primary bg-white" required>
+                            <input type="text" id="input-chat" placeholder="Tulis pertanyaan seputar materi PAI..." class="flex-1 border rounded-xl p-3 text-xs focus:outline-none focus:border-primary bg-white" required>
                             <button type="submit" class="bg-primary text-white font-bold px-5 py-3 rounded-xl text-xs shadow hover:bg-red-700">Kirim</button>
                         </form>
                     </div>
@@ -455,10 +472,10 @@
             } else if (currentTabRuang === 'tugas') {
                 tabContent.innerHTML = `
                     <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-4xl mx-auto space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Pengumpulan Tugas Online</h3>
+                        <h3 class="font-bold text-lg text-slate-900">Pengumpulan Tugas PAI & Karakter</h3>
                         <div class="p-4 border rounded-xl bg-slate-50 flex justify-between items-center text-xs">
                             <div>
-                                <h4 class="font-bold text-sm">Tugas Mandiri / Praktikum</h4>
+                                <h4 class="font-bold text-sm">Tugas Penugasan Fiqih / Modul Jumat</h4>
                                 <p class="text-slate-500">Tenggat waktu: Pukul 23.59 WIB.</p>
                             </div>
                             <button onclick="alert('Form unggah tugas dibuka')" class="px-4 py-2 bg-primary text-white font-bold rounded-xl hover:bg-red-700">Kumpulkan Tugas</button>
@@ -471,7 +488,7 @@
                         <h3 class="font-bold text-lg text-slate-900">Kuis & Ujian CBT Online</h3>
                         <div class="p-4 border rounded-xl bg-slate-50 flex justify-between items-center text-xs">
                             <div>
-                                <h4 class="font-bold text-sm">Kuis Evaluasi Bab Aktif</h4>
+                                <h4 class="font-bold text-sm">Kuis Evaluasi Agama Islam</h4>
                                 <p class="text-slate-500">Durasi: 30 Menit • KKM 75</p>
                             </div>
                             <button onclick="alert('Memulai kuis online...')" class="px-4 py-2 bg-primary text-white font-bold rounded-xl hover:bg-red-700">Kerjakan Kuis</button>
@@ -494,7 +511,7 @@
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm flex justify-between items-center">
                         <div>
-                            <h3 class="font-bold text-lg text-slate-900">Pemantauan Kehadiran Daring Per Kelas</h3>
+                            <h3 class="font-bold text-lg text-slate-900">Pemantauan Kehadiran Daring Jumat</h3>
                             <p class="text-xs text-slate-500">Rekap persentase presensi harian PJJ siswa SMK Taruna Harapan 2.</p>
                         </div>
                         <button onclick="alert('Mengunduh Laporan Kehadiran PDF...')" class="bg-primary text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-red-700">Cetak Laporan PDF</button>
@@ -512,7 +529,7 @@
         function renderMonitoringKeaktifan(container) {
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg text-slate-900">Pemantauan Keaktifan PJJ & Tugas</h3><p class="text-xs text-slate-500">Tingkat partisipasi pengumpulan tugas dan kuis online.</p></div>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg text-slate-900">Pemantauan Keaktifan PJJ & Tugas</h3><p class="text-xs text-slate-500">Tingkat partisipasi pengumpulan tugas.</p></div>
                 </div>
             `;
         }
