@@ -140,28 +140,28 @@
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v13') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v13') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v13') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v13') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v13') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v13') || '[]'),
-                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v13') || '[]'),
-                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v13') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v14') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v14') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v14') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v14') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v14') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v14') || '[]'),
+                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v14') || '[]'),
+                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v14') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v13`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v14`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v13`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v14`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
         }
 
         async function deleteCloud(table, id) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v13`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v14`) || '[]');
             local = local.filter(item => item.id !== id);
-            localStorage.setItem(`th2_${table}_v13`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v14`, JSON.stringify(local));
             try { await supabase.from(table).delete().eq('id', id); } catch (e) {}
         }
 
@@ -174,7 +174,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Edit & Hapus Konten</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Filter Kelas & Laporan Rekap</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -184,7 +184,7 @@
                                     <option value="guru">Guru Pengampu</option>
                                     <option value="siswa">Peserta Didik (Siswa)</option>
                                     <option value="admin">Admin Sekolah / Kontrol Penuh</option>
-                                    <option value="kepsek">Kepala Sekolah / Pemantau</option>
+                                    <option value="kepsek">Kepala Sekolah / Pemantau Laporan</option>
                                 </select>
                             </div>
                             <div>
@@ -292,7 +292,7 @@
             const nav = document.getElementById('sidebar-nav');
             let menus = [
                 { id: 'ruang_belajar', title: 'Ruang Belajar & Tugas', icon: 'ph-book-open' },
-                { id: 'monitoring_siswa', title: 'Monitoring Siswa', icon: 'ph-chart-line-up' },
+                { id: 'monitoring_siswa', title: currentUser.role === 'kepsek' || currentUser.role === 'admin' ? 'Laporan Rekap Siswa' : 'Monitoring Siswa', icon: 'ph-chart-line-up' },
                 { id: 'pengumuman', title: 'Pengumuman & Alarm Jam', icon: 'ph-megaphone' }
             ];
 
@@ -342,14 +342,15 @@
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2 flex justify-between items-center">
                         <div>
-                            <h3 class="font-bold text-lg text-slate-900">Monitoring Pengerjaan Tugas, Kuis & Kehadiran Siswa</h3>
-                            <p class="text-xs text-slate-500">Pantau rekapitulasi kehadiran dan pengumpulan tugas serta kuis peserta didik.</p>
+                            <h3 class="font-bold text-lg text-slate-900">Laporan & Rekapitulasi Hasil PJJ Siswa Per Kelas</h3>
+                            <p class="text-xs text-slate-500">Laporan lengkap untuk Admin dan Kepala Sekolah memantau kuis, tugas, dan presensi.</p>
                         </div>
-                        <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
+                        <button onclick="window.print()" class="bg-primary text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-red-700">🖨️ Cetak Laporan</button>
                     </div>
 
+                    <!-- REKAP KUIS SISWA -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Hasil Kuis / CBT Siswa</div>
+                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📊 Rekapitulasi Hasil Kuis / CBT Siswa</div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead class="bg-slate-100 text-slate-600 border-b">
@@ -365,8 +366,8 @@
                                     ${kuisSubList.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada hasil kuis yang dikumpulkan siswa.</td></tr>` : kuisSubList.map(ks => `
                                         <tr class="hover:bg-slate-50">
                                             <td class="p-3 font-bold text-slate-900">${ks.namaSiswa}</td>
-                                            <td class="p-3 text-slate-600">${ks.kelas}</td>
-                                            <td class="p-3 text-slate-800 font-semibold">${ks.judulKuis}</td>
+                                            <td class="p-3 text-slate-600 font-semibold">${ks.kelas}</td>
+                                            <td class="p-3 text-slate-800">${ks.judulKuis}</td>
                                             <td class="p-3"><pre class="bg-slate-50 p-2 rounded text-[10px] font-sans whitespace-pre-wrap">${ks.jawabanRekap}</pre></td>
                                             <td class="p-3 text-slate-500">${ks.waktu}</td>
                                         </tr>
@@ -376,8 +377,9 @@
                         </div>
                     </div>
 
+                    <!-- REKAP TUGAS SISWA -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Tugas yang Dikumpulkan Siswa</div>
+                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📈 Rekapitulasi Pengumpulan Tugas Siswa</div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead class="bg-slate-100 text-slate-600 border-b">
@@ -393,10 +395,10 @@
                                     ${subList.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada tugas yang dikumpulkan siswa.</td></tr>` : subList.map(sub => `
                                         <tr class="hover:bg-slate-50">
                                             <td class="p-3 font-bold text-slate-900">${sub.namaSiswa}</td>
-                                            <td class="p-3 text-slate-600">${sub.kelas}</td>
-                                            <td class="p-3 text-slate-800 font-semibold">${sub.judulTugas}</td>
+                                            <td class="p-3 text-slate-600 font-semibold">${sub.kelas}</td>
+                                            <td class="p-3 text-slate-800">${sub.judulTugas}</td>
                                             <td class="p-3">
-                                                ${sub.isFile ? `<a href="${sub.jawaban}" target="_blank" class="text-green-600 font-bold underline">📁 Lihat File Terlampir (${sub.fileName || 'File'})</a>` : `<span class="bg-slate-100 p-2 rounded block text-slate-700">${sub.jawaban}</span>`}
+                                                ${sub.isFile ? `<a href="${sub.jawaban}" target="_blank" class="text-green-600 font-bold underline">📁 Lihat File (${sub.fileName || 'File'})</a>` : `<span class="bg-slate-100 p-2 rounded block text-slate-700">${sub.jawaban}</span>`}
                                             </td>
                                             <td class="p-3 text-slate-500">${sub.waktu}</td>
                                         </tr>
@@ -406,8 +408,9 @@
                         </div>
                     </div>
 
+                    <!-- REKAP PRESENSI -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Rekapitulasi Presensi Kehadiran Siswa</div>
+                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📋 Rekapitulasi Presensi Kehadiran Siswa Per Kelas</div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead class="bg-slate-100 text-slate-600 border-b">
@@ -424,7 +427,7 @@
                                         return `
                                             <tr class="hover:bg-slate-50">
                                                 <td class="p-3 font-bold text-slate-900">${s.nama}</td>
-                                                <td class="p-3 text-slate-600">${s.kelas}</td>
+                                                <td class="p-3 text-slate-600 font-semibold">${s.kelas}</td>
                                                 <td class="p-3 text-center">
                                                     ${pres ? '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold">Hadir</span>' : '<span class="bg-slate-100 text-slate-500 px-3 py-1 rounded-full">Belum Absen</span>'}
                                                 </td>
@@ -450,7 +453,7 @@
                             <h3 class="font-bold text-lg text-slate-900">Dashboard Monitoring Upload Guru</h3>
                             <p class="text-xs text-slate-500">Mengecek guru mapel yang sudah atau belum mengunggah Materi, Tugas, dan Kuis.</p>
                         </div>
-                        <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh</button>
+                        <button onclick="window.print()" class="bg-primary text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-red-700">🖨️ Cetak Laporan Guru</button>
                     </div>
 
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
@@ -557,6 +560,7 @@
             const isSiswa = currentUser.role === 'siswa';
             const kelasSiswa = currentUser.kelas;
 
+            // Filter ketat materi, tugas, dan kuis berdasarkan kelas masing-masing siswa atau "Semua Kelas"
             const materiList = db.materi.filter(m => !isSiswa || m.targetKelas === 'Semua Kelas' || m.targetKelas === kelasSiswa);
             const tugasList = db.tugas.filter(t => !isSiswa || t.targetKelas === 'Semua Kelas' || t.targetKelas === kelasSiswa);
             const kuisList = db.kuis.filter(k => !isSiswa || k.targetKelas === 'Semua Kelas' || k.targetKelas === kelasSiswa);
@@ -588,7 +592,7 @@
                 </div>
             `;
 
-            const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapels ? currentUser.mapels.join(', ') : currentUser.mapel}` : (currentUser.role === 'admin' ? 'Panel Admin Sekolah' : `Ruang Belajar & Diskusi Kelas (${currentUser.kelas})`);
+            const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapels ? currentUser.mapels.join(', ') : currentUser.mapel}` : (currentUser.role === 'admin' || currentUser.role === 'kepsek' ? 'Panel Kontrol & Pemantauan Sekolah' : `Ruang Belajar & Diskusi Kelas (${currentUser.kelas})`);
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -774,7 +778,7 @@
                     const fileObj = await convertFileToBase64('m-file');
                     const linkUrl = document.getElementById('m-link').value;
 
-                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v13') || '[]');
+                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v14') || '[]');
                     if (editId) {
                         localMateri = localMateri.map(m => {
                             if (m.id == editId) {
@@ -785,7 +789,7 @@
                             }
                             return m;
                         });
-                        localStorage.setItem('th2_materi_v13', JSON.stringify(localMateri));
+                        localStorage.setItem('th2_materi_v14', JSON.stringify(localMateri));
                         alert('Materi berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -823,7 +827,7 @@
                     const fileObj = await convertFileToBase64('t-file');
                     const linkUrl = document.getElementById('t-link').value;
 
-                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v13') || '[]');
+                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v14') || '[]');
                     if (editId) {
                         localTugas = localTugas.map(t => {
                             if (t.id == editId) {
@@ -835,7 +839,7 @@
                             }
                             return t;
                         });
-                        localStorage.setItem('th2_tugas_v13', JSON.stringify(localTugas));
+                        localStorage.setItem('th2_tugas_v14', JSON.stringify(localTugas));
                         alert('Tugas berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -871,7 +875,7 @@
                     const fileObj = await convertFileToBase64('k-file');
                     const linkUrl = document.getElementById('k-link').value;
 
-                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v13') || '[]');
+                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v14') || '[]');
                     if (editId) {
                         localKuis = localKuis.map(k => {
                             if (k.id == editId) {
@@ -884,7 +888,7 @@
                             }
                             return k;
                         });
-                        localStorage.setItem('th2_kuis_v13', JSON.stringify(localKuis));
+                        localStorage.setItem('th2_kuis_v14', JSON.stringify(localKuis));
                         alert('Kuis berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -1034,7 +1038,6 @@
             }
         }
 
-        // Global Action Functions for Edit & Delete
         window.hapusKonten = async function(table, id) {
             if (confirm('Apakah Anda yakin ingin menghapus konten ini?')) {
                 await deleteCloud(table, Number(id));
@@ -1044,7 +1047,7 @@
         }
 
         window.editMateri = function(id) {
-            const materiList = JSON.parse(localStorage.getItem('th2_materi_v13') || '[]');
+            const materiList = JSON.parse(localStorage.getItem('th2_materi_v14') || '[]');
             const m = materiList.find(item => item.id == id);
             if (m) {
                 document.getElementById('edit-materi-id').value = m.id;
@@ -1056,7 +1059,7 @@
         }
 
         window.editTugas = function(id) {
-            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v13') || '[]');
+            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v14') || '[]');
             const t = tugasList.find(item => item.id == id);
             if (t) {
                 document.getElementById('edit-tugas-id').value = t.id;
@@ -1069,7 +1072,7 @@
         }
 
         window.editKuis = function(id) {
-            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v13') || '[]');
+            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v14') || '[]');
             const k = kuisList.find(item => item.id == id);
             if (k) {
                 document.getElementById('edit-kuis-id').value = k.id;
