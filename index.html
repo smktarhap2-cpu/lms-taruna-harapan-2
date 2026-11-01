@@ -32,22 +32,22 @@
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
 
-        // Master Guru Lengkap SMK Taruna Harapan 2
+        // Master Guru & Daftar Mapel Spesifik yang Diampunya (Multi-Mapel Support)
         const masterGuruLogin = [
-            { nama: "Anen S.Pd", mapel: "PAI" },
-            { nama: "Windriani Rantiani andini, S.Pd", mapel: "MTK" },
-            { nama: "Difki Muhamad Fahri S.Pd", mapel: "P. IPAS / Desain Grafis" },
-            { nama: "Aan Hasanah, S.Pd", mapel: "B. INGGRIS / BP/BK" },
-            { nama: "Intan Rustianti, S.E", mapel: "DD TSM / B. SUNDA" },
-            { nama: "Rahmi Kurniawati, S.Pd", mapel: "SEJARAH / Seni Budaya" },
-            { nama: "Intan Dewi purwanti, S.Pd,.Gr.", mapel: "B. INDONESIA" },
-            { nama: "Riska Nurjanah, S.E", mapel: "AK. Keuangan / KOMP.AK" },
-            { nama: "Wahyudin", mapel: "PJOK / INFORMATIKA" },
-            { nama: "Toto Sugiarto, S.T", mapel: "DD TSM & Produktif" },
-            { nama: "R.M Moch Iqbal A.A, S.H,.Gr", mapel: "Body Repair & Painting" },
-            { nama: "Dini Syifa Qolbiah, S.E", mapel: "DD AK / ADM. Pajak" },
-            { nama: "Dzikri Fahmi Mustofa, S.IT", mapel: "KIK / Bisnis Online" },
-            { nama: "Diarti Alpionita, S.Pd", mapel: "P. PANCASILA" }
+            { nama: "Anen S.Pd", mapels: ["PAI"] },
+            { nama: "Windriani Rantiani andini, S.Pd", mapels: ["MTK"] },
+            { nama: "Difki Muhamad Fahri S.Pd", mapels: ["Projek. IPAS", "Desain Grafis"] },
+            { nama: "Aan Hasanah, S.Pd", mapels: ["B. INGGRIS", "BP/BK"] },
+            { nama: "Intan Rustianti, S.E", mapels: ["DD TSM", "B. SUNDA"] },
+            { nama: "Rahmi Kurniawati, S.Pd", mapels: ["SEJARAH", "Seni Budaya"] },
+            { nama: "Intan Dewi purwanti, S.Pd,.Gr.", mapels: ["B. INDONESIA"] },
+            { nama: "Riska Nurjanah, S.E", mapels: ["AK. Keuangan", "KOMP.AK"] },
+            { nama: "Wahyudin", mapels: ["PJOK", "INFORMATIKA"] },
+            { nama: "Toto Sugiarto, S.T", mapels: ["DD TSM", "PPSMLH", "PPSTSM", "PPESM", "PPSSM", "PPSKSM", "PPEMSSM", "PPBSM"] },
+            { nama: "R.M Moch Iqbal A.A, S.H,.Gr", mapels: ["Body Repair & Painting"] },
+            { nama: "Dini Syifa Qolbiah, S.E", mapels: ["DD AK", "ADM. PAJAK", "PRAK ALIP", "P. APJDM"] },
+            { nama: "Dzikri Fahmi Mustofa, S.IT", mapels: ["KIK", "Bisnis Online", "MS. WORD, EXCEL, PPT"] },
+            { nama: "Diarti Alpionita, S.Pd", mapels: ["P. PANCASILA"] }
         ];
 
         // Master Siswa Lengkap
@@ -118,47 +118,64 @@
             { nama: "M. Akmal Julpadli", kelas: "XI TSM" }
         ];
 
-        // Database localStorage Global & Terpusat
-        function getMateriDB() {
-            const data = localStorage.getItem('th2_materi_global_v2');
-            if (!data) {
-                const initial = [];
-                localStorage.setItem('th2_materi_global_v2', JSON.stringify(initial));
-                return initial;
+        // Sinkronisasi Supabase & LocalStorage
+        let remoteMateri = [];
+        let remoteTugas = [];
+        let remoteKuis = [];
+
+        async function fetchDataFromSupabase() {
+            try {
+                const { data: mData } = await supabase.from('materi').select('*');
+                if (mData && mData.length > 0) remoteMateri = mData;
+
+                const { data: tData } = await supabase.from('tugas').select('*');
+                if (tData && tData.length > 0) remoteTugas = tData;
+
+                const { data: kData } = await supabase.from('kuis').select('*');
+                if (kData && kData.length > 0) remoteKuis = kData;
+            } catch (err) {
+                console.log('Mode offline lokal aktif.');
             }
-            return JSON.parse(data);
+
+            const localMat = JSON.parse(localStorage.getItem('th2_materi_v4') || '[]');
+            const localTug = JSON.parse(localStorage.getItem('th2_tugas_v4') || '[]');
+            const localKuis = JSON.parse(localStorage.getItem('th2_kuis_v4') || '[]');
+
+            return {
+                materi: [...remoteMateri, ...localMat],
+                tugas: [...remoteTugas, ...localTug],
+                kuis: [...remoteKuis, ...localKuis]
+            };
         }
 
-        function saveMateriDB(list) {
-            localStorage.setItem('th2_materi_global_v2', JSON.stringify(list));
+        async function saveMateriToCloud(newItem) {
+            let localMat = JSON.parse(localStorage.getItem('th2_materi_v4') || '[]');
+            localMat.unshift(newItem);
+            localStorage.setItem('th2_materi_v4', JSON.stringify(localMat));
+
+            try {
+                await supabase.from('materi').insert([newItem]);
+            } catch (e) {}
         }
 
-        function getTugasDB() {
-            const data = localStorage.getItem('th2_tugas_global_v2');
-            if (!data) {
-                const initial = [];
-                localStorage.setItem('th2_tugas_global_v2', JSON.stringify(initial));
-                return initial;
-            }
-            return JSON.parse(data);
+        async function saveTugasToCloud(newItem) {
+            let localTug = JSON.parse(localStorage.getItem('th2_tugas_v4') || '[]');
+            localTug.unshift(newItem);
+            localStorage.setItem('th2_tugas_v4', JSON.stringify(localTug));
+
+            try {
+                await supabase.from('tugas').insert([newItem]);
+            } catch (e) {}
         }
 
-        function saveTugasDB(list) {
-            localStorage.setItem('th2_tugas_global_v2', JSON.stringify(list));
-        }
+        async function saveKuisToCloud(newItem) {
+            let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v4') || '[]');
+            localKuis.unshift(newItem);
+            localStorage.setItem('th2_kuis_v4', JSON.stringify(localKuis));
 
-        function getKuisDB() {
-            const data = localStorage.getItem('th2_kuis_global_v2');
-            if (!data) {
-                const initial = [];
-                localStorage.setItem('th2_kuis_global_v2', JSON.stringify(initial));
-                return initial;
-            }
-            return JSON.parse(data);
-        }
-
-        function saveKuisDB(list) {
-            localStorage.setItem('th2_kuis_global_v2', JSON.stringify(list));
+            try {
+                await supabase.from('kuis').insert([newItem]);
+            } catch (e) {}
         }
 
         let diskusiList = [
@@ -174,7 +191,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Sinkronisasi Penuh</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Multi-Mapel Guru</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -193,7 +210,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
-                                <input type="password" id="input-pass" placeholder="Guru: Mapel | Siswa: Kelas | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                                <input type="password" id="input-pass" placeholder="Guru: Salah satu mapel | Siswa: Kelas | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
                             </div>
                             <button type="submit" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm">Masuk ke LMS PJJ</button>
                         </form>
@@ -218,7 +235,7 @@
                 } else if (role === 'guru') {
                     const guruMatch = masterGuruLogin.find(g => g.nama.toLowerCase() === namaInput);
                     if (guruMatch) {
-                        currentUser = { nama: guruMatch.nama, role: 'guru', mapel: guruMatch.mapel };
+                        currentUser = { nama: guruMatch.nama, role: 'guru', mapels: guruMatch.mapels, mapel: guruMatch.mapels[0] };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
@@ -240,7 +257,6 @@
         function renderMainDashboard() {
             appContainer.innerHTML = `
                 <div class="flex h-full w-full overflow-hidden">
-                    <!-- SIDEBAR KIRI -->
                     <aside class="w-64 bg-sidebarbg text-slate-300 flex flex-col justify-between p-4 shadow-xl z-20">
                         <div class="space-y-6">
                             <div class="flex items-center space-x-3 px-2 py-3 border-b border-blue-900/50">
@@ -265,8 +281,6 @@
                             </button>
                         </div>
                     </aside>
-
-                    <!-- KONTEN UTAMA -->
                     <main id="main-view" class="flex-1 overflow-y-auto bg-slate-100 p-6"></main>
                 </div>
             `;
@@ -287,7 +301,7 @@
             if (currentUser.role === 'admin' || currentUser.role === 'kepsek') {
                 menus.push(
                     { id: 'monitoring_upload', title: 'Monitoring Upload Guru', icon: 'ph-chart-bar' },
-                    { id: 'kontrol_admin', title: 'Kelola & Hapus Data', icon: 'ph-shield-check' }
+                    { id: 'kelola_data', title: 'Kelola & Hapus Data', icon: 'ph-shield-check' }
                 );
             }
 
@@ -307,45 +321,36 @@
             });
         }
 
-        function renderActiveView() {
+        async function renderActiveView() {
             const mainView = document.getElementById('main-view');
 
             if (currentView === 'ruang_belajar') {
-                renderRuangBelajar(mainView);
+                await renderRuangBelajar(mainView);
             } else if (currentView === 'monitoring_upload') {
-                renderMonitoringUpload(mainView);
-            } else if (currentView === 'kontrol_admin') {
-                renderKontrolAdmin(mainView);
+                await renderMonitoringUpload(mainView);
+            } else if (currentView === 'kelola_data') {
+                await renderKelolaData(mainView);
             } else if (currentView === 'jadwal') {
-                mainView.innerHTML = `
-                    <div class="max-w-5xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Jadwal Mata Pelajaran PJJ SMK Taruna Harapan 2</h3>
-                        <p class="text-xs text-slate-500">Semester Ganjil 2026/2027.</p>
-                    </div>
-                `;
+                mainView.innerHTML = `<div class="max-w-5xl mx-auto bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg">Jadwal Mata Pelajaran PJJ</h3></div>`;
             } else if (currentView === 'pengumuman') {
-                mainView.innerHTML = `
-                    <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-3">
-                        <h3 class="font-bold text-lg text-slate-900">Pengumuman Sekolah</h3>
-                        <p class="text-xs text-slate-600">Seluruh materi yang diunggah guru langsung tampil otomatis di akun siswa.</p>
-                    </div>
-                `;
+                mainView.innerHTML = `<div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg">Pengumuman Sekolah</h3></div>`;
             } else {
-                mainView.innerHTML = `<div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg">Modul Aktif</h3></div>`;
+                mainView.innerHTML = `<div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm">Modul Aktif</div>`;
             }
         }
 
-        // ================= MONITORING UPLOAD GURU OLEH ADMIN =================
-        function renderMonitoringUpload(container) {
-            const materiList = getMateriDB();
-            const tugasList = getTugasDB();
-            const kuisList = getKuisDB();
+        // ================= MONITORING UPLOAD GURU =================
+        async function renderMonitoringUpload(container) {
+            const db = await fetchDataFromSupabase();
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2">
-                        <h3 class="font-bold text-lg text-slate-900">Dashboard Monitoring Upload Guru</h3>
-                        <p class="text-xs text-slate-500">Admin dapat mengecek guru mapel mana saja yang sudah atau belum mengunggah Materi, Tugas, dan Kuis.</p>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Dashboard Monitoring Upload Guru</h3>
+                            <p class="text-xs text-slate-500">Mengecek guru mapel yang sudah atau belum mengunggah Materi, Tugas, dan Kuis.</p>
+                        </div>
+                        <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
                     </div>
 
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
@@ -356,7 +361,7 @@
                                     <tr>
                                         <th class="p-3">No</th>
                                         <th class="p-3">Nama Guru</th>
-                                        <th class="p-3">Mata Pelajaran</th>
+                                        <th class="p-3">Mata Pelajaran Diampu</th>
                                         <th class="p-3 text-center">Status Materi</th>
                                         <th class="p-3 text-center">Status Tugas</th>
                                         <th class="p-3 text-center">Status Kuis</th>
@@ -364,15 +369,15 @@
                                 </thead>
                                 <tbody class="divide-y divide-slate-200">
                                     ${masterGuruLogin.map((g, idx) => {
-                                        const hasMateri = materiList.some(m => (m.guru || '').toLowerCase() === g.nama.toLowerCase());
-                                        const hasTugas = tugasList.some(t => (t.guru || '').toLowerCase() === g.nama.toLowerCase());
-                                        const hasKuis = kuisList.some(k => (k.guru || '').toLowerCase() === g.nama.toLowerCase());
+                                        const hasMateri = db.materi.some(m => (m.guru || '').toLowerCase().includes(g.nama.toLowerCase()));
+                                        const hasTugas = db.tugas.some(t => (t.guru || '').toLowerCase().includes(g.nama.toLowerCase()));
+                                        const hasKuis = db.kuis.some(k => (k.guru || '').toLowerCase().includes(g.nama.toLowerCase()));
 
                                         return `
                                             <tr class="hover:bg-slate-50">
                                                 <td class="p-3 font-medium">${idx + 1}</td>
                                                 <td class="p-3 font-bold text-slate-900">${g.nama}</td>
-                                                <td class="p-3 text-slate-600">${g.mapel}</td>
+                                                <td class="p-3 text-slate-600">${g.mapels.join(', ')}</td>
                                                 <td class="p-3 text-center">
                                                     ${hasMateri ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah Upload</span>' : '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full font-bold">Belum Upload</span>'}
                                                 </td>
@@ -393,23 +398,21 @@
             `;
         }
 
-        // ================= KONTROL ADMIN =================
-        function renderKontrolAdmin(container) {
-            const materiList = getMateriDB();
+        async function renderKelolaData(container) {
+            const db = await fetchDataFromSupabase();
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2">
                         <h3 class="font-bold text-lg text-slate-900">Kelola & Hapus Data Upload</h3>
-                        <p class="text-xs text-slate-500">Admin dapat menghapus materi/tugas yang diunggah keliru oleh guru.</p>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h4 class="font-bold text-slate-900 text-sm">Daftar Seluruh Materi Terunggah (${materiList.length})</h4>
-                        ${materiList.length === 0 ? '<p class="text-xs text-slate-400">Belum ada materi.</p>' : `
+                        <h4 class="font-bold text-slate-900 text-sm">Daftar Materi Terunggah (${db.materi.length})</h4>
+                        ${db.materi.length === 0 ? '<p class="text-xs text-slate-400">Belum ada materi.</p>' : `
                             <div class="space-y-2">
-                                ${materiList.map(m => `
+                                ${db.materi.map(m => `
                                     <div class="flex justify-between items-center p-3 border rounded-xl bg-slate-50 text-xs">
-                                        <div><b>${m.judul}</b> <span class="text-slate-400">(${m.guru} - ${m.mapel})</span></div>
-                                        <button onclick="window.hapusMateri(${m.id})" class="bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-lg">Hapus</button>
+                                        <div><b>${m.judul}</b> <span class="text-slate-400">(${m.guru} - Mapel: ${m.mapel})</span></div>
+                                        <a href="${m.link}" target="_blank" class="text-blue-600 underline font-semibold">Akses</a>
                                     </div>
                                 `).join('')}
                             </div>
@@ -419,21 +422,28 @@
             `;
         }
 
-        window.hapusMateri = function(id) {
-            if (confirm('Hapus materi ini?')) {
-                let list = getMateriDB().filter(m => m.id !== id);
-                saveMateriDB(list);
-                renderKontrolAdmin(document.getElementById('main-view'));
-                alert('Berhasil dihapus.');
-            }
-        };
+        // ================= RUANG BELAJAR DENGAN PILIHAN MAPEL SPESIFIK =================
+        async function renderRuangBelajar(container) {
+            const db = await fetchDataFromSupabase();
+            const materiList = db.materi;
+            const tugasList = db.tugas;
+            const kuisList = db.kuis;
 
-        // ================= RUANG BELAJAR (GLOBAL & TERPUSAT) =================
-        function renderRuangBelajar(container) {
-            const materiList = getMateriDB();
-            const tugasList = getTugasDB();
-            const kuisList = getKuisDB();
-            const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapel}` : (currentUser.role === 'admin' ? 'Panel Admin Sekolah' : `Ruang Belajar Siswa (${currentUser.kelas})`);
+            // Jika role guru, buat dropdown pilihan mapel yang diampunya
+            let dropdownMapelHtml = '';
+            if (currentUser.role === 'guru') {
+                const mapels = currentUser.mapels || [currentUser.mapel];
+                dropdownMapelHtml = `
+                    <div>
+                        <label class="block font-bold uppercase mb-1">Pilih Mata Pelajaran yang Diampu</label>
+                        <select id="m-mapel-pilih" class="w-full border p-2.5 rounded-xl font-semibold bg-slate-50" required>
+                            ${mapels.map(mp => `<option value="${mp}">${mp}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            }
+
+            const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapels ? currentUser.mapels.join(', ') : currentUser.mapel}` : (currentUser.role === 'admin' ? 'Panel Admin Sekolah' : `Ruang Belajar Siswa (${currentUser.kelas})`);
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -472,14 +482,11 @@
                         </div>
                     </div>
 
-                    <!-- MODAL MATERI -->
+                    <!-- MODAL MATERI DENGAN PILIHAN MAPEL SPESIFIK -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
-                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran (Word, Excel, PPT, Gambar, Video)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                            <div>
-                                <label class="block font-bold uppercase mb-1">Judul Materi</label>
-                                <input type="text" id="m-judul" placeholder="Contoh: Modul Bab 1" class="w-full border p-2.5 rounded-xl" required>
-                            </div>
+                            ${dropdownMapelHtml}
                             <div>
                                 <label class="block font-bold uppercase mb-1">Format File</label>
                                 <select id="m-format" class="w-full border p-2.5 rounded-xl">
@@ -489,6 +496,10 @@
                                     <option value="Gambar">Gambar (.jpg / .png)</option>
                                     <option value="Video">Video / YouTube</option>
                                 </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block font-bold uppercase mb-1">Judul Materi</label>
+                                <input type="text" id="m-judul" placeholder="Contoh: Modul Bab 1" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Tautan File (Google Drive / Link URL)</label>
@@ -554,21 +565,21 @@
             if (bMat) {
                 bMat.addEventListener('click', () => document.getElementById('modal-form-materi').classList.toggle('hidden'));
                 document.getElementById('batal-materi').addEventListener('click', () => document.getElementById('modal-form-materi').classList.add('hidden'));
-                document.getElementById('form-add-materi').addEventListener('submit', (e) => {
+                document.getElementById('form-add-materi').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const list = getMateriDB();
-                    list.unshift({ 
+                    const mapelPilih = currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum';
+                    const newItem = { 
                         id: Date.now(), 
-                        pertemuan: `PERT. ${list.length + 1}`, 
+                        pertemuan: `PERT. ${materiList.length + 1}`, 
                         judul: document.getElementById('m-judul').value, 
                         format: document.getElementById('m-format').value, 
                         tanggal: 'Hari Ini', 
                         link: document.getElementById('m-link').value, 
                         guru: currentUser.nama,
-                        mapel: currentUser.mapel || 'Mapel Umum'
-                    });
-                    saveMateriDB(list);
-                    alert('Materi berhasil diunggah dan langsung terlihat oleh siswa & admin!');
+                        mapel: mapelPilih
+                    };
+                    await saveMateriToCloud(newItem);
+                    alert(`Materi untuk mapel [${mapelPilih}] berhasil diunggah!`);
                     document.getElementById('modal-form-materi').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -578,17 +589,16 @@
             if (bTug) {
                 bTug.addEventListener('click', () => document.getElementById('modal-form-tugas').classList.toggle('hidden'));
                 document.getElementById('batal-tugas').addEventListener('click', () => document.getElementById('modal-form-tugas').classList.add('hidden'));
-                document.getElementById('form-add-tugas').addEventListener('submit', (e) => {
+                document.getElementById('form-add-tugas').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const list = getTugasDB();
-                    list.unshift({ 
+                    const newItem = { 
                         id: Date.now(), 
                         judul: document.getElementById('t-judul').value, 
                         deadline: document.getElementById('t-deadline').value, 
                         status: 'Dibuka',
                         guru: currentUser.nama
-                    });
-                    saveTugasDB(list);
+                    };
+                    await saveTugasToCloud(newItem);
                     alert('Tugas berhasil dibuat!');
                     document.getElementById('modal-form-tugas').classList.add('hidden');
                     renderRuangBelajar(container);
@@ -599,17 +609,16 @@
             if (bKuis) {
                 bKuis.addEventListener('click', () => document.getElementById('modal-form-kuis').classList.toggle('hidden'));
                 document.getElementById('batal-kuis').addEventListener('click', () => document.getElementById('modal-form-kuis').classList.add('hidden'));
-                document.getElementById('form-add-kuis').addEventListener('submit', (e) => {
+                document.getElementById('form-add-kuis').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const list = getKuisDB();
-                    list.unshift({ 
+                    const newItem = { 
                         id: Date.now(), 
                         judul: document.getElementById('k-judul').value, 
                         waktu: document.getElementById('k-waktu').value, 
                         status: 'Sedang dibuka',
                         guru: currentUser.nama
-                    });
-                    saveKuisDB(list);
+                    };
+                    await saveKuisToCloud(newItem);
                     alert('Kuis berhasil dibuat!');
                     document.getElementById('modal-form-kuis').classList.add('hidden');
                     renderRuangBelajar(container);
@@ -637,7 +646,7 @@
                                         <div class="space-y-1">
                                             <div class="flex items-center space-x-2">
                                                 <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${m.format}</span>
-                                                <span class="text-xs text-slate-500 font-semibold">${m.mapel || ''}</span>
+                                                <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-0.5 rounded">${m.mapel || 'Mapel Umum'}</span>
                                             </div>
                                             <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
                                             <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
