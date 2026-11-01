@@ -32,7 +32,7 @@
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
 
-        // Master Guru & Daftar Mapel Spesifik yang Diampunya (Multi-Mapel Support)
+        // Master Guru Lengkap SMK Taruna Harapan 2
         const masterGuruLogin = [
             { nama: "Anen S.Pd", mapels: ["PAI"] },
             { nama: "Windriani Rantiani andini, S.Pd", mapels: ["MTK"] },
@@ -133,9 +133,7 @@
 
                 const { data: kData } = await supabase.from('kuis').select('*');
                 if (kData && kData.length > 0) remoteKuis = kData;
-            } catch (err) {
-                console.log('Mode offline lokal aktif.');
-            }
+            } catch (err) {}
 
             const localMat = JSON.parse(localStorage.getItem('th2_materi_v4') || '[]');
             const localTug = JSON.parse(localStorage.getItem('th2_tugas_v4') || '[]');
@@ -191,7 +189,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Multi-Mapel Guru</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Monitoring Akurat</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -210,7 +208,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
-                                <input type="password" id="input-pass" placeholder="Guru: Salah satu mapel | Siswa: Kelas | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                                <input type="password" id="input-pass" placeholder="Guru: Mapel | Siswa: Kelas | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
                             </div>
                             <button type="submit" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm">Masuk ke LMS PJJ</button>
                         </form>
@@ -248,7 +246,7 @@
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
-                        alert('Nama siswa atau password Kelas (contoh: X AKL, X TSM, XI AKL, XI TSM) tidak cocok.');
+                        alert('Nama siswa atau password Kelas tidak cocok.');
                     }
                 }
             });
@@ -273,7 +271,7 @@
                                 <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow">${currentUser.nama.substring(0, 2).toUpperCase()}</div>
                                 <div class="overflow-hidden">
                                     <p class="font-bold text-white text-xs truncate">${currentUser.nama}</p>
-                                    <p class="text-[10px] text-blue-300 capitalize">${currentUser.role === 'admin' ? 'Admin Sekolah' : currentUser.role} ${currentUser.kelas ? '('+currentUser.kelas+')' : ''}</p>
+                                    <p class="text-[10px] text-blue-300 capitalize">${currentUser.role === 'admin' ? 'Admin Sekolah' : currentUser.role}</p>
                                 </div>
                             </div>
                             <button id="btn-logout" class="w-full flex items-center justify-center space-x-2 bg-blue-950/60 hover:bg-primary text-slate-200 hover:text-white py-2 rounded-xl text-xs font-semibold transition">
@@ -339,7 +337,7 @@
             }
         }
 
-        // ================= MONITORING UPLOAD GURU =================
+        // ================= MONITORING UPLOAD GURU (FLEXIBLE MATCHING) =================
         async function renderMonitoringUpload(container) {
             const db = await fetchDataFromSupabase();
 
@@ -369,9 +367,12 @@
                                 </thead>
                                 <tbody class="divide-y divide-slate-200">
                                     ${masterGuruLogin.map((g, idx) => {
-                                        const hasMateri = db.materi.some(m => (m.guru || '').toLowerCase().includes(g.nama.toLowerCase()));
-                                        const hasTugas = db.tugas.some(t => (t.guru || '').toLowerCase().includes(g.nama.toLowerCase()));
-                                        const hasKuis = db.kuis.some(k => (k.guru || '').toLowerCase().includes(g.nama.toLowerCase()));
+                                        // Ambil nama depan atau kata kunci utama guru untuk pencocokan yang akurat
+                                        const keywordGuru = g.nama.split(',')[0].trim().toLowerCase();
+
+                                        const hasMateri = db.materi.some(m => (m.guru || '').toLowerCase().includes(keywordGuru));
+                                        const hasTugas = db.tugas.some(t => (t.guru || '').toLowerCase().includes(keywordGuru));
+                                        const hasKuis = db.kuis.some(k => (k.guru || '').toLowerCase().includes(keywordGuru));
 
                                         return `
                                             <tr class="hover:bg-slate-50">
@@ -422,14 +423,13 @@
             `;
         }
 
-        // ================= RUANG BELAJAR DENGAN PILIHAN MAPEL SPESIFIK =================
+        // ================= RUANG BELAJAR =================
         async function renderRuangBelajar(container) {
             const db = await fetchDataFromSupabase();
             const materiList = db.materi;
             const tugasList = db.tugas;
             const kuisList = db.kuis;
 
-            // Jika role guru, buat dropdown pilihan mapel yang diampunya
             let dropdownMapelHtml = '';
             if (currentUser.role === 'guru') {
                 const mapels = currentUser.mapels || [currentUser.mapel];
@@ -482,7 +482,7 @@
                         </div>
                     </div>
 
-                    <!-- MODAL MATERI DENGAN PILIHAN MAPEL SPESIFIK -->
+                    <!-- MODAL MATERI -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
                         <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
