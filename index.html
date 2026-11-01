@@ -119,7 +119,7 @@
         ];
 
         async function fetchDataFromSupabase() {
-            let mData = [], tData = [], kData = [], pData = [], pengData = [], chatData = [];
+            let mData = [], tData = [], kData = [], pData = [], pengData = [], chatData = [], subData = [];
             try {
                 const resM = await supabase.from('materi').select('*');
                 if (resM.data) mData = resM.data;
@@ -133,22 +133,25 @@
                 if (resPeng.data) pengData = resPeng.data;
                 const resChat = await supabase.from('chat_kelas').select('*');
                 if (resChat.data) chatData = resChat.data;
+                const resSub = await supabase.from('submissions').select('*');
+                if (resSub.data) subData = resSub.data;
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v9') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v9') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v9') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v9') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v9') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ siap digunakan.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v9') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v10') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v10') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v10') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v10') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v10') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v10') || '[]'),
+                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v10') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v9`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v10`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v9`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v10`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
         }
 
@@ -161,7 +164,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Upload Gambar & Filter Kelas</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Pengumpulan Tugas Fleksibel</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -322,6 +325,7 @@
         async function renderMonitoringSiswa(container) {
             const db = await fetchDataFromSupabase();
             const presensiList = db.presensi;
+            const subList = db.submissions;
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -333,6 +337,38 @@
                         <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
                     </div>
 
+                    <!-- TABEL REKAP SUBMISSION TUGAS -->
+                    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Tugas yang Dikumpulkan Siswa</div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-100 text-slate-600 border-b">
+                                    <tr>
+                                        <th class="p-3">Nama Siswa</th>
+                                        <th class="p-3">Kelas</th>
+                                        <th class="p-3">Judul Tugas</th>
+                                        <th class="p-3">Isi Jawaban / File</th>
+                                        <th class="p-3">Waktu Kumpul</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    ${subList.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada tugas yang dikumpulkan siswa.</td></tr>` : subList.map(sub => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-3 font-bold text-slate-900">${sub.namaSiswa}</td>
+                                            <td class="p-3 text-slate-600">${sub.kelas}</td>
+                                            <td class="p-3 text-slate-800 font-semibold">${sub.judulTugas}</td>
+                                            <td class="p-3">
+                                                ${sub.isFile ? `<a href="${sub.jawaban}" target="_blank" class="text-green-600 font-bold underline">📁 Lihat File Terlampir</a>` : `<span class="bg-slate-100 p-2 rounded block text-slate-700">${sub.jawaban}</span>`}
+                                            </td>
+                                            <td class="p-3 text-slate-500">${sub.waktu}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- REKAP PRESENSI -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Rekapitulasi Presensi Kehadiran Siswa</div>
                         <div class="overflow-x-auto">
@@ -407,8 +443,8 @@
                                                 <td class="p-3 font-bold text-slate-900">${g.nama}</td>
                                                 <td class="p-3 text-slate-600">${g.mapels.join(', ')}</td>
                                                 <td class="p-3 text-center">${hasM ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full">Belum</span>'}</td>
-                                                <td class="p-3 text-center">${hasT ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Belum</span>'}</td>
-                                                <td class="p-3 text-center">${hasK ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Belum</span>'}</td>
+                                                <td class="p-3 text-center">${hasT ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full">Belum</span>'}</td>
+                                                <td class="p-3 text-center">${hasK ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full">Belum</span>'}</td>
                                             </tr>
                                         `;
                                     }).join('')}
@@ -481,8 +517,6 @@
 
         async function renderRuangBelajar(container) {
             const db = await fetchDataFromSupabase();
-            
-            // Filter data sesuai kelas siswa (jika role siswa, hanya tampilkan yang kelasnya sama atau "Semua Kelas")
             const isSiswa = currentUser.role === 'siswa';
             const kelasSiswa = currentUser.kelas;
 
@@ -556,9 +590,9 @@
                         </div>
                     </div>
 
-                    <!-- MODAL MATERI (DENGAN UPLOAD GAMBAR JPG/PNG) -->
+                    <!-- MODAL MATERI -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
-                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran (Bisa Link atau Upload Gambar)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             ${dropdownMapelHtml}
                             ${kelasPilihanHtml}
@@ -571,8 +605,8 @@
                                 <input type="url" id="m-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl">
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Atau Upload File Gambar (JPG / PNG)</label>
-                                <input type="file" id="m-file" accept="image/png, image/jpeg" class="w-full border p-2 rounded-xl bg-slate-50">
+                                <label class="block font-bold uppercase mb-1">Atau Upload File (Gambar/PDF/Word/Excel)</label>
+                                <input type="file" id="m-file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow">Publikasikan Materi</button>
@@ -581,9 +615,9 @@
                         </form>
                     </div>
 
-                    <!-- MODAL TUGAS (DENGAN UPLOAD GAMBAR JPG/PNG) -->
+                    <!-- MODAL TUGAS -->
                     <div id="modal-form-tugas" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-slate-800">
-                        <h3 class="font-bold text-slate-900 text-sm">Buat Tugas Baru (Bisa Link atau Upload Gambar Soal)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Buat Tugas Baru</h3>
                         <form id="form-add-tugas" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Tugas</label>
@@ -608,8 +642,8 @@
                                 <input type="url" id="t-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl">
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Atau Upload Gambar Soal (JPG/PNG)</label>
-                                <input type="file" id="t-file" accept="image/png, image/jpeg" class="w-full border p-2 rounded-xl bg-slate-50">
+                                <label class="block font-bold uppercase mb-1">Atau Upload File Soal (Gambar/PDF/Word/Excel)</label>
+                                <input type="file" id="t-file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Tugas</button>
@@ -662,13 +696,12 @@
                 });
             });
 
-            // Helper to convert uploaded image to base64 string
-            const convertImageToBase64 = (fileInputId) => {
+            const convertFileToBase64 = (fileInputId) => {
                 return new Promise((resolve) => {
                     const fileInput = document.getElementById(fileInputId);
                     if (fileInput && fileInput.files && fileInput.files[0]) {
                         const reader = new FileReader();
-                        reader.onload = (uploadEvent) => resolve(uploadEvent.target.result);
+                        reader.onload = (uploadEvent) => resolve({ data: uploadEvent.target.result, name: fileInput.files[0].name });
                         reader.readAsDataURL(fileInput.files[0]);
                     } else {
                         resolve(null);
@@ -682,17 +715,17 @@
                 document.getElementById('batal-materi').addEventListener('click', () => document.getElementById('modal-form-materi').classList.add('hidden'));
                 document.getElementById('form-add-materi').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const imageBase64 = await convertImageToBase64('m-file');
+                    const fileObj = await convertFileToBase64('m-file');
                     const linkUrl = document.getElementById('m-link').value;
 
                     const newItem = { 
                         id: Date.now(), 
                         pertemuan: `PERT. ${materiList.length + 1}`, 
                         judul: document.getElementById('m-judul').value, 
-                        format: imageBase64 ? 'Gambar (JPG/PNG)' : 'Link File', 
+                        format: fileObj ? fileObj.name : 'Link File', 
                         tanggal: 'Hari Ini', 
-                        link: imageBase64 || linkUrl, 
-                        isImage: !!imageBase64,
+                        link: fileObj ? fileObj.data : linkUrl, 
+                        isFile: !!fileObj,
                         guru: currentUser.nama,
                         mapel: currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum',
                         targetKelas: document.getElementById('target-kelas').value
@@ -709,15 +742,16 @@
                 document.getElementById('batal-tugas').addEventListener('click', () => document.getElementById('modal-form-tugas').classList.add('hidden'));
                 document.getElementById('form-add-tugas').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const imageBase64 = await convertImageToBase64('t-file');
+                    const fileObj = await convertFileToBase64('t-file');
                     const linkUrl = document.getElementById('t-link').value;
 
                     const newItem = { 
                         id: Date.now(), 
                         judul: document.getElementById('t-judul').value, 
                         deadline: document.getElementById('t-deadline').value, 
-                        link: imageBase64 || linkUrl,
-                        isImage: !!imageBase64,
+                        link: fileObj ? fileObj.data : linkUrl,
+                        fileName: fileObj ? fileObj.name : '',
+                        isFile: !!fileObj,
                         targetKelas: document.getElementById('t-kelas').value,
                         status: 'Dibuka',
                         guru: currentUser.nama
@@ -769,13 +803,9 @@
                                     <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
                                     <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
                                 </div>
-                                ${m.isImage ? `
-                                    <a href="${m.link}" target="_blank" class="text-xs bg-green-600 text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-green-700 flex items-center space-x-1">
-                                        <i class="ph ph-image text-sm"></i><span>Lihat Gambar</span>
-                                    </a>
-                                ` : `
-                                    <a href="${m.link}" target="_blank" class="text-xs bg-primary text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-red-700">Akses File</a>
-                                `}
+                                <a href="${m.link}" target="_blank" class="text-xs bg-primary text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-red-700 flex items-center space-x-1">
+                                    <i class="ph ph-download text-sm"></i><span>Akses / Unduh File</span>
+                                </a>
                             </div>
                         `).join('')}
                     </div>
@@ -789,9 +819,18 @@
                                     <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${t.targetKelas || 'Semua Kelas'}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${t.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${t.guru} • Tenggat: ${t.deadline}</p>
-                                    ${t.isImage ? `<a href="${t.link}" target="_blank" class="text-xs text-green-600 underline font-semibold block mt-1">📷 Lihat Gambar Soal Tugas</a>` : (t.link ? `<a href="${t.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">📁 Lihat Soal / Petunjuk</a>` : '')}
+                                    ${t.link ? `<a href="${t.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">📁 Lihat Soal / Petunjuk (${t.fileName || 'Link'})</a>` : ''}
                                 </div>
-                                ${currentUser.role === 'siswa' ? `<button onclick="alert('Tugas berhasil dikumpulkan!')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow">Kumpulkan Tugas</button>` : `<span class="text-xs font-bold text-blue-600">Aktif</span>`}
+                                <div>
+                                    ${currentUser.role === 'siswa' ? `
+                                        <div class="bg-slate-50 p-3 border rounded-xl space-y-2 w-72">
+                                            <p class="text-[11px] font-bold text-slate-700">Form Pengumpulan Tugas:</p>
+                                            <textarea id="jawaban-teks-${t.id}" placeholder="Ketik jawaban teks di sini..." class="w-full border p-2 rounded-lg text-xs h-16 bg-white"></textarea>
+                                            <input type="file" id="jawaban-file-${t.id}" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" class="w-full text-[10px] bg-white border p-1 rounded-lg">
+                                            <button onclick="kirimTugas('${t.judul.replace(/'/g, "\\'")}', '${t.id}')" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs shadow">Kumpulkan Tugas</button>
+                                        </div>
+                                    ` : `<span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Tugas Aktif</span>`}
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -848,6 +887,55 @@
                     renderRuangBelajar(container);
                 });
             }
+        }
+
+        // Global function untuk siswa mengumpulkan tugas
+        window.kirimTugas = async function(judulTugas, tugasId) {
+            const teks = document.getElementById(`jawaban-teks-${tugasId}`).value.trim();
+            const fileInput = document.getElementById(`jawaban-file-${tugasId}`);
+
+            let jawabanFinal = teks;
+            let isFile = false;
+
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const submission = {
+                        id: Date.now(),
+                        namaSiswa: currentUser.nama,
+                        kelas: currentUser.kelas,
+                        judulTugas: judulTugas,
+                        jawaban: e.target.result,
+                        isFile: true,
+                        fileName: file.name,
+                        waktu: new Date().toLocaleTimeString() + ' WIB'
+                    };
+                    await saveCloud('submissions', submission);
+                    alert('Tugas beserta file berhasil dikumpulkan!');
+                    location.reload();
+                };
+                reader.readAsDataURL(file);
+                return;
+            }
+
+            if (!teks && (!fileInput || !fileInput.files.length)) {
+                alert('Harap isi jawaban teks atau lampirkan file tugas terlebih dahulu!');
+                return;
+            }
+
+            const submission = {
+                id: Date.now(),
+                namaSiswa: currentUser.nama,
+                kelas: currentUser.kelas,
+                judulTugas: judulTugas,
+                jawaban: jawabanFinal,
+                isFile: false,
+                waktu: new Date().toLocaleTimeString() + ' WIB'
+            };
+            await saveCloud('submissions', submission);
+            alert('Jawaban tugas teks berhasil dikumpulkan!');
+            location.reload();
         }
 
         renderLogin();
