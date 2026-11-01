@@ -138,20 +138,20 @@
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v10') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v10') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v10') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v10') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v10') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v10') || '[]'),
-                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v10') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v11') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v11') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v11') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v11') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v11') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v11') || '[]'),
+                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v11') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v10`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v11`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v10`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v11`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
         }
 
@@ -164,7 +164,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Pengumpulan Tugas Fleksibel</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Upload Materi Fleksibel</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -337,7 +337,6 @@
                         <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
                     </div>
 
-                    <!-- TABEL REKAP SUBMISSION TUGAS -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Tugas yang Dikumpulkan Siswa</div>
                         <div class="overflow-x-auto">
@@ -358,7 +357,7 @@
                                             <td class="p-3 text-slate-600">${sub.kelas}</td>
                                             <td class="p-3 text-slate-800 font-semibold">${sub.judulTugas}</td>
                                             <td class="p-3">
-                                                ${sub.isFile ? `<a href="${sub.jawaban}" target="_blank" class="text-green-600 font-bold underline">📁 Lihat File Terlampir</a>` : `<span class="bg-slate-100 p-2 rounded block text-slate-700">${sub.jawaban}</span>`}
+                                                ${sub.isFile ? `<a href="${sub.jawaban}" target="_blank" class="text-green-600 font-bold underline">📁 Lihat File Terlampir (${sub.fileName || 'File'})</a>` : `<span class="bg-slate-100 p-2 rounded block text-slate-700">${sub.jawaban}</span>`}
                                             </td>
                                             <td class="p-3 text-slate-500">${sub.waktu}</td>
                                         </tr>
@@ -368,7 +367,6 @@
                         </div>
                     </div>
 
-                    <!-- REKAP PRESENSI -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Rekapitulasi Presensi Kehadiran Siswa</div>
                         <div class="overflow-x-auto">
@@ -592,7 +590,7 @@
 
                     <!-- MODAL MATERI -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
-                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran (JPG, JPEG, PNG, PDF, WORD, EXCEL)</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             ${dropdownMapelHtml}
                             ${kelasPilihanHtml}
@@ -605,8 +603,8 @@
                                 <input type="url" id="m-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl">
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Atau Upload File (Gambar/PDF/Word/Excel)</label>
-                                <input type="file" id="m-file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
+                                <label class="block font-bold uppercase mb-1">Atau Upload File (JPG, JPEG, PNG, PDF, Word, Excel)</label>
+                                <input type="file" id="m-file" accept="image/jpeg,image/png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow">Publikasikan Materi</button>
@@ -642,8 +640,8 @@
                                 <input type="url" id="t-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl">
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Atau Upload File Soal (Gambar/PDF/Word/Excel)</label>
-                                <input type="file" id="t-file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
+                                <label class="block font-bold uppercase mb-1">Atau Upload File Soal (JPG, JPEG, PNG, PDF, Word, Excel)</label>
+                                <input type="file" id="t-file" accept="image/jpeg,image/png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Tugas</button>
@@ -726,6 +724,7 @@
                         tanggal: 'Hari Ini', 
                         link: fileObj ? fileObj.data : linkUrl, 
                         isFile: !!fileObj,
+                        fileName: fileObj ? fileObj.name : '',
                         guru: currentUser.nama,
                         mapel: currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum',
                         targetKelas: document.getElementById('target-kelas').value
@@ -804,7 +803,7 @@
                                     <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
                                 </div>
                                 <a href="${m.link}" target="_blank" class="text-xs bg-primary text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-red-700 flex items-center space-x-1">
-                                    <i class="ph ph-download text-sm"></i><span>Akses / Unduh File</span>
+                                    <i class="ph ph-download text-sm"></i><span>Akses / Unduh File (${m.fileName || 'Link'})</span>
                                 </a>
                             </div>
                         `).join('')}
@@ -826,7 +825,7 @@
                                         <div class="bg-slate-50 p-3 border rounded-xl space-y-2 w-72">
                                             <p class="text-[11px] font-bold text-slate-700">Form Pengumpulan Tugas:</p>
                                             <textarea id="jawaban-teks-${t.id}" placeholder="Ketik jawaban teks di sini..." class="w-full border p-2 rounded-lg text-xs h-16 bg-white"></textarea>
-                                            <input type="file" id="jawaban-file-${t.id}" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" class="w-full text-[10px] bg-white border p-1 rounded-lg">
+                                            <input type="file" id="jawaban-file-${t.id}" accept="image/jpeg,image/png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full text-[10px] bg-white border p-1 rounded-lg">
                                             <button onclick="kirimTugas('${t.judul.replace(/'/g, "\\'")}', '${t.id}')" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs shadow">Kumpulkan Tugas</button>
                                         </div>
                                     ` : `<span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Tugas Aktif</span>`}
@@ -889,13 +888,9 @@
             }
         }
 
-        // Global function untuk siswa mengumpulkan tugas
         window.kirimTugas = async function(judulTugas, tugasId) {
             const teks = document.getElementById(`jawaban-teks-${tugasId}`).value.trim();
             const fileInput = document.getElementById(`jawaban-file-${tugasId}`);
-
-            let jawabanFinal = teks;
-            let isFile = false;
 
             if (fileInput && fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
@@ -919,7 +914,7 @@
                 return;
             }
 
-            if (!teks && (!fileInput || !fileInput.files.length)) {
+            if (!teks) {
                 alert('Harap isi jawaban teks atau lampirkan file tugas terlebih dahulu!');
                 return;
             }
@@ -929,7 +924,7 @@
                 namaSiswa: currentUser.nama,
                 kelas: currentUser.kelas,
                 judulTugas: judulTugas,
-                jawaban: jawabanFinal,
+                jawaban: teks,
                 isFile: false,
                 waktu: new Date().toLocaleTimeString() + ' WIB'
             };
