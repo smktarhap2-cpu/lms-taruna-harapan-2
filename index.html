@@ -32,61 +32,26 @@
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
 
-        // Jadwal Resmi PJJ per Hari dan Per Kelas
-        const jadwalPJJMaster = {
-            "Senin": {
-                "X AKL": ["P. IPAS", "B. SUNDA", "MTK"],
-                "X TSM": ["DD TSM", "MTK", "B. INGGRIS", "BP/BK"],
-                "XI AKL": ["AK Keuangan", "KOMP. AK", "KIK", "P. Bisnis Online"],
-                "XI TSM": ["PPESM", "PPSSM", "PPEMSSM", "KIK", "Desain Grafis"]
-            },
-            "Selasa": {
-                "X AKL": ["SENI BUDAYA", "B. INGGRIS", "BP/BK", "B. INDONESIA", "DD AK"],
-                "X TSM": ["PJOK", "P. IPAS", "P. IPAS", "B. INGGRIS"],
-                "XI AKL": ["KIK", "B. INDONESIA", "B. SUNDA", "B. INGGRIS", "PJOK"],
-                "XI TSM": ["KIK", "B. INDONESIA", "B. SUNDA", "B. INGGRIS", "PJOK"]
-            },
-            "Rabu": {
-                "X AKL": ["B. INGGRIS", "SEJARAH", "P. PANCASILA", "MTK", "PJOK"],
-                "X TSM": ["B. INDONESIA", "B. SUNDA", "SEJARAH", "SENI BUDAYA", "P. PANCASILA"],
-                "XI AKL": ["SEJARAH", "P. PANCASILA", "MTK", "MS. WORD, EXEL, PPT"],
-                "XI TSM": ["SEJARAH", "P. PANCASILA", "MTK", "BODY REPAIR & PAINTING"]
-            },
-            "Kamis": {
-                "X AKL": ["PRAMUKA", "INFORMATIKA", "DD AK"],
-                "X TSM": ["PRAMUKA", "DD TSM", "INFORMATIKA"],
-                "XI AKL": ["PRAMUKA", "APJDM", "B. INGGRIS", "BP/BK"],
-                "XI TSM": ["PRAMUKA", "PPSMLH", "PPSTSM", "B. INGGRIS", "BP/BK"]
-            },
-            "Jumat": {
-                "X AKL": ["DD AK", "B. INDONESIA", "PAI"],
-                "X TSM": ["DD TSM", "PAI", "B. INDONESIA"],
-                "XI AKL": ["PAI", "ADM. PAJAK", "PRAK. ALIP"],
-                "XI TSM": ["PAI", "PPSKSM"]
-            }
-        };
-
-        // Master Guru SMK Taruna Harapan 2
+        // Master Guru Lengkap SMK Taruna Harapan 2
         const masterGuruLogin = [
             { nama: "Anen S.Pd", mapel: "PAI" },
             { nama: "Windriani Rantiani andini, S.Pd", mapel: "MTK" },
-            { nama: "Difki Muhamad Fahri S.Pd", mapel: "P. IPAS" },
-            { nama: "Aan Hasanah, S.Pd", mapel: "B. INGGRIS" },
-            { nama: "Intan Rustianti, S.E", mapel: "DD TSM" },
-            { nama: "Rahmi Kurniawati, S.Pd", mapel: "SEJARAH" },
+            { nama: "Difki Muhamad Fahri S.Pd", mapel: "P. IPAS / Desain Grafis" },
+            { nama: "Aan Hasanah, S.Pd", mapel: "B. INGGRIS / BP/BK" },
+            { nama: "Intan Rustianti, S.E", mapel: "DD TSM / B. SUNDA" },
+            { nama: "Rahmi Kurniawati, S.Pd", mapel: "SEJARAH / Seni Budaya" },
             { nama: "Intan Dewi purwanti, S.Pd,.Gr.", mapel: "B. INDONESIA" },
-            { nama: "Riska Nurjanah, S.E", mapel: "AK Keuangan" },
-            { nama: "Wahyudin", mapel: "PJOK" },
-            { nama: "Toto Sugiarto, S.T", mapel: "DD TSM" },
-            { nama: "R.M Moch Iqbal A.A, S.H,.Gr", mapel: "BODY REPAIR & PAINTING" },
-            { nama: "Dini Syifa Qolbiah, S.E", mapel: "DD AK" },
-            { nama: "Dzikri Fahmi Mustofa, S.IT", mapel: "KIK" },
+            { nama: "Riska Nurjanah, S.E", mapel: "AK. Keuangan / KOMP.AK" },
+            { nama: "Wahyudin", mapel: "PJOK / INFORMATIKA" },
+            { nama: "Toto Sugiarto, S.T", mapel: "DD TSM & Produktif" },
+            { nama: "R.M Moch Iqbal A.A, S.H,.Gr", mapel: "Body Repair & Painting" },
+            { nama: "Dini Syifa Qolbiah, S.E", mapel: "DD AK / ADM. Pajak" },
+            { nama: "Dzikri Fahmi Mustofa, S.IT", mapel: "KIK / Bisnis Online" },
             { nama: "Diarti Alpionita, S.Pd", mapel: "P. PANCASILA" }
         ];
 
-        // Master Siswa
+        // Master Siswa Lengkap
         const masterSiswaLogin = [
-            // X AKL
             { nama: "Almira Nuraeni", kelas: "X AKL" },
             { nama: "Anggi Fitria Anggraeni", kelas: "X AKL" },
             { nama: "Annisa Rahmawati", kelas: "X AKL" },
@@ -110,7 +75,6 @@
             { nama: "Winda Amelia", kelas: "X AKL" },
             { nama: "Cinta Tasya", kelas: "X AKL" },
             
-            // X TSM
             { nama: "Ahmad Rijik", kelas: "X TSM" },
             { nama: "Aries Rizky Nuryana", kelas: "X TSM" },
             { nama: "Asdian", kelas: "X TSM" },
@@ -129,7 +93,6 @@
             { nama: "Panji", kelas: "X TSM" },
             { nama: "Tian Pedrosa", kelas: "X TSM" },
 
-            // XI AKL
             { nama: "Andre Aprilyansyah", kelas: "XI AKL" },
             { nama: "Ariani Putri Fadilah", kelas: "XI AKL" },
             { nama: "Arvina Sekar Arum", kelas: "XI AKL" },
@@ -148,7 +111,6 @@
             { nama: "Tita Saripah", kelas: "XI AKL" },
             { nama: "Trinisa Siti Nabila", kelas: "XI AKL" },
 
-            // XI TSM
             { nama: "Cucu Amelia", kelas: "XI TSM" },
             { nama: "Moch Faizal Rivaldi", kelas: "XI TSM" },
             { nama: "Muhamad Dimas Hermawan", kelas: "XI TSM" },
@@ -156,69 +118,54 @@
             { nama: "M. Akmal Julpadli", kelas: "XI TSM" }
         ];
 
-        // Mode Akses Admin (Ketat / Bebas)
-        function isStrictJadwal() {
-            return localStorage.getItem('th2_mode_jadwal') === 'strict';
-        }
-
-        function setStrictJadwal(isStrict) {
-            localStorage.setItem('th2_mode_jadwal', isStrict ? 'strict' : 'free');
-        }
-
-        // Database localStorage Terpusat
+        // Database localStorage Global & Terpusat
         function getMateriDB() {
-            const data = localStorage.getItem('th2_materi_master');
+            const data = localStorage.getItem('th2_materi_global_v2');
             if (!data) {
                 const initial = [];
-                localStorage.setItem('th2_materi_master', JSON.stringify(initial));
+                localStorage.setItem('th2_materi_global_v2', JSON.stringify(initial));
                 return initial;
             }
             return JSON.parse(data);
         }
 
         function saveMateriDB(list) {
-            localStorage.setItem('th2_materi_master', JSON.stringify(list));
+            localStorage.setItem('th2_materi_global_v2', JSON.stringify(list));
         }
 
         function getTugasDB() {
-            const data = localStorage.getItem('th2_tugas_master');
+            const data = localStorage.getItem('th2_tugas_global_v2');
             if (!data) {
                 const initial = [];
-                localStorage.setItem('th2_tugas_master', JSON.stringify(initial));
+                localStorage.setItem('th2_tugas_global_v2', JSON.stringify(initial));
                 return initial;
             }
             return JSON.parse(data);
         }
 
         function saveTugasDB(list) {
-            localStorage.setItem('th2_tugas_master', JSON.stringify(list));
+            localStorage.setItem('th2_tugas_global_v2', JSON.stringify(list));
         }
 
         function getKuisDB() {
-            const data = localStorage.getItem('th2_kuis_master');
+            const data = localStorage.getItem('th2_kuis_global_v2');
             if (!data) {
                 const initial = [];
-                localStorage.setItem('th2_kuis_master', JSON.stringify(initial));
+                localStorage.setItem('th2_kuis_global_v2', JSON.stringify(initial));
                 return initial;
             }
             return JSON.parse(data);
         }
 
         function saveKuisDB(list) {
-            localStorage.setItem('th2_kuis_master', JSON.stringify(list));
+            localStorage.setItem('th2_kuis_global_v2', JSON.stringify(list));
         }
 
         let diskusiList = [
-            { pengirim: 'Admin Sekolah', pesan: 'Sistem LMS PJJ kini terintegrasi dengan jadwal harian pelajaran.', waktu: '08:00 WIB' }
+            { pengirim: 'Admin Sekolah', pesan: 'Portal PJJ SMK Taruna Harapan 2 siap digunakan.', waktu: '08:00 WIB' }
         ];
 
         const appContainer = document.getElementById('app');
-
-        function getCurrentHariName() {
-            const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const now = new Date();
-            return days[now.getDay()];
-        }
 
         function renderLogin() {
             appContainer.innerHTML = `
@@ -227,7 +174,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Berbasis Jadwal</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Sinkronisasi Penuh</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -236,13 +183,13 @@
                                     <option value="">-- Pilih Role --</option>
                                     <option value="guru">Guru Pengampu</option>
                                     <option value="siswa">Peserta Didik (Siswa)</option>
-                                    <option value="admin">Admin Sekolah / Kontrol Penuh</option>
+                                    <option value="admin">Admin Sekolah / Monitoring</option>
                                     <option value="kepsek">Kepala Sekolah</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Lengkap / Identitas</label>
-                                <input type="text" id="input-nama" placeholder="Masukkan nama Anda (sesuai absen)" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                                <input type="text" id="input-nama" placeholder="Masukkan nama Anda" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
@@ -262,7 +209,7 @@
 
                 if (role === 'admin' || role === 'kepsek') {
                     if (document.getElementById('input-pass').value.trim() === 'SMK TARUNA HARAPAN 2') {
-                        currentUser = { nama: document.getElementById('input-nama').value.trim(), role: role, mapel: 'Kontrol Penuh Admin' };
+                        currentUser = { nama: document.getElementById('input-nama').value.trim(), role: role, mapel: 'Kontrol Admin' };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
@@ -339,8 +286,8 @@
 
             if (currentUser.role === 'admin' || currentUser.role === 'kepsek') {
                 menus.push(
-                    { id: 'kontrol_admin', title: 'Kelola Jadwal & Siswa', icon: 'ph-sliders-horizontal' },
-                    { id: 'leger_nilai', title: 'Leger Nilai', icon: 'ph-file-text' }
+                    { id: 'monitoring_upload', title: 'Monitoring Upload Guru', icon: 'ph-chart-bar' },
+                    { id: 'kontrol_admin', title: 'Kelola & Hapus Data', icon: 'ph-shield-check' }
                 );
             }
 
@@ -365,81 +312,104 @@
 
             if (currentView === 'ruang_belajar') {
                 renderRuangBelajar(mainView);
+            } else if (currentView === 'monitoring_upload') {
+                renderMonitoringUpload(mainView);
+            } else if (currentView === 'kontrol_admin') {
+                renderKontrolAdmin(mainView);
             } else if (currentView === 'jadwal') {
                 mainView.innerHTML = `
                     <div class="max-w-5xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Jadwal Mata Pelajaran PJJ / Daring SMK Taruna Harapan 2</h3>
-                        <p class="text-xs text-slate-500">Sesuai dokumen resmi kurikulum semester ganjil 2026/2027.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                            ${Object.keys(jadwalPJJMaster).map(hari => `
-                                <div class="p-4 border rounded-xl bg-slate-50 space-y-2">
-                                    <h4 class="font-bold text-primary text-sm">${hari}</h4>
-                                    ${Object.keys(jadwalPJJMaster[hari]).map(kls => `
-                                        <div>
-                                            <span class="font-semibold text-slate-700">${kls}:</span>
-                                            <p class="text-slate-500">${jadwalPJJMaster[hari][kls].join(', ')}</p>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            `).join('')}
-                        </div>
+                        <h3 class="font-bold text-lg text-slate-900">Jadwal Mata Pelajaran PJJ SMK Taruna Harapan 2</h3>
+                        <p class="text-xs text-slate-500">Semester Ganjil 2026/2027.</p>
                     </div>
                 `;
             } else if (currentView === 'pengumuman') {
                 mainView.innerHTML = `
                     <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-3">
-                        <h3 class="font-bold text-lg text-slate-900">Pengumuman Resmi Sekolah</h3>
-                        <div class="p-4 border rounded-xl bg-slate-50 space-y-1">
-                            <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded">Penting</span>
-                            <h4 class="font-bold text-sm text-slate-800">Modul Kontrol Jadwal Pembelajaran Aktif</h4>
-                            <p class="text-xs text-slate-600">Siswa kini mengakses materi & tugas yang disesuaikan secara otomatis dengan jadwal pelajaran harian.</p>
-                        </div>
+                        <h3 class="font-bold text-lg text-slate-900">Pengumuman Sekolah</h3>
+                        <p class="text-xs text-slate-600">Seluruh materi yang diunggah guru langsung tampil otomatis di akun siswa.</p>
                     </div>
                 `;
-            } else if (currentView === 'kontrol_admin') {
-                renderKontrolAdmin(mainView);
             } else {
                 mainView.innerHTML = `<div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl border shadow-sm"><h3 class="font-bold text-lg">Modul Aktif</h3></div>`;
             }
         }
 
-        // ================= KONTROL ADMIN KELOLA SISWA & JADWAL =================
-        function renderKontrolAdmin(container) {
+        // ================= MONITORING UPLOAD GURU OLEH ADMIN =================
+        function renderMonitoringUpload(container) {
             const materiList = getMateriDB();
-            const strict = isStrictJadwal();
+            const tugasList = getTugasDB();
+            const kuisList = getKuisDB();
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2">
-                        <h3 class="font-bold text-lg text-slate-900">Panel Kontrol Admin Sekolah: Akses Siswa & Jadwal Harian</h3>
-                        <p class="text-xs text-slate-500">Atur batasan pengerjaan materi/tugas siswa agar disiplin mengikuti jadwal harian sekolah.</p>
+                        <h3 class="font-bold text-lg text-slate-900">Dashboard Monitoring Upload Guru</h3>
+                        <p class="text-xs text-slate-500">Admin dapat mengecek guru mapel mana saja yang sudah atau belum mengunggah Materi, Tugas, dan Kuis.</p>
                     </div>
 
-                    <!-- PENGATURAN MODE JADWAL -->
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h4 class="font-bold text-slate-900 text-sm">Mode Pembatasan Jadwal Siswa</h4>
-                        <div class="flex items-center justify-between p-4 border rounded-xl ${strict ? 'bg-amber-50 border-amber-300' : 'bg-slate-50'}">
-                            <div>
-                                <p class="font-bold text-sm text-slate-800">${strict ? '🔒 Mode Ketat (Siswa Hanya Bisa Akses Mapel Sesuai Hari Ini)' : '🔓 Mode Bebas (Siswa Bisa Membuka Semua Materi/Tugas)'}</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Hari Ini: <b>${getCurrentHariName()}</b></p>
-                            </div>
-                            <button id="toggle-strict" class="px-5 py-2.5 rounded-xl font-bold text-xs text-white shadow ${strict ? 'bg-amber-600 hover:bg-amber-700' : 'bg-green-600 hover:bg-green-700'}">
-                                ${strict ? 'Ubah ke Mode Bebas' : 'Aktifkan Mode Ketat Jadwal'}
-                            </button>
+                    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Rekapitulasi Keaktifan Guru Pengampu</div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-100 text-slate-600 border-b">
+                                    <tr>
+                                        <th class="p-3">No</th>
+                                        <th class="p-3">Nama Guru</th>
+                                        <th class="p-3">Mata Pelajaran</th>
+                                        <th class="p-3 text-center">Status Materi</th>
+                                        <th class="p-3 text-center">Status Tugas</th>
+                                        <th class="p-3 text-center">Status Kuis</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    ${masterGuruLogin.map((g, idx) => {
+                                        const hasMateri = materiList.some(m => (m.guru || '').toLowerCase() === g.nama.toLowerCase());
+                                        const hasTugas = tugasList.some(t => (t.guru || '').toLowerCase() === g.nama.toLowerCase());
+                                        const hasKuis = kuisList.some(k => (k.guru || '').toLowerCase() === g.nama.toLowerCase());
+
+                                        return `
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="p-3 font-medium">${idx + 1}</td>
+                                                <td class="p-3 font-bold text-slate-900">${g.nama}</td>
+                                                <td class="p-3 text-slate-600">${g.mapel}</td>
+                                                <td class="p-3 text-center">
+                                                    ${hasMateri ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah Upload</span>' : '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full font-bold">Belum Upload</span>'}
+                                                </td>
+                                                <td class="p-3 text-center">
+                                                    ${hasTugas ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah Upload</span>' : '<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">Belum</span>'}
+                                                </td>
+                                                <td class="p-3 text-center">
+                                                    ${hasKuis ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah Upload</span>' : '<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">Belum</span>'}
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
+            `;
+        }
 
-                    <!-- REKAPITULASI MATERI GURU -->
+        // ================= KONTROL ADMIN =================
+        function renderKontrolAdmin(container) {
+            const materiList = getMateriDB();
+            container.innerHTML = `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2">
+                        <h3 class="font-bold text-lg text-slate-900">Kelola & Hapus Data Upload</h3>
+                        <p class="text-xs text-slate-500">Admin dapat menghapus materi/tugas yang diunggah keliru oleh guru.</p>
+                    </div>
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h4 class="font-bold text-slate-900 text-sm">Kontrol & Hapus Upload Materi Guru</h4>
-                        ${materiList.length === 0 ? '<p class="text-xs text-slate-400">Belum ada materi diunggah.</p>' : `
+                        <h4 class="font-bold text-slate-900 text-sm">Daftar Seluruh Materi Terunggah (${materiList.length})</h4>
+                        ${materiList.length === 0 ? '<p class="text-xs text-slate-400">Belum ada materi.</p>' : `
                             <div class="space-y-2">
-                                ${materiList.map((m) => `
+                                ${materiList.map(m => `
                                     <div class="flex justify-between items-center p-3 border rounded-xl bg-slate-50 text-xs">
-                                        <div>
-                                            <span class="font-bold text-primary">[${m.format}]</span> <b>${m.judul}</b> <span class="text-slate-400">(Oleh: ${m.guru || 'Guru'} - ${m.mapel || 'Mapel'})</span>
-                                        </div>
-                                        <button onclick="window.hapusMateri(${m.id})" class="bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-lg hover:bg-red-200">Hapus Materi</button>
+                                        <div><b>${m.judul}</b> <span class="text-slate-400">(${m.guru} - ${m.mapel})</span></div>
+                                        <button onclick="window.hapusMateri(${m.id})" class="bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-lg">Hapus</button>
                                     </div>
                                 `).join('')}
                             </div>
@@ -447,57 +417,37 @@
                     </div>
                 </div>
             `;
-
-            document.getElementById('toggle-strict').addEventListener('click', () => {
-                setStrictJadwal(!strict);
-                renderKontrolAdmin(container);
-            });
         }
 
         window.hapusMateri = function(id) {
-            if (confirm('Yakin ingin menghapus materi ini dari sistem?')) {
-                let list = getMateriDB();
-                list = list.filter(m => m.id !== id);
+            if (confirm('Hapus materi ini?')) {
+                let list = getMateriDB().filter(m => m.id !== id);
                 saveMateriDB(list);
                 renderKontrolAdmin(document.getElementById('main-view'));
-                alert('Materi berhasil dihapus oleh Admin.');
+                alert('Berhasil dihapus.');
             }
         };
 
-        // ================= RUANG BELAJAR (FILTER SESUAI JADWAL) =================
+        // ================= RUANG BELAJAR (GLOBAL & TERPUSAT) =================
         function renderRuangBelajar(container) {
-            let materiList = getMateriDB();
-            let tugasList = getTugasDB();
-            let kuisList = getKuisDB();
-            const hariIni = getCurrentHariName();
-            const strict = isStrictJadwal();
-
-            // Filter jadwal jika role siswa dan mode ketat aktif
-            if (currentUser.role === 'siswa' && strict && jadwalPJJMaster[hariIni] && jadwalPJJMaster[hariIni][currentUser.kelas]) {
-                const mapelHariIni = jadwalPJJMaster[hariIni][currentUser.kelas].map(m => m.toLowerCase());
-                materiList = materiList.filter(m => mapelHariIni.some(mh => (m.mapel || '').toLowerCase().includes(mh) || (m.judul || '').toLowerCase().includes(mh)));
-                tugasList = tugasList.filter(t => mapelHariIni.some(mh => (t.judul || '').toLowerCase().includes(mh)));
-                kuisList = kuisList.filter(k => mapelHariIni.some(mh => (k.judul || '').toLowerCase().includes(mh)));
-            }
-
+            const materiList = getMateriDB();
+            const tugasList = getTugasDB();
+            const kuisList = getKuisDB();
             const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapel}` : (currentUser.role === 'admin' ? 'Panel Admin Sekolah' : `Ruang Belajar Siswa (${currentUser.kelas})`);
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
-                    <!-- HEADER RUANG BELAJAR -->
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
                                 <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'Semua Kelas'}</p>
                                 <h1 class="text-2xl font-bold text-slate-900">${titleHeader}</h1>
                                 <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 mt-2">
-                                    <span class="bg-slate-100 px-2.5 py-1 rounded-md font-medium">📅 Hari Ini: ${hariIni}</span>
                                     <span>👤 ${currentUser.nama}</span>
                                     <span>⭐ KKM 75</span>
                                 </div>
                             </div>
 
-                            <!-- TOMBOL UNGGAH GURU / ADMIN -->
                             ${currentUser.role === 'guru' || currentUser.role === 'admin' ? `
                                 <div class="flex flex-wrap gap-2">
                                     <button id="btn-modal-pertemuan" class="bg-primary hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
@@ -513,7 +463,6 @@
                             ` : ''}
                         </div>
 
-                        <!-- TAB MENU RUANG BELAJAR -->
                         <div class="flex overflow-x-auto space-x-2 border-t pt-4 text-xs font-semibold text-slate-600">
                             <button data-tab="materi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'materi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Materi (${materiList.length})</button>
                             <button data-tab="tugas" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'tugas' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Tugas (${tugasList.length})</button>
@@ -523,13 +472,13 @@
                         </div>
                     </div>
 
-                    <!-- MODAL UNGGAH MATERI -->
+                    <!-- MODAL MATERI -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
-                        <h3 class="font-bold text-slate-900 text-sm">Unggah Media Bahan Ajar (Word, Excel, PPT, Gambar, Video)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran (Word, Excel, PPT, Gambar, Video)</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div>
-                                <label class="block font-bold uppercase mb-1">Judul Materi / Pertemuan</label>
-                                <input type="text" id="m-judul" placeholder="Contoh: Modul Pertemuan 1" class="w-full border p-2.5 rounded-xl" required>
+                                <label class="block font-bold uppercase mb-1">Judul Materi</label>
+                                <input type="text" id="m-judul" placeholder="Contoh: Modul Bab 1" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Format File</label>
@@ -546,23 +495,23 @@
                                 <input type="url" id="m-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow hover:bg-red-700">Publikasikan Materi</button>
+                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow hover:bg-red-700">Publikasikan</button>
                                 <button type="button" id="batal-materi" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- MODAL BUAT TUGAS -->
+                    <!-- MODAL TUGAS -->
                     <div id="modal-form-tugas" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-slate-800">
                         <h3 class="font-bold text-slate-900 text-sm">Buat Tugas Baru</h3>
                         <form id="form-add-tugas" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
-                                <label class="block font-bold uppercase mb-1">Judul & Instruksi Tugas</label>
+                                <label class="block font-bold uppercase mb-1">Judul Tugas</label>
                                 <input type="text" id="t-judul" placeholder="Contoh: Tugas Mandiri" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Tenggat Waktu</label>
-                                <input type="text" id="t-deadline" placeholder="Contoh: 23:59 WIB" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="t-deadline" placeholder="Contoh: Senin, 23:59 WIB" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Tugas</button>
@@ -571,13 +520,13 @@
                         </form>
                     </div>
 
-                    <!-- MODAL BUAT KUIS -->
+                    <!-- MODAL KUIS -->
                     <div id="modal-form-kuis" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-amber-500">
-                        <h3 class="font-bold text-slate-900 text-sm">Buat Kuis Baru</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Buat Kuis / CBT</h3>
                         <form id="form-add-kuis" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Kuis</label>
-                                <input type="text" id="k-judul" placeholder="Contoh: Kuis Evaluasi" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="k-judul" placeholder="Contoh: Kuis Bab" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Durasi</label>
@@ -590,7 +539,6 @@
                         </form>
                     </div>
 
-                    <!-- KONTEN TAB -->
                     <div id="tab-content"></div>
                 </div>
             `;
@@ -614,13 +562,13 @@
                         pertemuan: `PERT. ${list.length + 1}`, 
                         judul: document.getElementById('m-judul').value, 
                         format: document.getElementById('m-format').value, 
-                        tanggal: hariIni, 
+                        tanggal: 'Hari Ini', 
                         link: document.getElementById('m-link').value, 
                         guru: currentUser.nama,
                         mapel: currentUser.mapel || 'Mapel Umum'
                     });
                     saveMateriDB(list);
-                    alert('Materi berhasil diunggah!');
+                    alert('Materi berhasil diunggah dan langsung terlihat oleh siswa & admin!');
                     document.getElementById('modal-form-materi').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -680,8 +628,7 @@
                         <div class="lg:col-span-2 space-y-4">
                             ${materiList.length === 0 ? `
                                 <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-2">
-                                    <p class="text-sm font-bold text-slate-700">Belum ada materi pembelajaran untuk hari ini.</p>
-                                    <p class="text-xs text-slate-400">Silakan menunggu guru di jam pelajarannya.</p>
+                                    <p class="text-sm font-bold text-slate-700">Belum ada materi pembelajaran yang diunggah.</p>
                                 </div>
                             ` : materiList.map(m => `
                                 <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center justify-between">
@@ -703,11 +650,8 @@
 
                         <div class="space-y-6">
                             <div class="bg-white p-5 rounded-2xl border-l-4 border-primary shadow-sm space-y-2">
-                                <h4 class="font-bold text-slate-900 text-sm">Catatan PJJ Harian</h4>
-                                <p class="text-xs text-slate-600 leading-relaxed">
-                                    Siswa wajib mengikuti mata pelajaran sesuai jam jadwal harian.<br><br>
-                                    Kerjakan tugas dan presensi sebelum batas waktu habis.
-                                </p>
+                                <h4 class="font-bold text-slate-900 text-sm">Informasi PJJ</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">Semua materi yang diunggah guru langsung tersinkronisasi dan dapat diakses oleh seluruh siswa.</p>
                             </div>
                         </div>
                     </div>
@@ -715,12 +659,8 @@
             } else if (currentTabRuang === 'tugas') {
                 tabContent.innerHTML = `
                     <div class="max-w-4xl mx-auto space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Daftar Tugas Siswa</h3>
-                        ${tugasList.length === 0 ? `
-                            <div class="bg-white p-8 rounded-2xl border shadow-sm text-center">
-                                <p class="text-sm font-bold text-slate-700">Tidak ada tugas aktif untuk jadwal hari ini.</p>
-                            </div>
-                        ` : tugasList.map(t => `
+                        <h3 class="font-bold text-lg text-slate-900">Daftar Tugas & Pengumpulan</h3>
+                        ${tugasList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada tugas.</p></div>' : tugasList.map(t => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
                                     <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${t.status}</span>
@@ -728,9 +668,7 @@
                                     <p class="text-xs text-slate-500">Guru: ${t.guru || 'Guru'} • Tenggat: ${t.deadline}</p>
                                 </div>
                                 <div>
-                                    ${currentUser.role === 'siswa' ? `
-                                        <button onclick="alert('File tugas berhasil dikumpulkan!')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kumpulkan Tugas</button>
-                                    ` : `<span class="text-xs font-bold text-blue-600">Aktif</span>`}
+                                    ${currentUser.role === 'siswa' ? `<button onclick="alert('Tugas berhasil dikumpulkan!')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kumpulkan Tugas</button>` : `<span class="text-xs font-bold text-blue-600">Aktif</span>`}
                                 </div>
                             </div>
                         `).join('')}
@@ -739,19 +677,15 @@
             } else if (currentTabRuang === 'kuis') {
                 tabContent.innerHTML = `
                     <div class="max-w-4xl mx-auto space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Kuis & CBT Online</h3>
-                        ${kuisList.length === 0 ? `
-                            <div class="bg-white p-8 rounded-2xl border shadow-sm text-center">
-                                <p class="text-sm font-bold text-slate-700">Tidak ada kuis aktif untuk jadwal hari ini.</p>
-                            </div>
-                        ` : kuisList.map(k => `
+                        <h3 class="font-bold text-lg text-slate-900">Kuis & Ujian CBT</h3>
+                        ${kuisList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada kuis.</p></div>' : kuisList.map(k => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-center">
                                 <div class="space-y-1">
                                     <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded">${k.status}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${k.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${k.guru || 'Guru'} • Durasi: ${k.waktu}</p>
                                 </div>
-                                <button onclick="alert('Mulai mengerjakan kuis...')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kerjakan Kuis</button>
+                                <button onclick="alert('Mulai kuis...')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kerjakan</button>
                             </div>
                         `).join('')}
                     </div>
@@ -759,15 +693,14 @@
             } else if (currentTabRuang === 'presensi') {
                 tabContent.innerHTML = `
                     <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Presensi Kehadiran PJJ</h3>
-                        <p class="text-xs text-slate-500">Catat kehadiran Anda sesuai jadwal hari ini.</p>
-                        <button onclick="alert('Presensi berhasil dicatat!')" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Saya Hadir</button>
+                        <h3 class="font-bold text-lg text-slate-900">Presensi Kehadiran</h3>
+                        <button onclick="alert('Presensi tercatat!')" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Saya Hadir</button>
                     </div>
                 `;
             } else if (currentTabRuang === 'diskusi') {
                 tabContent.innerHTML = `
                     <div class="max-w-4xl mx-auto bg-white rounded-2xl border shadow-sm flex flex-col h-[450px]">
-                        <div class="p-4 border-b font-bold text-slate-900 text-sm">Forum Diskusi Harian</div>
+                        <div class="p-4 border-b font-bold text-slate-900 text-sm">Forum Diskusi Real-Time</div>
                         <div class="flex-1 p-5 overflow-y-auto space-y-3 text-xs">
                             ${diskusiList.map(d => `
                                 <div class="p-3 rounded-xl bg-slate-50 border">
