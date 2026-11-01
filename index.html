@@ -32,14 +32,14 @@
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
 
-        // Master Guru SMK Taruna Harapan 2
+        // Master Guru SMK Taruna Harapan 2 (Terbaru sesuai penyesuaian mapel)
         const masterGuruLogin = [
             { nama: "Anen S.Pd", mapels: ["PAI"] },
             { nama: "Windriani Rantiani andini, S.Pd", mapels: ["MTK"] },
-            { nama: "Difki Muhamad Fahri S.Pd", mapels: ["Projek. IPAS", "Desain Grafis"] },
+            { nama: "Difki Muhamad Fahri S.Pd", mapels: ["Desain Grafis"] },
             { nama: "Aan Hasanah, S.Pd", mapels: ["B. INGGRIS", "BP/BK"] },
             { nama: "Intan Rustianti, S.E", mapels: ["DD TSM", "B. SUNDA"] },
-            { nama: "Rahmi Kurniawati, S.Pd", mapels: ["SEJARAH", "Seni Budaya"] },
+            { nama: "Rahmi Kurniawati, S.Pd", mapels: ["SEJARAH", "Seni Budaya", "Projek IPAS"] },
             { nama: "Intan Dewi purwanti, S.Pd,.Gr.", mapels: ["B. INDONESIA"] },
             { nama: "Riska Nurjanah, S.E", mapels: ["AK. Keuangan", "KOMP.AK"] },
             { nama: "Wahyudin", mapels: ["PJOK", "INFORMATIKA"] },
@@ -136,19 +136,19 @@
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v7') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v7') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v7') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v7') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v7') || '[{"judul": "Selamat Datang PJJ", "isi": "Pembelajaran daring berjalan lancar.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v7') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v8') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v8') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v8') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v8') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v8') || '[{"judul": "Selamat Datang PJJ", "isi": "Pembelajaran daring berjalan lancar.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v8') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v7`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v8`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v7`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v8`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
         }
 
@@ -161,7 +161,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Monitoring & Chat Kelas</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Update Mapel Guru</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -218,7 +218,7 @@
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
-                        alert('Nama siswa atau password Kelas (contoh: X AKL, X TSM, XI AKL, XI TSM) tidak cocok.');
+                        alert('Nama siswa atau password Kelas tidak cocok.');
                     }
                 }
             });
@@ -252,7 +252,6 @@
                         </div>
                     </aside>
                     <main id="main-view" class="flex-1 overflow-y-auto bg-slate-100 p-6 relative">
-                        <!-- BANNER PENGUMUMAN & ALARM PERGANTIAN JAM -->
                         <div id="banner-pengumuman" class="mb-4 bg-amber-100 border-l-4 border-amber-500 text-amber-900 p-4 rounded-xl shadow-sm text-xs flex justify-between items-center">
                             <div id="banner-teks">📢 <b>Pengumuman Sekolah:</b> Sistem PJJ aktif dan berjalan lancar.</div>
                             <div id="jam-alarm" class="font-bold bg-amber-500 text-white px-2 py-1 rounded-lg">🔔 Jam Pelajaran Berjalan</div>
@@ -320,12 +319,9 @@
             }
         }
 
-        // ================= MONITORING TUGAS, KUIS & KEHADIRAN SISWA =================
         async function renderMonitoringSiswa(container) {
             const db = await fetchDataFromSupabase();
             const presensiList = db.presensi;
-            const tugasList = db.tugas;
-            const kuisList = db.kuis;
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -337,7 +333,6 @@
                         <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
                     </div>
 
-                    <!-- REKAP KEHADIRAN -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Rekapitulasi Presensi Kehadiran Siswa</div>
                         <div class="overflow-x-auto">
@@ -372,7 +367,6 @@
             `;
         }
 
-        // ================= MONITORING UPLOAD GURU =================
         async function renderMonitoringUpload(container) {
             const db = await fetchDataFromSupabase();
 
@@ -412,7 +406,7 @@
                                                 <td class="p-3 font-medium">${idx + 1}</td>
                                                 <td class="p-3 font-bold text-slate-900">${g.nama}</td>
                                                 <td class="p-3 text-slate-600">${g.mapels.join(', ')}</td>
-                                                <td class="p-3 text-center">${hasM ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-red-100 text-red-700 px-2 py-1 rounded-full">Belum</span>'}</td>
+                                                <td class="p-3 text-center">${hasM ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full">Belum</span>'}</td>
                                                 <td class="p-3 text-center">${hasT ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Belum</span>'}</td>
                                                 <td class="p-3 text-center">${hasK ? '<span class="bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-bold">Sudah</span>' : '<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Belum</span>'}</td>
                                             </tr>
@@ -426,7 +420,6 @@
             `;
         }
 
-        // ================= PENGUMUMAN & ALARM JAM PERGANTIAN =================
         async function renderPengumumanView(container) {
             const db = await fetchDataFromSupabase();
             const listPeng = db.pengumuman;
@@ -479,14 +472,13 @@
                         waktu: new Date().toLocaleTimeString() + ' WIB'
                     };
                     await saveCloud('pengumuman', newItem);
-                    alert('Pengumuman berhasil disiarkan ke seluruh guru dan siswa!');
+                    alert('Pengumuman berhasil disiarkan!');
                     renderPengumumanView(container);
                     muatBannerPengumuman();
                 });
             }
         }
 
-        // ================= RUANG BELAJAR & CHAT KELAS =================
         async function renderRuangBelajar(container) {
             const db = await fetchDataFromSupabase();
             const materiList = db.materi;
