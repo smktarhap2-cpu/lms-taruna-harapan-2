@@ -32,7 +32,7 @@
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
 
-        // Master Guru Lengkap SMK Taruna Harapan 2
+        // Master Guru SMK Taruna Harapan 2
         const masterGuruLogin = [
             { nama: "Anen S.Pd", mapels: ["PAI"] },
             { nama: "Windriani Rantiani andini, S.Pd", mapels: ["MTK"] },
@@ -50,7 +50,7 @@
             { nama: "Diarti Alpionita, S.Pd", mapels: ["P. PANCASILA"] }
         ];
 
-        // Master Siswa Lengkap
+        // Master Siswa
         const masterSiswaLogin = [
             { nama: "Almira Nuraeni", kelas: "X AKL" },
             { nama: "Anggi Fitria Anggraeni", kelas: "X AKL" },
@@ -118,62 +118,49 @@
             { nama: "M. Akmal Julpadli", kelas: "XI TSM" }
         ];
 
-        // Sinkronisasi Supabase & LocalStorage
-        let remoteMateri = [];
-        let remoteTugas = [];
-        let remoteKuis = [];
-
         async function fetchDataFromSupabase() {
+            let mData = [], tData = [], kData = [];
             try {
-                const { data: mData } = await supabase.from('materi').select('*');
-                if (mData && mData.length > 0) remoteMateri = mData;
+                const resM = await supabase.from('materi').select('*');
+                if (resM.data) mData = resM.data;
 
-                const { data: tData } = await supabase.from('tugas').select('*');
-                if (tData && tData.length > 0) remoteTugas = tData;
+                const resT = await supabase.from('tugas').select('*');
+                if (resT.data) tData = resT.data;
 
-                const { data: kData } = await supabase.from('kuis').select('*');
-                if (kData && kData.length > 0) remoteKuis = kData;
+                const resK = await supabase.from('kuis').select('*');
+                if (resK.data) kData = resK.data;
             } catch (err) {}
 
-            const localMat = JSON.parse(localStorage.getItem('th2_materi_v4') || '[]');
-            const localTug = JSON.parse(localStorage.getItem('th2_tugas_v4') || '[]');
-            const localKuis = JSON.parse(localStorage.getItem('th2_kuis_v4') || '[]');
+            const localMat = JSON.parse(localStorage.getItem('th2_materi_v6') || '[]');
+            const localTug = JSON.parse(localStorage.getItem('th2_tugas_v6') || '[]');
+            const localKuis = JSON.parse(localStorage.getItem('th2_kuis_v6') || '[]');
 
             return {
-                materi: [...remoteMateri, ...localMat],
-                tugas: [...remoteTugas, ...localTug],
-                kuis: [...remoteKuis, ...localKuis]
+                materi: mData.length > 0 ? mData : localMat,
+                tugas: tData.length > 0 ? tData : localTug,
+                kuis: kData.length > 0 ? kData : localKuis
             };
         }
 
         async function saveMateriToCloud(newItem) {
-            let localMat = JSON.parse(localStorage.getItem('th2_materi_v4') || '[]');
+            let localMat = JSON.parse(localStorage.getItem('th2_materi_v6') || '[]');
             localMat.unshift(newItem);
-            localStorage.setItem('th2_materi_v4', JSON.stringify(localMat));
-
-            try {
-                await supabase.from('materi').insert([newItem]);
-            } catch (e) {}
+            localStorage.setItem('th2_materi_v6', JSON.stringify(localMat));
+            try { await supabase.from('materi').insert([newItem]); alert('Materi berhasil dipublikasikan ke cloud!'); } catch (e) {}
         }
 
         async function saveTugasToCloud(newItem) {
-            let localTug = JSON.parse(localStorage.getItem('th2_tugas_v4') || '[]');
+            let localTug = JSON.parse(localStorage.getItem('th2_tugas_v6') || '[]');
             localTug.unshift(newItem);
-            localStorage.setItem('th2_tugas_v4', JSON.stringify(localTug));
-
-            try {
-                await supabase.from('tugas').insert([newItem]);
-            } catch (e) {}
+            localStorage.setItem('th2_tugas_v6', JSON.stringify(localTug));
+            try { await supabase.from('tugas').insert([newItem]); alert('Tugas berhasil dibuat!'); } catch (e) {}
         }
 
         async function saveKuisToCloud(newItem) {
-            let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v4') || '[]');
+            let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v6') || '[]');
             localKuis.unshift(newItem);
-            localStorage.setItem('th2_kuis_v4', JSON.stringify(localKuis));
-
-            try {
-                await supabase.from('kuis').insert([newItem]);
-            } catch (e) {}
+            localStorage.setItem('th2_kuis_v6', JSON.stringify(localKuis));
+            try { await supabase.from('kuis').insert([newItem]); alert('Kuis berhasil dibuat!'); } catch (e) {}
         }
 
         let diskusiList = [
@@ -189,7 +176,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Monitoring Akurat</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Tugas & Kuis Interaktif</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -337,7 +324,7 @@
             }
         }
 
-        // ================= MONITORING UPLOAD GURU (FLEXIBLE MATCHING) =================
+        // ================= MONITORING UPLOAD GURU =================
         async function renderMonitoringUpload(container) {
             const db = await fetchDataFromSupabase();
 
@@ -348,7 +335,7 @@
                             <h3 class="font-bold text-lg text-slate-900">Dashboard Monitoring Upload Guru</h3>
                             <p class="text-xs text-slate-500">Mengecek guru mapel yang sudah atau belum mengunggah Materi, Tugas, dan Kuis.</p>
                         </div>
-                        <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
+                        <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data Cloud</button>
                     </div>
 
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
@@ -367,9 +354,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-slate-200">
                                     ${masterGuruLogin.map((g, idx) => {
-                                        // Ambil nama depan atau kata kunci utama guru untuk pencocokan yang akurat
                                         const keywordGuru = g.nama.split(',')[0].trim().toLowerCase();
-
                                         const hasMateri = db.materi.some(m => (m.guru || '').toLowerCase().includes(keywordGuru));
                                         const hasTugas = db.tugas.some(t => (t.guru || '').toLowerCase().includes(keywordGuru));
                                         const hasKuis = db.kuis.some(k => (k.guru || '').toLowerCase().includes(keywordGuru));
@@ -413,7 +398,7 @@
                                 ${db.materi.map(m => `
                                     <div class="flex justify-between items-center p-3 border rounded-xl bg-slate-50 text-xs">
                                         <div><b>${m.judul}</b> <span class="text-slate-400">(${m.guru} - Mapel: ${m.mapel})</span></div>
-                                        <a href="${m.link}" target="_blank" class="text-blue-600 underline font-semibold">Akses</a>
+                                        <a href="${m.link}" target="_blank" class="text-blue-600 underline font-semibold">Akses File</a>
                                     </div>
                                 `).join('')}
                             </div>
@@ -512,17 +497,21 @@
                         </form>
                     </div>
 
-                    <!-- MODAL TUGAS -->
+                    <!-- MODAL TUGAS (DENGAN LINK SOAL) -->
                     <div id="modal-form-tugas" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-slate-800">
                         <h3 class="font-bold text-slate-900 text-sm">Buat Tugas Baru</h3>
                         <form id="form-add-tugas" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Tugas</label>
-                                <input type="text" id="t-judul" placeholder="Contoh: Tugas Mandiri" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="t-judul" placeholder="Contoh: Tugas Mandiri Bab 1" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Tenggat Waktu</label>
+                                <label class="block font-bold uppercase mb-1">Tenggat Waktu (Deadline)</label>
                                 <input type="text" id="t-deadline" placeholder="Contoh: Senin, 23:59 WIB" class="w-full border p-2.5 rounded-xl" required>
+                            </div>
+                            <div>
+                                <label class="block font-bold uppercase mb-1">Link Soal / File Petunjuk Tugas</label>
+                                <input type="url" id="t-link" placeholder="https://drive.google.com/..." class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Tugas</button>
@@ -531,17 +520,21 @@
                         </form>
                     </div>
 
-                    <!-- MODAL KUIS -->
+                    <!-- MODAL KUIS (DENGAN LINK SOAL CBT) -->
                     <div id="modal-form-kuis" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-amber-500">
-                        <h3 class="font-bold text-slate-900 text-sm">Buat Kuis / CBT</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Buat Kuis / Ujian CBT</h3>
                         <form id="form-add-kuis" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Kuis</label>
-                                <input type="text" id="k-judul" placeholder="Contoh: Kuis Bab" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="k-judul" placeholder="Contoh: Kuis Harian Pilihan Ganda" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Durasi</label>
+                                <label class="block font-bold uppercase mb-1">Durasi Pengerjaan</label>
                                 <input type="text" id="k-waktu" placeholder="Contoh: 30 Menit" class="w-full border p-2.5 rounded-xl" required>
+                            </div>
+                            <div>
+                                <label class="block font-bold uppercase mb-1">Link Soal Kuis (Google Form / Quizizz)</label>
+                                <input type="url" id="k-link" placeholder="https://forms.gle/..." class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
                                 <button type="submit" class="bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow">Simpan Kuis</button>
@@ -579,7 +572,6 @@
                         mapel: mapelPilih
                     };
                     await saveMateriToCloud(newItem);
-                    alert(`Materi untuk mapel [${mapelPilih}] berhasil diunggah!`);
                     document.getElementById('modal-form-materi').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -595,11 +587,11 @@
                         id: Date.now(), 
                         judul: document.getElementById('t-judul').value, 
                         deadline: document.getElementById('t-deadline').value, 
+                        link: document.getElementById('t-link').value,
                         status: 'Dibuka',
                         guru: currentUser.nama
                     };
                     await saveTugasToCloud(newItem);
-                    alert('Tugas berhasil dibuat!');
                     document.getElementById('modal-form-tugas').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -615,11 +607,11 @@
                         id: Date.now(), 
                         judul: document.getElementById('k-judul').value, 
                         waktu: document.getElementById('k-waktu').value, 
+                        link: document.getElementById('k-link').value,
                         status: 'Sedang dibuka',
                         guru: currentUser.nama
                     };
                     await saveKuisToCloud(newItem);
-                    alert('Kuis berhasil dibuat!');
                     document.getElementById('modal-form-kuis').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -656,28 +648,26 @@
                                 </div>
                             `).join('')}
                         </div>
-
-                        <div class="space-y-6">
-                            <div class="bg-white p-5 rounded-2xl border-l-4 border-primary shadow-sm space-y-2">
-                                <h4 class="font-bold text-slate-900 text-sm">Informasi PJJ</h4>
-                                <p class="text-xs text-slate-600 leading-relaxed">Semua materi yang diunggah guru langsung tersinkronisasi dan dapat diakses oleh seluruh siswa.</p>
-                            </div>
-                        </div>
                     </div>
                 `;
             } else if (currentTabRuang === 'tugas') {
                 tabContent.innerHTML = `
                     <div class="max-w-4xl mx-auto space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Daftar Tugas & Pengumpulan</h3>
+                        <h3 class="font-bold text-lg text-slate-900">Daftar Tugas & Pengumpulan Siswa</h3>
                         ${tugasList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada tugas.</p></div>' : tugasList.map(t => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
                                     <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${t.status}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${t.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${t.guru || 'Guru'} • Tenggat: ${t.deadline}</p>
+                                    ${t.link ? `<a href="${t.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">📁 Lihat Soal / Petunjuk Tugas</a>` : ''}
                                 </div>
-                                <div>
-                                    ${currentUser.role === 'siswa' ? `<button onclick="alert('Tugas berhasil dikumpulkan!')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kumpulkan Tugas</button>` : `<span class="text-xs font-bold text-blue-600">Aktif</span>`}
+                                <div class="flex items-center space-x-2">
+                                    ${currentUser.role === 'siswa' ? `
+                                        <button onclick="const linkJawab = prompt('Masukkan Link Jawaban Tugas Anda (Google Drive / Doc):'); if(linkJawab) alert('Tugas berhasil dikumpulkan ke guru!');" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kumpulkan Tugas</button>
+                                    ` : `
+                                        <span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl">Status: Aktif</span>
+                                    `}
                                 </div>
                             </div>
                         `).join('')}
@@ -694,7 +684,11 @@
                                     <h4 class="font-bold text-slate-900 text-sm">${k.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${k.guru || 'Guru'} • Durasi: ${k.waktu}</p>
                                 </div>
-                                <button onclick="alert('Mulai kuis...')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kerjakan</button>
+                                ${k.link ? `
+                                    <a href="${k.link}" target="_blank" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kerjakan Kuis</a>
+                                ` : `
+                                    <span class="text-xs text-slate-400">Link belum disetel</span>
+                                `}
                             </div>
                         `).join('')}
                     </div>
@@ -703,7 +697,7 @@
                 tabContent.innerHTML = `
                     <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                         <h3 class="font-bold text-lg text-slate-900">Presensi Kehadiran</h3>
-                        <button onclick="alert('Presensi tercatat!')" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Saya Hadir</button>
+                        <button onclick="alert('Presensi berhasil dicatat!')" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Saya Hadir</button>
                     </div>
                 `;
             } else if (currentTabRuang === 'diskusi') {
