@@ -32,7 +32,7 @@
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
 
-        // Master Guru Lengkap SMK Taruna Harapan 2
+        // Master Guru SMK Taruna Harapan 2
         const masterGuruLogin = [
             { nama: "Anen S.Pd", mapel: "PAI" },
             { nama: "Windriani Rantiani andini, S.Pd", mapel: "MTK" },
@@ -50,18 +50,79 @@
             { nama: "Diarti Alpionita, S.Pd", mapel: "P. PANCASILA" }
         ];
 
+        // Master Siswa Lengkap Sesuai Data Absensi/Login Sekolah
         const masterSiswaLogin = [
-            { nis: "262707018", nama: "Almira Nuraeni", kelas: "X AKL" },
-            { nis: "262707019", nama: "Anggi Fitria Anggraeni", kelas: "X AKL" },
-            { nis: "262707020", nama: "Annisa Rahmawati", kelas: "X AKL" },
-            { nis: "262707021", nama: "Destia Nurhabibah", kelas: "X AKL" },
-            { nis: "262707001", nama: "Ahmad Rijik", kelas: "X TSM" },
-            { nis: "262707002", nama: "Aries Rizky Nuryana", kelas: "X TSM" },
-            { nis: "252610007", nama: "Andre Aprilyansyah", kelas: "XI AKL" },
-            { nis: "252610001", nama: "Cucu Amelia", kelas: "XI TSM" }
+            // X AKL
+            { nama: "Almira Nuraeni", kelas: "X AKL" },
+            { nama: "Anggi Fitria Anggraeni", kelas: "X AKL" },
+            { nama: "Annisa Rahmawati", kelas: "X AKL" },
+            { nama: "Destia Nurhabibah", kelas: "X AKL" },
+            { nama: "Kartiwi Aprilia", kelas: "X AKL" },
+            { nama: "Lia Yulita", kelas: "X AKL" },
+            { nama: "Meli Nurmala", kelas: "X AKL" },
+            { nama: "Moch Fadil Rajaenuloh", kelas: "X AKL" },
+            { nama: "Muhamad Raditia", kelas: "X AKL" },
+            { nama: "Nunung Latifah", kelas: "X AKL" },
+            { nama: "Panji Andrean", kelas: "X AKL" },
+            { nama: "Putri Sabrina Santoso", kelas: "X AKL" },
+            { nama: "Rian Tri Ana Rahayu", kelas: "X AKL" },
+            { nama: "Rika Rahayu", kelas: "X AKL" },
+            { nama: "Rinda Nurfarida", kelas: "X AKL" },
+            { nama: "Riska Sophia Azzahra", kelas: "X AKL" },
+            { nama: "Risma", kelas: "X AKL" },
+            { nama: "Rizkian Pratama", kelas: "X AKL" },
+            { nama: "Tasya Hani Nuaraini", kelas: "X AKL" },
+            { nama: "Triana Dewi", kelas: "X AKL" },
+            { nama: "Winda Amelia", kelas: "X AKL" },
+            { nama: "Cinta Tasya", kelas: "X AKL" },
+            
+            // X TSM
+            { nama: "Ahmad Rijik", kelas: "X TSM" },
+            { nama: "Aries Rizky Nuryana", kelas: "X TSM" },
+            { nama: "Asdian", kelas: "X TSM" },
+            { nama: "Cahya Wiguna Setia Permana", kelas: "X TSM" },
+            { nama: "Dik Dik Pirmansyah", kelas: "X TSM" },
+            { nama: "Kiki Hidayat", kelas: "X TSM" },
+            { nama: "Mohamad Fauzi", kelas: "X TSM" },
+            { nama: "Muhammad Andi Iqbal", kelas: "X TSM" },
+            { nama: "Padilah", kelas: "X TSM" },
+            { nama: "Rafka Awaludin", kelas: "X TSM" },
+            { nama: "Repan Sulaeman", kelas: "X TSM" },
+            { nama: "Ridwan", kelas: "X TSM" },
+            { nama: "Riski Maulana", kelas: "X TSM" },
+            { nama: "Riski Anugraha", kelas: "X TSM" },
+            { nama: "Rizqi Pirmansyah", kelas: "X TSM" },
+            { nama: "Panji", kelas: "X TSM" },
+            { nama: "Tian Pedrosa", kelas: "X TSM" },
+
+            // XI AKL
+            { nama: "Andre Aprilyansyah", kelas: "XI AKL" },
+            { nama: "Ariani Putri Fadilah", kelas: "XI AKL" },
+            { nama: "Arvina Sekar Arum", kelas: "XI AKL" },
+            { nama: "Astri", kelas: "XI AKL" },
+            { nama: "Cici Nurhasanah", kelas: "XI AKL" },
+            { nama: "Dela Amelia Safira", kelas: "XI AKL" },
+            { nama: "Ikhsan Zaini Jamil", kelas: "XI AKL" },
+            { nama: "Intan", kelas: "XI AKL" },
+            { nama: "Jimat", kelas: "XI AKL" },
+            { nama: "Nadia Alya Rohani", kelas: "XI AKL" },
+            { nama: "Neni", kelas: "XI AKL" },
+            { nama: "Putri Balkis", kelas: "XI AKL" },
+            { nama: "Rapi Ahmad Ramdani", kelas: "XI AKL" },
+            { nama: "Rena Reva Maharani", kelas: "XI AKL" },
+            { nama: "Saifa Nurul Hasanah", kelas: "XI AKL" },
+            { nama: "Tita Saripah", kelas: "XI AKL" },
+            { nama: "Trinisa Siti Nabila", kelas: "XI AKL" },
+
+            // XI TSM
+            { nama: "Cucu Amelia", kelas: "XI TSM" },
+            { nama: "Moch Faizal Rivaldi", kelas: "XI TSM" },
+            { nama: "Muhamad Dimas Hermawan", kelas: "XI TSM" },
+            { nama: "Rindu Suriyatna", kelas: "XI TSM" },
+            { nama: "M. Akmal Julpadli", kelas: "XI TSM" }
         ];
 
-        // Database localStorage Terpusat (Real-Time Sinkronisasi)
+        // Database localStorage Terpusat
         function getMateriDB() {
             const data = localStorage.getItem('th2_materi_master');
             if (!data) {
@@ -105,7 +166,7 @@
         }
 
         let diskusiList = [
-            { pengirim: 'Admin Sekolah', pesan: 'Selamat datang di portal PJJ SMK Taruna Harapan 2. Seluruh materi, tugas, dan kuis kini tersinkronisasi otomatis.', waktu: '08:00 WIB' }
+            { pengirim: 'Admin Sekolah', pesan: 'Selamat datang di portal PJJ SMK Taruna Harapan 2. Seluruh siswa dari kelas X & XI sudah dapat login dengan lancar.', waktu: '08:00 WIB' }
         ];
 
         const appContainer = document.getElementById('app');
@@ -132,11 +193,11 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Lengkap / Identitas</label>
-                                <input type="text" id="input-nama" placeholder="Masukkan nama Anda" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                                <input type="text" id="input-nama" placeholder="Masukkan nama Anda (sesuai absen)" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
-                                <input type="password" id="input-pass" placeholder="Guru: Mapel | Siswa: Kelas | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                                <input type="password" id="input-pass" placeholder="Guru: Mapel | Siswa: Kelas (cth: X AKL) | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
                             </div>
                             <button type="submit" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm">Masuk ke LMS PJJ</button>
                         </form>
@@ -147,19 +208,19 @@
             document.getElementById('login-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const role = document.getElementById('role-select').value;
-                const namaInput = document.getElementById('input-nama').value.trim();
-                const passInput = document.getElementById('input-pass').value.trim();
+                const namaInput = document.getElementById('input-nama').value.trim().toLowerCase();
+                const passInput = document.getElementById('input-pass').value.trim().toLowerCase();
 
                 if (role === 'admin' || role === 'kepsek') {
-                    if (passInput === 'SMK TARUNA HARAPAN 2') {
-                        currentUser = { nama: namaInput, role: role, mapel: 'Kontrol Penuh Admin' };
+                    if (document.getElementById('input-pass').value.trim() === 'SMK TARUNA HARAPAN 2') {
+                        currentUser = { nama: document.getElementById('input-nama').value.trim(), role: role, mapel: 'Kontrol Penuh Admin' };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
                         alert('Password salah! Gunakan: SMK TARUNA HARAPAN 2');
                     }
                 } else if (role === 'guru') {
-                    const guruMatch = masterGuruLogin.find(g => g.nama.toLowerCase() === namaInput.toLowerCase());
+                    const guruMatch = masterGuruLogin.find(g => g.nama.toLowerCase() === namaInput);
                     if (guruMatch) {
                         currentUser = { nama: guruMatch.nama, role: 'guru', mapel: guruMatch.mapel };
                         currentView = 'ruang_belajar';
@@ -168,13 +229,13 @@
                         alert('Nama guru tidak ditemukan dalam daftar pengampu.');
                     }
                 } else if (role === 'siswa') {
-                    const siswaMatch = masterSiswaLogin.find(s => s.nama.toLowerCase() === namaInput.toLowerCase() && s.kelas.toLowerCase() === passInput.toLowerCase());
+                    const siswaMatch = masterSiswaLogin.find(s => s.nama.toLowerCase() === namaInput && s.kelas.toLowerCase() === passInput);
                     if (siswaMatch) {
                         currentUser = { nama: siswaMatch.nama, role: 'siswa', kelas: siswaMatch.kelas, mapel: 'Pelajaran PJJ' };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
-                        alert('Nama siswa atau password Kelas (contoh: X AKL) tidak cocok.');
+                        alert('Nama siswa atau password Kelas (contoh: X AKL, X TSM, XI AKL, XI TSM) tidak cocok. Perhatikan ejaan nama.');
                     }
                 }
             });
@@ -200,7 +261,7 @@
                                 <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow">${currentUser.nama.substring(0, 2).toUpperCase()}</div>
                                 <div class="overflow-hidden">
                                     <p class="font-bold text-white text-xs truncate">${currentUser.nama}</p>
-                                    <p class="text-[10px] text-blue-300 capitalize">${currentUser.role === 'admin' ? 'Admin (Kontrol Penuh)' : currentUser.role}</p>
+                                    <p class="text-[10px] text-blue-300 capitalize">${currentUser.role === 'admin' ? 'Admin Sekolah' : currentUser.role} ${currentUser.kelas ? '('+currentUser.kelas+')' : ''}</p>
                                 </div>
                             </div>
                             <button id="btn-logout" class="w-full flex items-center justify-center space-x-2 bg-blue-950/60 hover:bg-primary text-slate-200 hover:text-white py-2 rounded-xl text-xs font-semibold transition">
@@ -265,7 +326,7 @@
                             <p class="font-bold text-primary">📌 Ketentuan Pembelajaran:</p>
                             <ul class="list-disc pl-5 space-y-1 text-slate-600">
                                 <li>Presensi & Pembiasaan Karakter dimulai pukul 07.00 WIB.</li>
-                                <li>Materi diunggah oleh guru pengampu dan langsung tampil otomatis di akun siswa.</li>
+                                <li>Materi dan tugas diunggah oleh guru pengampu dan langsung tampil otomatis di akun siswa.</li>
                             </ul>
                         </div>
                     </div>
@@ -276,8 +337,8 @@
                         <h3 class="font-bold text-lg text-slate-900">Pengumuman Resmi Sekolah</h3>
                         <div class="p-4 border rounded-xl bg-slate-50 space-y-1">
                             <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded">Penting</span>
-                            <h4 class="font-bold text-sm text-slate-800">Sistem Sinkronisasi Real-Time Aktif</h4>
-                            <p class="text-xs text-slate-600">Admin sekolah memiliki hak kontrol penuh untuk memantau dan mengelola seluruh materi, tugas, dan kuis guru.</p>
+                            <h4 class="font-bold text-sm text-slate-800">Sistem Sinkronisasi & Login Diperbarui</h4>
+                            <p class="text-xs text-slate-600">Seluruh siswa dari kelas X AKL, X TSM, XI AKL, hingga XI TSM kini sudah terdaftar penuh dan dapat login dengan mudah.</p>
                         </div>
                     </div>
                 `;
@@ -305,7 +366,7 @@
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2">
                         <h3 class="font-bold text-lg text-slate-900">Panel Kontrol Penuh Admin Sekolah</h3>
-                        <p class="text-xs text-slate-500">Admin dapat memantau dan menghapus materi atau tugas yang diunggah keliru oleh guru.</p>
+                        <p class="text-xs text-slate-500">Admin dapat memantau dan menghapus materi atau tugas yang diunggah oleh guru.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -327,7 +388,7 @@
                         <h4 class="font-bold text-slate-900 text-sm">Manajemen & Penghapusan Data Materi</h4>
                         ${materiList.length === 0 ? '<p class="text-xs text-slate-400">Belum ada materi di server.</p>' : `
                             <div class="space-y-2">
-                                ${materiList.map((m, idx) => `
+                                ${materiList.map((m) => `
                                     <div class="flex justify-between items-center p-3 border rounded-xl bg-slate-50 text-xs">
                                         <div>
                                             <span class="font-bold text-primary">[${m.format}]</span> <b>${m.judul}</b> <span class="text-slate-400">(Oleh: ${m.guru || 'Guru'})</span>
@@ -357,7 +418,7 @@
             const materiList = getMateriDB();
             const tugasList = getTugasDB();
             const kuisList = getKuisDB();
-            const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapel}` : (currentUser.role === 'admin' ? 'Panel Kontrol Admin (Semua Mapel)' : 'Ruang Belajar PJJ Siswa');
+            const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapel}` : (currentUser.role === 'admin' ? 'Panel Kontrol Admin (Semua Mapel)' : `Ruang Belajar PJJ - Kelas ${currentUser.kelas}`);
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -374,7 +435,7 @@
                                 </div>
                             </div>
 
-                            <!-- TOMBOL AKSI GURU -->
+                            <!-- TOMBOL AKSI GURU / ADMIN -->
                             ${currentUser.role === 'guru' || currentUser.role === 'admin' ? `
                                 <div class="flex flex-wrap gap-2">
                                     <button id="btn-modal-pertemuan" class="bg-primary hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
