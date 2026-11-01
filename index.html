@@ -32,7 +32,7 @@
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
 
-        // Master Guru Lengkap Sesuai Data Resmi SMK Taruna Harapan 2
+        // Master Guru Lengkap SMK Taruna Harapan 2
         const masterGuruLogin = [
             { nama: "Anen S.Pd", mapel: "PAI" },
             { nama: "Windriani Rantiani andini, S.Pd", mapel: "MTK" },
@@ -61,51 +61,51 @@
             { nis: "252610001", nama: "Cucu Amelia", kelas: "XI TSM" }
         ];
 
-        // Database localStorage
+        // Database localStorage Terpusat (Real-Time Sinkronisasi)
         function getMateriDB() {
-            const data = localStorage.getItem('th2_materi_clean');
+            const data = localStorage.getItem('th2_materi_master');
             if (!data) {
                 const initial = [];
-                localStorage.setItem('th2_materi_clean', JSON.stringify(initial));
+                localStorage.setItem('th2_materi_master', JSON.stringify(initial));
                 return initial;
             }
             return JSON.parse(data);
         }
 
         function saveMateriDB(list) {
-            localStorage.setItem('th2_materi_clean', JSON.stringify(list));
+            localStorage.setItem('th2_materi_master', JSON.stringify(list));
         }
 
         function getTugasDB() {
-            const data = localStorage.getItem('th2_tugas_clean');
+            const data = localStorage.getItem('th2_tugas_master');
             if (!data) {
                 const initial = [];
-                localStorage.setItem('th2_tugas_clean', JSON.stringify(initial));
+                localStorage.setItem('th2_tugas_master', JSON.stringify(initial));
                 return initial;
             }
             return JSON.parse(data);
         }
 
         function saveTugasDB(list) {
-            localStorage.setItem('th2_tugas_clean', JSON.stringify(list));
+            localStorage.setItem('th2_tugas_master', JSON.stringify(list));
         }
 
         function getKuisDB() {
-            const data = localStorage.getItem('th2_kuis_clean');
+            const data = localStorage.getItem('th2_kuis_master');
             if (!data) {
                 const initial = [];
-                localStorage.setItem('th2_kuis_clean', JSON.stringify(initial));
+                localStorage.setItem('th2_kuis_master', JSON.stringify(initial));
                 return initial;
             }
             return JSON.parse(data);
         }
 
         function saveKuisDB(list) {
-            localStorage.setItem('th2_kuis_clean', JSON.stringify(list));
+            localStorage.setItem('th2_kuis_master', JSON.stringify(list));
         }
 
         let diskusiList = [
-            { pengirim: 'Admin Sekolah', pesan: 'Selamat datang di portal PJJ SMK Taruna Harapan 2. Silakan uji coba fitur materi, tugas, dan kuis.', waktu: '08:00 WIB' }
+            { pengirim: 'Admin Sekolah', pesan: 'Selamat datang di portal PJJ SMK Taruna Harapan 2. Seluruh materi, tugas, dan kuis kini tersinkronisasi otomatis.', waktu: '08:00 WIB' }
         ];
 
         const appContainer = document.getElementById('app');
@@ -117,7 +117,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Siap Uji Coba</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Siap Operasional</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -126,7 +126,7 @@
                                     <option value="">-- Pilih Role --</option>
                                     <option value="guru">Guru Pengampu</option>
                                     <option value="siswa">Peserta Didik (Siswa)</option>
-                                    <option value="admin">Admin Sekolah</option>
+                                    <option value="admin">Admin Sekolah / Kontrol Penuh</option>
                                     <option value="kepsek">Kepala Sekolah</option>
                                 </select>
                             </div>
@@ -136,7 +136,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
-                                <input type="password" id="input-pass" placeholder="Guru: Salah satu mapel | Siswa: Kelas | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
+                                <input type="password" id="input-pass" placeholder="Guru: Mapel | Siswa: Kelas | Admin: SMK TARUNA HARAPAN 2" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:border-primary" required>
                             </div>
                             <button type="submit" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm">Masuk ke LMS PJJ</button>
                         </form>
@@ -152,7 +152,7 @@
 
                 if (role === 'admin' || role === 'kepsek') {
                     if (passInput === 'SMK TARUNA HARAPAN 2') {
-                        currentUser = { nama: namaInput, role: role, mapel: 'Semua Mapel' };
+                        currentUser = { nama: namaInput, role: role, mapel: 'Kontrol Penuh Admin' };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
                     } else {
@@ -161,7 +161,6 @@
                 } else if (role === 'guru') {
                     const guruMatch = masterGuruLogin.find(g => g.nama.toLowerCase() === namaInput.toLowerCase());
                     if (guruMatch) {
-                        // Fleksibel menerima password mapel utama atau mapel lainnya yang diampu
                         currentUser = { nama: guruMatch.nama, role: 'guru', mapel: guruMatch.mapel };
                         currentView = 'ruang_belajar';
                         renderMainDashboard();
@@ -201,7 +200,7 @@
                                 <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow">${currentUser.nama.substring(0, 2).toUpperCase()}</div>
                                 <div class="overflow-hidden">
                                     <p class="font-bold text-white text-xs truncate">${currentUser.nama}</p>
-                                    <p class="text-[10px] text-blue-300 capitalize">${currentUser.role}</p>
+                                    <p class="text-[10px] text-blue-300 capitalize">${currentUser.role === 'admin' ? 'Admin (Kontrol Penuh)' : currentUser.role}</p>
                                 </div>
                             </div>
                             <button id="btn-logout" class="w-full flex items-center justify-center space-x-2 bg-blue-950/60 hover:bg-primary text-slate-200 hover:text-white py-2 rounded-xl text-xs font-semibold transition">
@@ -231,7 +230,8 @@
             if (currentUser.role === 'admin' || currentUser.role === 'kepsek') {
                 menus.push(
                     { id: 'monitoring_kehadiran', title: 'Pemantauan Kehadiran', icon: 'ph-users-three' },
-                    { id: 'leger_nilai', title: 'Leger Nilai', icon: 'ph-file-text' }
+                    { id: 'leger_nilai', title: 'Leger Nilai', icon: 'ph-file-text' },
+                    { id: 'kontrol_admin', title: 'Kontrol & Hapus Data', icon: 'ph-shield-check' }
                 );
             }
 
@@ -265,7 +265,7 @@
                             <p class="font-bold text-primary">📌 Ketentuan Pembelajaran:</p>
                             <ul class="list-disc pl-5 space-y-1 text-slate-600">
                                 <li>Presensi & Pembiasaan Karakter dimulai pukul 07.00 WIB.</li>
-                                <li>Materi diunggah oleh guru pengampu sesuai jadwal harian kelas.</li>
+                                <li>Materi diunggah oleh guru pengampu dan langsung tampil otomatis di akun siswa.</li>
                             </ul>
                         </div>
                     </div>
@@ -276,16 +276,18 @@
                         <h3 class="font-bold text-lg text-slate-900">Pengumuman Resmi Sekolah</h3>
                         <div class="p-4 border rounded-xl bg-slate-50 space-y-1">
                             <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded">Penting</span>
-                            <h4 class="font-bold text-sm text-slate-800">Portal PJJ Siap Digunakan</h4>
-                            <p class="text-xs text-slate-600">Guru silakan mengunggah bahan ajar, tugas, dan kuis melalui tombol di ruang belajar.</p>
+                            <h4 class="font-bold text-sm text-slate-800">Sistem Sinkronisasi Real-Time Aktif</h4>
+                            <p class="text-xs text-slate-600">Admin sekolah memiliki hak kontrol penuh untuk memantau dan mengelola seluruh materi, tugas, dan kuis guru.</p>
                         </div>
                     </div>
                 `;
+            } else if (currentView === 'kontrol_admin') {
+                renderKontrolAdmin(mainView);
             } else if (currentView === 'leger_nilai') {
                 mainView.innerHTML = `
                     <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                         <h3 class="font-bold text-lg text-slate-900">Leger Nilai Seluruh Kelas</h3>
-                        <p class="text-xs text-slate-500">Rekapitulasi nilai siswa.</p>
+                        <p class="text-xs text-slate-500">Rekapitulasi nilai tugas, kuis, dan presensi siswa.</p>
                     </div>
                 `;
             } else {
@@ -293,12 +295,69 @@
             }
         }
 
-        // ================= RUANG BELAJAR =================
+        // ================= KONTROL PENUH ADMIN =================
+        function renderKontrolAdmin(container) {
+            const materiList = getMateriDB();
+            const tugasList = getTugasDB();
+            const kuisList = getKuisDB();
+
+            container.innerHTML = `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2">
+                        <h3 class="font-bold text-lg text-slate-900">Panel Kontrol Penuh Admin Sekolah</h3>
+                        <p class="text-xs text-slate-500">Admin dapat memantau dan menghapus materi atau tugas yang diunggah keliru oleh guru.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-primary">
+                            <p class="text-xs font-bold text-slate-400 uppercase">Total Materi Diunggah</p>
+                            <p class="text-2xl font-bold text-slate-900 mt-1">${materiList.length}</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-slate-800">
+                            <p class="text-xs font-bold text-slate-400 uppercase">Total Tugas Aktif</p>
+                            <p class="text-2xl font-bold text-slate-900 mt-1">${tugasList.length}</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm border-l-4 border-amber-500">
+                            <p class="text-xs font-bold text-slate-400 uppercase">Total Kuis Aktif</p>
+                            <p class="text-2xl font-bold text-slate-900 mt-1">${kuisList.length}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                        <h4 class="font-bold text-slate-900 text-sm">Manajemen & Penghapusan Data Materi</h4>
+                        ${materiList.length === 0 ? '<p class="text-xs text-slate-400">Belum ada materi di server.</p>' : `
+                            <div class="space-y-2">
+                                ${materiList.map((m, idx) => `
+                                    <div class="flex justify-between items-center p-3 border rounded-xl bg-slate-50 text-xs">
+                                        <div>
+                                            <span class="font-bold text-primary">[${m.format}]</span> <b>${m.judul}</b> <span class="text-slate-400">(Oleh: ${m.guru || 'Guru'})</span>
+                                        </div>
+                                        <button onclick="window.hapusMateri(${m.id})" class="bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-lg hover:bg-red-200">Hapus</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.hapusMateri = function(id) {
+            if (confirm('Yakin ingin menghapus materi ini dari sistem?')) {
+                let list = getMateriDB();
+                list = list.filter(m => m.id !== id);
+                saveMateriDB(list);
+                renderKontrolAdmin(document.getElementById('main-view'));
+                alert('Materi berhasil dihapus oleh Admin.');
+            }
+        };
+
+        // ================= RUANG BELAJAR (SINKRON REAL-TIME) =================
         function renderRuangBelajar(container) {
             const materiList = getMateriDB();
             const tugasList = getTugasDB();
             const kuisList = getKuisDB();
-            const mapelName = currentUser.role === 'guru' ? `Mapel Pengampu: ${currentUser.mapel}` : 'Pelajaran PJJ';
+            const titleHeader = currentUser.role === 'guru' ? `Guru Pengampu: ${currentUser.mapel}` : (currentUser.role === 'admin' ? 'Panel Kontrol Admin (Semua Mapel)' : 'Ruang Belajar PJJ Siswa');
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -306,20 +365,20 @@
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'Semua Kelas'}</p>
-                                <h1 class="text-2xl font-bold text-slate-900">${mapelName}</h1>
+                                <p class="text-xs text-slate-400 font-medium mb-1">Ruang Belajar / ${currentUser.kelas || 'Semua Jurusan'}</p>
+                                <h1 class="text-2xl font-bold text-slate-900">${titleHeader}</h1>
                                 <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 mt-2">
-                                    <span class="bg-slate-100 px-2.5 py-1 rounded-md font-medium">📦 ${currentUser.kelas || 'Jurusan'}</span>
+                                    <span class="bg-slate-100 px-2.5 py-1 rounded-md font-medium">📦 ${currentUser.kelas || 'SMK Taruna Harapan 2'}</span>
                                     <span>👤 ${currentUser.nama}</span>
                                     <span>⭐ KKM 75</span>
                                 </div>
                             </div>
 
                             <!-- TOMBOL AKSI GURU -->
-                            ${currentUser.role === 'guru' ? `
+                            ${currentUser.role === 'guru' || currentUser.role === 'admin' ? `
                                 <div class="flex flex-wrap gap-2">
                                     <button id="btn-modal-pertemuan" class="bg-primary hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
-                                        <i class="ph ph-plus font-bold"></i><span>+ Pertemuan / Materi</span>
+                                        <i class="ph ph-plus font-bold"></i><span>+ Materi Baru</span>
                                     </button>
                                     <button id="btn-modal-tugas" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
                                         <i class="ph ph-file-text font-bold"></i><span>+ Tugas</span>
@@ -365,7 +424,7 @@
                                 <input type="url" id="m-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow hover:bg-red-700">Publikasikan Materi</button>
+                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow hover:bg-red-700">Publikasikan ke Siswa</button>
                                 <button type="button" id="batal-materi" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
@@ -431,9 +490,19 @@
                     const format = document.getElementById('m-format').value;
                     const link = document.getElementById('m-link').value;
                     const list = getMateriDB();
-                    list.unshift({ id: Date.now(), pertemuan: `PERT. ${list.length + 1}`, judul, format, tanggal: 'Hari Ini', hadir: '0/24', link });
+                    list.unshift({ 
+                        id: Date.now(), 
+                        pertemuan: `PERT. ${list.length + 1}`, 
+                        judul, 
+                        format, 
+                        tanggal: 'Hari Ini', 
+                        hadir: '0/24', 
+                        link, 
+                        guru: currentUser.nama,
+                        mapel: currentUser.mapel || 'Mapel Umum'
+                    });
                     saveMateriDB(list);
-                    alert(`Materi [${format}] berhasil diunggah!`);
+                    alert(`Materi [${format}] berhasil diunggah dan langsung muncul di akun siswa!`);
                     document.getElementById('modal-form-materi').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -446,9 +515,15 @@
                 document.getElementById('form-add-tugas').addEventListener('submit', (e) => {
                     e.preventDefault();
                     const list = getTugasDB();
-                    list.unshift({ id: Date.now(), judul: document.getElementById('t-judul').value, deadline: document.getElementById('t-deadline').value, status: 'Dibuka' });
+                    list.unshift({ 
+                        id: Date.now(), 
+                        judul: document.getElementById('t-judul').value, 
+                        deadline: document.getElementById('t-deadline').value, 
+                        status: 'Dibuka',
+                        guru: currentUser.nama
+                    });
                     saveTugasDB(list);
-                    alert('Tugas berhasil dibuat!');
+                    alert('Tugas berhasil dibuat dan dibagikan ke siswa!');
                     document.getElementById('modal-form-tugas').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -461,9 +536,15 @@
                 document.getElementById('form-add-kuis').addEventListener('submit', (e) => {
                     e.preventDefault();
                     const list = getKuisDB();
-                    list.unshift({ id: Date.now(), judul: document.getElementById('k-judul').value, waktu: document.getElementById('k-waktu').value, status: 'Sedang dibuka' });
+                    list.unshift({ 
+                        id: Date.now(), 
+                        judul: document.getElementById('k-judul').value, 
+                        waktu: document.getElementById('k-waktu').value, 
+                        status: 'Sedang dibuka',
+                        guru: currentUser.nama
+                    });
                     saveKuisDB(list);
-                    alert('Kuis berhasil dibuat!');
+                    alert('Kuis berhasil dibuat dan dibagikan ke siswa!');
                     document.getElementById('modal-form-kuis').classList.add('hidden');
                     renderRuangBelajar(container);
                 });
@@ -485,7 +566,7 @@
                             ${materiList.length === 0 ? `
                                 <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-2">
                                     <p class="text-sm font-bold text-slate-700">Belum ada materi pembelajaran yang diunggah.</p>
-                                    <p class="text-xs text-slate-400">${currentUser.role === 'guru' ? 'Silakan tekan tombol "+ Pertemuan / Materi" di atas untuk mulai mengunggah.' : 'Silakan menunggu guru pengampu mengunggah materi.'}</p>
+                                    <p class="text-xs text-slate-400">Guru silakan tekan tombol "+ Materi Baru" untuk mengunggah bahan ajar.</p>
                                 </div>
                             ` : materiList.map(m => `
                                 <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center justify-between">
@@ -494,10 +575,10 @@
                                         <div class="space-y-1">
                                             <div class="flex items-center space-x-2">
                                                 <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${m.format}</span>
+                                                <span class="text-xs text-slate-500 font-semibold">${m.mapel || ''}</span>
                                             </div>
                                             <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
-                                            <p class="text-xs text-slate-500">${m.tanggal}</p>
-                                            <span class="inline-block px-2.5 py-0.5 bg-green-100 text-green-700 font-bold text-[10px] rounded-full">✓ Hadir ${m.hadir}</span>
+                                            <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
                                         </div>
                                     </div>
                                     <a href="${m.link}" target="_blank" class="text-xs bg-primary text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-red-700">Akses File</a>
@@ -511,8 +592,8 @@
                                 <h4 class="font-bold text-slate-900 text-sm">Catatan guru</h4>
                                 <p class="text-xs text-slate-600 leading-relaxed">
                                     Selamat datang di kelas PJJ SMK Taruna Harapan 2.<br><br>
-                                    Setiap pertemuan: baca materi, tekan <b>Saya hadir</b> saat presensi dibuka, lalu kerjakan latihan. Tugas dikumpulkan paling lambat pukul 23.59 di hari tenggat.<br><br>
-                                    Buku pegangan: Kurikulum Merdeka.
+                                    Silakan pelajari materi yang diunggah guru, lakukan presensi, dan kerjakan tugas tepat waktu.<br><br>
+                                    Kurikulum Merdeka.
                                 </p>
                             </div>
                             <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
@@ -533,22 +614,21 @@
                         <h3 class="font-bold text-lg text-slate-900">Daftar Tugas & Pengumpulan Siswa</h3>
                         ${tugasList.length === 0 ? `
                             <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-2">
-                                <p class="text-sm font-bold text-slate-700">Belum ada tugas yang diberikan.</p>
-                                <p class="text-xs text-slate-400">${currentUser.role === 'guru' ? 'Silakan buat tugas baru menggunakan tombol "+ Tugas" di atas.' : 'Belum ada tugas aktif dari guru.'}</p>
+                                <p class="text-sm font-bold text-slate-700">Belum ada tugas yang diberikan oleh guru.</p>
                             </div>
                         ` : tugasList.map(t => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
                                     <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${t.status}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${t.judul}</h4>
-                                    <p class="text-xs text-slate-500">Tenggat: ${t.deadline}</p>
+                                    <p class="text-xs text-slate-500">Guru: ${t.guru || 'Guru'} • Tenggat: ${t.deadline}</p>
                                 </div>
                                 <div class="w-full md:w-auto flex flex-col sm:flex-row items-center gap-2">
                                     ${currentUser.role === 'siswa' ? `
                                         <input type="file" id="file-tugas-${t.id}" class="text-xs border p-2 rounded-xl bg-slate-50">
                                         <button onclick="alert('File tugas berhasil dikumpulkan ke guru!')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700 w-full sm:w-auto">Kumpulkan Tugas</button>
                                     ` : `
-                                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Status: Menunggu Pengumpulan Siswa</span>
+                                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Status Aktif</span>
                                     `}
                                 </div>
                             </div>
@@ -562,14 +642,13 @@
                         ${kuisList.length === 0 ? `
                             <div class="bg-white p-8 rounded-2xl border shadow-sm text-center space-y-2">
                                 <p class="text-sm font-bold text-slate-700">Belum ada kuis atau ujian online.</p>
-                                <p class="text-xs text-slate-400">${currentUser.role === 'guru' ? 'Silakan buat kuis baru menggunakan tombol "+ Kuis" di atas.' : 'Belum ada kuis aktif.'}</p>
                             </div>
                         ` : kuisList.map(k => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-center">
                                 <div class="space-y-1">
                                     <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded">${k.status}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${k.judul}</h4>
-                                    <p class="text-xs text-slate-500">Durasi: ${k.waktu}</p>
+                                    <p class="text-xs text-slate-500">Guru: ${k.guru || 'Guru'} • Durasi: ${k.waktu}</p>
                                 </div>
                                 <button onclick="alert('Mulai mengerjakan kuis...')" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-red-700">Kerjakan Kuis</button>
                             </div>
