@@ -140,22 +140,29 @@
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v12') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v12') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v12') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v12') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v12') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v12') || '[]'),
-                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v12') || '[]'),
-                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v12') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v13') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v13') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v13') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v13') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v13') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v13') || '[]'),
+                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v13') || '[]'),
+                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v13') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v12`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v13`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v12`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v13`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
+        }
+
+        async function deleteCloud(table, id) {
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v13`) || '[]');
+            local = local.filter(item => item.id !== id);
+            localStorage.setItem(`th2_${table}_v13`, JSON.stringify(local));
+            try { await supabase.from(table).delete().eq('id', id); } catch (e) {}
         }
 
         const appContainer = document.getElementById('app');
@@ -167,7 +174,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • CBT Kuis Lengkap</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Edit & Hapus Konten</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -341,7 +348,6 @@
                         <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
                     </div>
 
-                    <!-- REKAP KUIS SISWA -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Hasil Kuis / CBT Siswa</div>
                         <div class="overflow-x-auto">
@@ -370,7 +376,6 @@
                         </div>
                     </div>
 
-                    <!-- REKAP TUGAS SISWA -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Tugas yang Dikumpulkan Siswa</div>
                         <div class="overflow-x-auto">
@@ -401,7 +406,6 @@
                         </div>
                     </div>
 
-                    <!-- REKAP PRESENSI -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Rekapitulasi Presensi Kehadiran Siswa</div>
                         <div class="overflow-x-auto">
@@ -608,7 +612,7 @@
                                         <i class="ph ph-file-text font-bold"></i><span>+ Tugas</span>
                                     </button>
                                     <button id="btn-modal-kuis" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
-                                        <i class="ph ph-question font-bold"></i><span>+ Kuis CBT (PG, BS, Menjodohkan, Uraian)</span>
+                                        <i class="ph ph-question font-bold"></i><span>+ Kuis CBT</span>
                                     </button>
                                 </div>
                             ` : ''}
@@ -625,8 +629,9 @@
 
                     <!-- MODAL MATERI -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
-                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran</h3>
+                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-materi">Unggah Materi Pembelajaran</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <input type="hidden" id="edit-materi-id">
                             ${dropdownMapelHtml}
                             ${kelasPilihanHtml}
                             <div class="md:col-span-2">
@@ -642,7 +647,7 @@
                                 <input type="file" id="m-file" accept="image/jpeg,image/png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow">Publikasikan Materi</button>
+                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Materi</button>
                                 <button type="button" id="batal-materi" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
@@ -650,8 +655,9 @@
 
                     <!-- MODAL TUGAS -->
                     <div id="modal-form-tugas" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-slate-800">
-                        <h3 class="font-bold text-slate-900 text-sm">Buat Tugas Baru</h3>
+                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-tugas">Buat Tugas Baru</h3>
                         <form id="form-add-tugas" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <input type="hidden" id="edit-tugas-id">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Tugas</label>
                                 <input type="text" id="t-judul" placeholder="Contoh: Tugas Mandiri" class="w-full border p-2.5 rounded-xl" required>
@@ -685,10 +691,11 @@
                         </form>
                     </div>
 
-                    <!-- MODAL KUIS CBT DENGAN TEMPLATE 5 PG, 5 BS, 5 MENJODOHKAN, 5 URAIAN -->
+                    <!-- MODAL KUIS -->
                     <div id="modal-form-kuis" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-amber-500">
-                        <h3 class="font-bold text-slate-900 text-sm">Buat Kuis / CBT (Dilengkapi Template 5 PG, 5 B/S, 5 Menjodohkan, 5 Uraian)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-kuis">Buat Kuis / CBT</h3>
                         <form id="form-add-kuis" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <input type="hidden" id="edit-kuis-id">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Kuis</label>
                                 <input type="text" id="k-judul" placeholder="Contoh: Ujian Harian Bab 1" class="w-full border p-2.5 rounded-xl" required>
@@ -708,45 +715,21 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Link URL Eksternal (Opsional - GForm/Quizizz)</label>
+                                <label class="block font-bold uppercase mb-1">Link URL Eksternal (Opsional)</label>
                                 <input type="url" id="k-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl">
                             </div>
                             <div>
-                                <label class="block font-bold uppercase mb-1">Atau Upload File Soal (JPG, JPEG, PDF, Word)</label>
+                                <label class="block font-bold uppercase mb-1">Atau Upload File Soal</label>
                                 <input type="file" id="k-file" accept="image/jpeg,image/png,.pdf,.doc,.docx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-2">
-                                <p class="font-bold text-amber-900">📝 Soal Interaktif LMS (Template Otomatis 5 PG, 5 Benar/Salah, 5 Menjodohkan, 5 Uraian):</p>
-                                <textarea id="k-soal-template" rows="8" class="w-full border p-2 rounded-lg font-mono text-[11px] bg-white">BAGIAN A: PILIHAN GANDA (5 Soal)
+                                <p class="font-bold text-amber-900">📝 Soal Interaktif LMS:</p>
+                                <textarea id="k-soal-template" rows="6" class="w-full border p-2 rounded-lg font-mono text-[11px] bg-white">BAGIAN A: PILIHAN GANDA (5 Soal)
 1. ...? (A/B/C/D)
-2. ...? (A/B/C/D)
-3. ...? (A/B/C/D)
-4. ...? (A/B/C/D)
-5. ...? (A/B/C/D)
-
-BAGIAN B: BENAR / SALAH (5 Soal)
-6. ... (Benar/Salah)
-7. ... (Benar/Salah)
-8. ... (Benar/Salah)
-9. ... (Benar/Salah)
-10. ... (Benar/Salah)
-
-BAGIAN C: MENJODOHKAN (5 Soal)
-11. ... disandingkan dengan ...
-12. ... disandingkan dengan ...
-13. ... disandingkan dengan ...
-14. ... disandingkan dengan ...
-15. ... disandingkan dengan ...
-
-BAGIAN D: URAIAN / ESSAY (5 Soal)
-16. ...?
-17. ...?
-18. ...?
-19. ...?
-20. ...?</textarea>
+2. ...? (A/B/C/D)</textarea>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow">Simpan Kuis Interaktif</button>
+                                <button type="submit" class="bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow">Simpan Kuis</button>
                                 <button type="button" id="batal-kuis" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
@@ -778,81 +761,147 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
 
             const bMat = document.getElementById('btn-modal-pertemuan');
             if (bMat) {
-                bMat.addEventListener('click', () => document.getElementById('modal-form-materi').classList.toggle('hidden'));
+                bMat.addEventListener('click', () => {
+                    document.getElementById('edit-materi-id').value = '';
+                    document.getElementById('title-form-materi').innerText = 'Unggah Materi Pembelajaran';
+                    document.getElementById('form-add-materi').reset();
+                    document.getElementById('modal-form-materi').classList.toggle('hidden');
+                });
                 document.getElementById('batal-materi').addEventListener('click', () => document.getElementById('modal-form-materi').classList.add('hidden'));
                 document.getElementById('form-add-materi').addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    const editId = document.getElementById('edit-materi-id').value;
                     const fileObj = await convertFileToBase64('m-file');
                     const linkUrl = document.getElementById('m-link').value;
 
-                    const newItem = { 
-                        id: Date.now(), 
-                        pertemuan: `PERT. ${materiList.length + 1}`, 
-                        judul: document.getElementById('m-judul').value, 
-                        format: fileObj ? fileObj.name : 'Link File', 
-                        tanggal: 'Hari Ini', 
-                        link: fileObj ? fileObj.data : linkUrl, 
-                        isFile: !!fileObj,
-                        fileName: fileObj ? fileObj.name : '',
-                        guru: currentUser.nama,
-                        mapel: currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum',
-                        targetKelas: document.getElementById('target-kelas').value
-                    };
-                    await saveCloud('materi', newItem);
-                    alert('Materi berhasil diunggah!');
+                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v13') || '[]');
+                    if (editId) {
+                        localMateri = localMateri.map(m => {
+                            if (m.id == editId) {
+                                m.judul = document.getElementById('m-judul').value;
+                                m.targetKelas = document.getElementById('target-kelas').value;
+                                if (linkUrl) m.link = linkUrl;
+                                if (fileObj) { m.link = fileObj.data; m.fileName = fileObj.name; m.format = fileObj.name; m.isFile = true; }
+                            }
+                            return m;
+                        });
+                        localStorage.setItem('th2_materi_v13', JSON.stringify(localMateri));
+                        alert('Materi berhasil diperbarui!');
+                    } else {
+                        const newItem = { 
+                            id: Date.now(), 
+                            pertemuan: `PERT. ${localMateri.length + 1}`, 
+                            judul: document.getElementById('m-judul').value, 
+                            format: fileObj ? fileObj.name : 'Link File', 
+                            tanggal: 'Hari Ini', 
+                            link: fileObj ? fileObj.data : linkUrl, 
+                            isFile: !!fileObj,
+                            fileName: fileObj ? fileObj.name : '',
+                            guru: currentUser.nama,
+                            mapel: currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum',
+                            targetKelas: document.getElementById('target-kelas').value
+                        };
+                        await saveCloud('materi', newItem);
+                        alert('Materi berhasil diunggah!');
+                    }
                     renderRuangBelajar(container);
                 });
             }
 
             const bTug = document.getElementById('btn-modal-tugas');
             if (bTug) {
-                bTug.addEventListener('click', () => document.getElementById('modal-form-tugas').classList.toggle('hidden'));
+                bTug.addEventListener('click', () => {
+                    document.getElementById('edit-tugas-id').value = '';
+                    document.getElementById('title-form-tugas').innerText = 'Buat Tugas Baru';
+                    document.getElementById('form-add-tugas').reset();
+                    document.getElementById('modal-form-tugas').classList.toggle('hidden');
+                });
                 document.getElementById('batal-tugas').addEventListener('click', () => document.getElementById('modal-form-tugas').classList.add('hidden'));
                 document.getElementById('form-add-tugas').addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    const editId = document.getElementById('edit-tugas-id').value;
                     const fileObj = await convertFileToBase64('t-file');
                     const linkUrl = document.getElementById('t-link').value;
 
-                    const newItem = { 
-                        id: Date.now(), 
-                        judul: document.getElementById('t-judul').value, 
-                        deadline: document.getElementById('t-deadline').value, 
-                        link: fileObj ? fileObj.data : linkUrl,
-                        fileName: fileObj ? fileObj.name : '',
-                        isFile: !!fileObj,
-                        targetKelas: document.getElementById('t-kelas').value,
-                        status: 'Dibuka',
-                        guru: currentUser.nama
-                    };
-                    await saveCloud('tugas', newItem);
-                    alert('Tugas berhasil dibuat!');
+                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v13') || '[]');
+                    if (editId) {
+                        localTugas = localTugas.map(t => {
+                            if (t.id == editId) {
+                                t.judul = document.getElementById('t-judul').value;
+                                t.deadline = document.getElementById('t-deadline').value;
+                                t.targetKelas = document.getElementById('t-kelas').value;
+                                if (linkUrl) t.link = linkUrl;
+                                if (fileObj) { t.link = fileObj.data; t.fileName = fileObj.name; t.isFile = true; }
+                            }
+                            return t;
+                        });
+                        localStorage.setItem('th2_tugas_v13', JSON.stringify(localTugas));
+                        alert('Tugas berhasil diperbarui!');
+                    } else {
+                        const newItem = { 
+                            id: Date.now(), 
+                            judul: document.getElementById('t-judul').value, 
+                            deadline: document.getElementById('t-deadline').value, 
+                            link: fileObj ? fileObj.data : linkUrl,
+                            fileName: fileObj ? fileObj.name : '',
+                            isFile: !!fileObj,
+                            targetKelas: document.getElementById('t-kelas').value,
+                            status: 'Dibuka',
+                            guru: currentUser.nama
+                        };
+                        await saveCloud('tugas', newItem);
+                        alert('Tugas berhasil dibuat!');
+                    }
                     renderRuangBelajar(container);
                 });
             }
 
             const bKuis = document.getElementById('btn-modal-kuis');
             if (bKuis) {
-                bKuis.addEventListener('click', () => document.getElementById('modal-form-kuis').classList.toggle('hidden'));
+                bKuis.addEventListener('click', () => {
+                    document.getElementById('edit-kuis-id').value = '';
+                    document.getElementById('title-form-kuis').innerText = 'Buat Kuis / CBT';
+                    document.getElementById('form-add-kuis').reset();
+                    document.getElementById('modal-form-kuis').classList.toggle('hidden');
+                });
                 document.getElementById('batal-kuis').addEventListener('click', () => document.getElementById('modal-form-kuis').classList.add('hidden'));
                 document.getElementById('form-add-kuis').addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    const editId = document.getElementById('edit-kuis-id').value;
                     const fileObj = await convertFileToBase64('k-file');
                     const linkUrl = document.getElementById('k-link').value;
 
-                    const newItem = { 
-                        id: Date.now(), 
-                        judul: document.getElementById('k-judul').value, 
-                        waktu: document.getElementById('k-waktu').value, 
-                        link: fileObj ? fileObj.data : linkUrl,
-                        fileName: fileObj ? fileObj.name : '',
-                        isFile: !!fileObj,
-                        soalTemplate: document.getElementById('k-soal-template').value,
-                        targetKelas: document.getElementById('k-kelas').value,
-                        status: 'Dibuka',
-                        guru: currentUser.nama
-                    };
-                    await saveCloud('kuis', newItem);
-                    alert('Kuis / CBT berhasil dibuat!');
+                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v13') || '[]');
+                    if (editId) {
+                        localKuis = localKuis.map(k => {
+                            if (k.id == editId) {
+                                k.judul = document.getElementById('k-judul').value;
+                                k.waktu = document.getElementById('k-waktu').value;
+                                k.targetKelas = document.getElementById('k-kelas').value;
+                                k.soalTemplate = document.getElementById('k-soal-template').value;
+                                if (linkUrl) k.link = linkUrl;
+                                if (fileObj) { k.link = fileObj.data; k.fileName = fileObj.name; k.isFile = true; }
+                            }
+                            return k;
+                        });
+                        localStorage.setItem('th2_kuis_v13', JSON.stringify(localKuis));
+                        alert('Kuis berhasil diperbarui!');
+                    } else {
+                        const newItem = { 
+                            id: Date.now(), 
+                            judul: document.getElementById('k-judul').value, 
+                            waktu: document.getElementById('k-waktu').value, 
+                            link: fileObj ? fileObj.data : linkUrl,
+                            fileName: fileObj ? fileObj.name : '',
+                            isFile: !!fileObj,
+                            soalTemplate: document.getElementById('k-soal-template').value,
+                            targetKelas: document.getElementById('k-kelas').value,
+                            status: 'Dibuka',
+                            guru: currentUser.nama
+                        };
+                        await saveCloud('kuis', newItem);
+                        alert('Kuis / CBT berhasil dibuat!');
+                    }
                     renderRuangBelajar(container);
                 });
             }
@@ -862,6 +911,7 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
 
         function renderTabContent(materiList, tugasList, kuisList, chatList) {
             const tabContent = document.getElementById('tab-content');
+            const canModify = currentUser.role === 'guru' || currentUser.role === 'admin';
 
             if (currentTabRuang === 'materi') {
                 tabContent.innerHTML = `
@@ -877,9 +927,15 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
                                     <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
                                     <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
                                 </div>
-                                <a href="${m.link}" target="_blank" class="text-xs bg-primary text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-red-700 flex items-center space-x-1">
-                                    <i class="ph ph-download text-sm"></i><span>Akses / Unduh File (${m.fileName || 'Link'})</span>
-                                </a>
+                                <div class="flex items-center space-x-2">
+                                    <a href="${m.link}" target="_blank" class="text-xs bg-primary text-white font-semibold px-4 py-2 rounded-xl shadow hover:bg-red-700 flex items-center space-x-1">
+                                        <i class="ph ph-download text-sm"></i><span>Akses File</span>
+                                    </a>
+                                    ${canModify ? `
+                                        <button onclick="editMateri('${m.id}')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-xl text-xs font-bold">Edit</button>
+                                        <button onclick="hapusKonten('materi', '${m.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-bold">Hapus</button>
+                                    ` : ''}
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -895,7 +951,7 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
                                     <p class="text-xs text-slate-500">Guru: ${t.guru} • Tenggat: ${t.deadline}</p>
                                     ${t.link ? `<a href="${t.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">📁 Lihat Soal / Petunjuk (${t.fileName || 'Link'})</a>` : ''}
                                 </div>
-                                <div>
+                                <div class="flex flex-col md:flex-row items-end gap-2">
                                     ${currentUser.role === 'siswa' ? `
                                         <div class="bg-slate-50 p-3 border rounded-xl space-y-2 w-72">
                                             <p class="text-[11px] font-bold text-slate-700">Form Pengumpulan Tugas:</p>
@@ -903,7 +959,13 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
                                             <input type="file" id="jawaban-file-${t.id}" accept="image/jpeg,image/png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full text-[10px] bg-white border p-1 rounded-lg">
                                             <button onclick="kirimTugas('${t.judul.replace(/'/g, "\\'")}', '${t.id}')" class="w-full bg-primary hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs shadow">Kumpulkan Tugas</button>
                                         </div>
-                                    ` : `<span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Tugas Aktif</span>`}
+                                    ` : `
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Aktif</span>
+                                            <button onclick="editTugas('${t.id}')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-xl text-xs font-bold">Edit</button>
+                                            <button onclick="hapusKonten('tugas', '${t.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-bold">Hapus</button>
+                                        </div>
+                                    `}
                                 </div>
                             </div>
                         `).join('')}
@@ -920,10 +982,14 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
                                     <p class="text-xs text-slate-500">Guru: ${k.guru} • Durasi: ${k.waktu}</p>
                                     ${k.isFile ? `<a href="${k.link}" target="_blank" class="text-xs text-green-600 underline font-semibold block mt-1">📁 Unduh File Soal (${k.fileName})</a>` : (k.link ? `<a href="${k.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">🔗 Buka Link Kuis Eksternal</a>` : '')}
                                 </div>
-                                <div>
+                                <div class="flex items-center space-x-2">
                                     ${currentUser.role === 'siswa' ? `
-                                        <button onclick="bukaModalKerjakanKuis('${k.judul.replace(/'/g, "\\'")}', \`${encodeURIComponent(k.soalTemplate || '')}\`)" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs shadow">Kerjakan Kuis Sekarang</button>
-                                    ` : `<span class="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-xl">Kuis Aktif</span>`}
+                                        <button onclick="bukaModalKerjakanKuis('${k.judul.replace(/'/g, "\\'")}', \`${encodeURIComponent(k.soalTemplate || '')}\`)" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs shadow">Kerjakan Kuis</button>
+                                    ` : `
+                                        <button onclick="bukaModalKerjakanKuis('${k.judul.replace(/'/g, "\\'")}', \`${encodeURIComponent(k.soalTemplate || '')}\`)" class="bg-amber-100 text-amber-800 hover:bg-amber-200 font-bold px-3 py-2 rounded-xl text-xs">Pratinjau</button>
+                                        <button onclick="editKuis('${k.id}')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-xl text-xs font-bold">Edit</button>
+                                        <button onclick="hapusKonten('kuis', '${k.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-bold">Hapus</button>
+                                    `}
                                 </div>
                             </div>
                         `).join('')}
@@ -968,7 +1034,54 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
             }
         }
 
-        // Global function untuk siswa mengerjakan kuis interaktif
+        // Global Action Functions for Edit & Delete
+        window.hapusKonten = async function(table, id) {
+            if (confirm('Apakah Anda yakin ingin menghapus konten ini?')) {
+                await deleteCloud(table, Number(id));
+                alert('Konten berhasil dihapus!');
+                location.reload();
+            }
+        }
+
+        window.editMateri = function(id) {
+            const materiList = JSON.parse(localStorage.getItem('th2_materi_v13') || '[]');
+            const m = materiList.find(item => item.id == id);
+            if (m) {
+                document.getElementById('edit-materi-id').value = m.id;
+                document.getElementById('title-form-materi').innerText = 'Edit Materi Pembelajaran';
+                document.getElementById('m-judul').value = m.judul;
+                document.getElementById('target-kelas').value = m.targetKelas || 'Semua Kelas';
+                document.getElementById('modal-form-materi').classList.remove('hidden');
+            }
+        }
+
+        window.editTugas = function(id) {
+            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v13') || '[]');
+            const t = tugasList.find(item => item.id == id);
+            if (t) {
+                document.getElementById('edit-tugas-id').value = t.id;
+                document.getElementById('title-form-tugas').innerText = 'Edit Tugas Pembelajaran';
+                document.getElementById('t-judul').value = t.judul;
+                document.getElementById('t-deadline').value = t.deadline;
+                document.getElementById('t-kelas').value = t.targetKelas || 'Semua Kelas';
+                document.getElementById('modal-form-tugas').classList.remove('hidden');
+            }
+        }
+
+        window.editKuis = function(id) {
+            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v13') || '[]');
+            const k = kuisList.find(item => item.id == id);
+            if (k) {
+                document.getElementById('edit-kuis-id').value = k.id;
+                document.getElementById('title-form-kuis').innerText = 'Edit Kuis / CBT';
+                document.getElementById('k-judul').value = k.judul;
+                document.getElementById('k-waktu').value = k.waktu;
+                document.getElementById('k-kelas').value = k.targetKelas || 'Semua Kelas';
+                document.getElementById('k-soal-template').value = k.soalTemplate || '';
+                document.getElementById('modal-form-kuis').classList.remove('hidden');
+            }
+        }
+
         window.bukaModalKerjakanKuis = function(judulKuis, encodedTemplate) {
             const templateSoal = decodeURIComponent(encodedTemplate);
             const modalDiv = document.createElement('div');
@@ -984,18 +1097,20 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
                             <p class="font-bold text-slate-700 mb-1">Soal Kuis:</p>
                             <pre class="whitespace-pre-wrap font-sans text-slate-800">${templateSoal}</pre>
                         </div>
-                        <div>
-                            <label class="block font-bold uppercase mb-1">Lembar Jawaban Anda (Ketik jawaban PG, Benar/Salah, Menjodohkan, Uraian):</label>
-                            <textarea id="input-jawaban-kuis" rows="8" placeholder="Contoh: 1.A, 2.B, 6.Benar, 11.1-C, 16.Pembahasan..." class="w-full border p-3 rounded-xl text-xs bg-white" required></textarea>
-                        </div>
-                        <div>
-                            <label class="block font-bold uppercase mb-1">Atau Upload File Jawaban (Opsional - JPG/PDF)</label>
-                            <input type="file" id="file-jawaban-kuis" accept="image/*,.pdf,.doc,.docx" class="w-full border p-2 rounded-xl bg-slate-50">
-                        </div>
+                        ${currentUser.role === 'siswa' ? `
+                            <div>
+                                <label class="block font-bold uppercase mb-1">Lembar Jawaban Anda:</label>
+                                <textarea id="input-jawaban-kuis" rows="6" placeholder="Ketik jawaban Anda di sini..." class="w-full border p-3 rounded-xl text-xs bg-white" required></textarea>
+                            </div>
+                            <div>
+                                <label class="block font-bold uppercase mb-1">Atau Upload File Jawaban (Opsional)</label>
+                                <input type="file" id="file-jawaban-kuis" accept="image/*,.pdf,.doc,.docx" class="w-full border p-2 rounded-xl bg-slate-50">
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="flex justify-end space-x-2 pt-2 border-t">
-                        <button onclick="this.closest('.fixed').remove()" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs">Batal</button>
-                        <button onclick="kirimJawabanKuis('${judulKuis.replace(/'/g, "\\'")}')" class="bg-primary hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow">Kirim Jawaban Kuis</button>
+                        <button onclick="this.closest('.fixed').remove()" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs">Tutup</button>
+                        ${currentUser.role === 'siswa' ? `<button onclick="kirimJawabanKuis('${judulKuis.replace(/'/g, "\\'")}')" class="bg-primary hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow">Kirim Jawaban Kuis</button>` : ''}
                     </div>
                 </div>
             `;
@@ -1019,7 +1134,7 @@ BAGIAN D: URAIAN / ESSAY (5 Soal)
                         waktu: new Date().toLocaleTimeString() + ' WIB'
                     };
                     await saveCloud('kuis_submissions', submission);
-                    alert('Jawaban kuis beserta file berhasil dikumpulkan!');
+                    alert('Jawaban kuis berhasil dikumpulkan!');
                     document.querySelector('.fixed').remove();
                     location.reload();
                 };
