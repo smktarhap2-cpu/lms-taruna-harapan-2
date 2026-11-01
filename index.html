@@ -119,7 +119,7 @@
         ];
 
         async function fetchDataFromSupabase() {
-            let mData = [], tData = [], kData = [], pData = [], pengData = [], chatData = [], subData = [];
+            let mData = [], tData = [], kData = [], pData = [], pengData = [], chatData = [], subData = [], kuisSubData = [];
             try {
                 const resM = await supabase.from('materi').select('*');
                 if (resM.data) mData = resM.data;
@@ -135,23 +135,26 @@
                 if (resChat.data) chatData = resChat.data;
                 const resSub = await supabase.from('submissions').select('*');
                 if (resSub.data) subData = resSub.data;
+                const resKuisSub = await supabase.from('kuis_submissions').select('*');
+                if (resKuisSub.data) kuisSubData = resKuisSub.data;
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v11') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v11') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v11') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v11') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v11') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v11') || '[]'),
-                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v11') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v12') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v12') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v12') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v12') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v12') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v12') || '[]'),
+                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v12') || '[]'),
+                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v12') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v11`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v12`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v11`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v12`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
         }
 
@@ -164,7 +167,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Upload Materi Fleksibel</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • CBT Kuis Lengkap</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -326,17 +329,48 @@
             const db = await fetchDataFromSupabase();
             const presensiList = db.presensi;
             const subList = db.submissions;
+            const kuisSubList = db.kuisSubmissions;
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2 flex justify-between items-center">
                         <div>
                             <h3 class="font-bold text-lg text-slate-900">Monitoring Pengerjaan Tugas, Kuis & Kehadiran Siswa</h3>
-                            <p class="text-xs text-slate-500">Pantau rekapitulasi kehadiran dan pengumpulan tugas peserta didik.</p>
+                            <p class="text-xs text-slate-500">Pantau rekapitulasi kehadiran dan pengumpulan tugas serta kuis peserta didik.</p>
                         </div>
                         <button onclick="location.reload()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-700">Refresh Data</button>
                     </div>
 
+                    <!-- REKAP KUIS SISWA -->
+                    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Hasil Kuis / CBT Siswa</div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-100 text-slate-600 border-b">
+                                    <tr>
+                                        <th class="p-3">Nama Siswa</th>
+                                        <th class="p-3">Kelas</th>
+                                        <th class="p-3">Judul Kuis</th>
+                                        <th class="p-3">Jawaban / Hasil Siswa</th>
+                                        <th class="p-3">Waktu Kumpul</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    ${kuisSubList.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada hasil kuis yang dikumpulkan siswa.</td></tr>` : kuisSubList.map(ks => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-3 font-bold text-slate-900">${ks.namaSiswa}</td>
+                                            <td class="p-3 text-slate-600">${ks.kelas}</td>
+                                            <td class="p-3 text-slate-800 font-semibold">${ks.judulKuis}</td>
+                                            <td class="p-3"><pre class="bg-slate-50 p-2 rounded text-[10px] font-sans whitespace-pre-wrap">${ks.jawabanRekap}</pre></td>
+                                            <td class="p-3 text-slate-500">${ks.waktu}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- REKAP TUGAS SISWA -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Daftar Tugas yang Dikumpulkan Siswa</div>
                         <div class="overflow-x-auto">
@@ -367,6 +401,7 @@
                         </div>
                     </div>
 
+                    <!-- REKAP PRESENSI -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">Rekapitulasi Presensi Kehadiran Siswa</div>
                         <div class="overflow-x-auto">
@@ -572,8 +607,8 @@
                                     <button id="btn-modal-tugas" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
                                         <i class="ph ph-file-text font-bold"></i><span>+ Tugas</span>
                                     </button>
-                                    <button id="btn-modal-kuis" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
-                                        <i class="ph ph-question font-bold"></i><span>+ Kuis</span>
+                                    <button id="btn-modal-kuis" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
+                                        <i class="ph ph-question font-bold"></i><span>+ Kuis CBT (PG, BS, Menjodohkan, Uraian)</span>
                                     </button>
                                 </div>
                             ` : ''}
@@ -590,7 +625,7 @@
 
                     <!-- MODAL MATERI -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
-                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran (JPG, JPEG, PNG, PDF, WORD, EXCEL)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Unggah Materi Pembelajaran</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             ${dropdownMapelHtml}
                             ${kelasPilihanHtml}
@@ -650,17 +685,17 @@
                         </form>
                     </div>
 
-                    <!-- MODAL KUIS -->
+                    <!-- MODAL KUIS CBT DENGAN TEMPLATE 5 PG, 5 BS, 5 MENJODOHKAN, 5 URAIAN -->
                     <div id="modal-form-kuis" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-amber-500">
-                        <h3 class="font-bold text-slate-900 text-sm">Buat Kuis / CBT</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Buat Kuis / CBT (Dilengkapi Template 5 PG, 5 B/S, 5 Menjodohkan, 5 Uraian)</h3>
                         <form id="form-add-kuis" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <div class="md:col-span-2">
                                 <label class="block font-bold uppercase mb-1">Judul Kuis</label>
-                                <input type="text" id="k-judul" placeholder="Contoh: Kuis Bab" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="k-judul" placeholder="Contoh: Ujian Harian Bab 1" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Durasi</label>
-                                <input type="text" id="k-waktu" placeholder="Contoh: 30 Menit" class="w-full border p-2.5 rounded-xl" required>
+                                <input type="text" id="k-waktu" placeholder="Contoh: 45 Menit" class="w-full border p-2.5 rounded-xl" required>
                             </div>
                             <div>
                                 <label class="block font-bold uppercase mb-1">Target Kelas</label>
@@ -672,12 +707,46 @@
                                     <option value="XI TSM">XI TSM</option>
                                 </select>
                             </div>
-                            <div class="md:col-span-2">
-                                <label class="block font-bold uppercase mb-1">Link Soal (GForm/Quizizz)</label>
-                                <input type="url" id="k-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl" required>
+                            <div>
+                                <label class="block font-bold uppercase mb-1">Link URL Eksternal (Opsional - GForm/Quizizz)</label>
+                                <input type="url" id="k-link" placeholder="https://..." class="w-full border p-2.5 rounded-xl">
+                            </div>
+                            <div>
+                                <label class="block font-bold uppercase mb-1">Atau Upload File Soal (JPG, JPEG, PDF, Word)</label>
+                                <input type="file" id="k-file" accept="image/jpeg,image/png,.pdf,.doc,.docx" class="w-full border p-2 rounded-xl bg-slate-50">
+                            </div>
+                            <div class="md:col-span-2 bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-2">
+                                <p class="font-bold text-amber-900">📝 Soal Interaktif LMS (Template Otomatis 5 PG, 5 Benar/Salah, 5 Menjodohkan, 5 Uraian):</p>
+                                <textarea id="k-soal-template" rows="8" class="w-full border p-2 rounded-lg font-mono text-[11px] bg-white">BAGIAN A: PILIHAN GANDA (5 Soal)
+1. ...? (A/B/C/D)
+2. ...? (A/B/C/D)
+3. ...? (A/B/C/D)
+4. ...? (A/B/C/D)
+5. ...? (A/B/C/D)
+
+BAGIAN B: BENAR / SALAH (5 Soal)
+6. ... (Benar/Salah)
+7. ... (Benar/Salah)
+8. ... (Benar/Salah)
+9. ... (Benar/Salah)
+10. ... (Benar/Salah)
+
+BAGIAN C: MENJODOHKAN (5 Soal)
+11. ... disandingkan dengan ...
+12. ... disandingkan dengan ...
+13. ... disandingkan dengan ...
+14. ... disandingkan dengan ...
+15. ... disandingkan dengan ...
+
+BAGIAN D: URAIAN / ESSAY (5 Soal)
+16. ...?
+17. ...?
+18. ...?
+19. ...?
+20. ...?</textarea>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow">Simpan Kuis</button>
+                                <button type="submit" class="bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow">Simpan Kuis Interaktif</button>
                                 <button type="button" id="batal-kuis" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
@@ -767,17 +836,23 @@
                 document.getElementById('batal-kuis').addEventListener('click', () => document.getElementById('modal-form-kuis').classList.add('hidden'));
                 document.getElementById('form-add-kuis').addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    const fileObj = await convertFileToBase64('k-file');
+                    const linkUrl = document.getElementById('k-link').value;
+
                     const newItem = { 
                         id: Date.now(), 
                         judul: document.getElementById('k-judul').value, 
                         waktu: document.getElementById('k-waktu').value, 
-                        link: document.getElementById('k-link').value,
+                        link: fileObj ? fileObj.data : linkUrl,
+                        fileName: fileObj ? fileObj.name : '',
+                        isFile: !!fileObj,
+                        soalTemplate: document.getElementById('k-soal-template').value,
                         targetKelas: document.getElementById('k-kelas').value,
                         status: 'Dibuka',
                         guru: currentUser.nama
                     };
                     await saveCloud('kuis', newItem);
-                    alert('Kuis berhasil dibuat!');
+                    alert('Kuis / CBT berhasil dibuat!');
                     renderRuangBelajar(container);
                 });
             }
@@ -838,13 +913,18 @@
                 tabContent.innerHTML = `
                     <div class="space-y-4">
                         ${kuisList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada kuis untuk kelas Anda.</p></div>' : kuisList.map(k => `
-                            <div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-center">
+                            <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
                                     <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${k.targetKelas || 'Semua Kelas'}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${k.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${k.guru} • Durasi: ${k.waktu}</p>
+                                    ${k.isFile ? `<a href="${k.link}" target="_blank" class="text-xs text-green-600 underline font-semibold block mt-1">📁 Unduh File Soal (${k.fileName})</a>` : (k.link ? `<a href="${k.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">🔗 Buka Link Kuis Eksternal</a>` : '')}
                                 </div>
-                                ${k.link ? `<a href="${k.link}" target="_blank" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow">Kerjakan Kuis</a>` : ''}
+                                <div>
+                                    ${currentUser.role === 'siswa' ? `
+                                        <button onclick="bukaModalKerjakanKuis('${k.judul.replace(/'/g, "\\'")}', \`${encodeURIComponent(k.soalTemplate || '')}\`)" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs shadow">Kerjakan Kuis Sekarang</button>
+                                    ` : `<span class="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-xl">Kuis Aktif</span>`}
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -886,6 +966,84 @@
                     renderRuangBelajar(container);
                 });
             }
+        }
+
+        // Global function untuk siswa mengerjakan kuis interaktif
+        window.bukaModalKerjakanKuis = function(judulKuis, encodedTemplate) {
+            const templateSoal = decodeURIComponent(encodedTemplate);
+            const modalDiv = document.createElement('div');
+            modalDiv.className = 'fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 overflow-y-auto';
+            modalDiv.innerHTML = `
+                <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <h3 class="font-bold text-base text-slate-900">Ujian CBT: ${judulKuis}</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+                    </div>
+                    <div class="space-y-3 text-xs">
+                        <div class="bg-slate-50 p-3 rounded-xl border">
+                            <p class="font-bold text-slate-700 mb-1">Soal Kuis:</p>
+                            <pre class="whitespace-pre-wrap font-sans text-slate-800">${templateSoal}</pre>
+                        </div>
+                        <div>
+                            <label class="block font-bold uppercase mb-1">Lembar Jawaban Anda (Ketik jawaban PG, Benar/Salah, Menjodohkan, Uraian):</label>
+                            <textarea id="input-jawaban-kuis" rows="8" placeholder="Contoh: 1.A, 2.B, 6.Benar, 11.1-C, 16.Pembahasan..." class="w-full border p-3 rounded-xl text-xs bg-white" required></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-bold uppercase mb-1">Atau Upload File Jawaban (Opsional - JPG/PDF)</label>
+                            <input type="file" id="file-jawaban-kuis" accept="image/*,.pdf,.doc,.docx" class="w-full border p-2 rounded-xl bg-slate-50">
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-2 pt-2 border-t">
+                        <button onclick="this.closest('.fixed').remove()" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs">Batal</button>
+                        <button onclick="kirimJawabanKuis('${judulKuis.replace(/'/g, "\\'")}')" class="bg-primary hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow">Kirim Jawaban Kuis</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalDiv);
+        }
+
+        window.kirimJawabanKuis = async function(judulKuis) {
+            const jawabanTeks = document.getElementById('input-jawaban-kuis').value.trim();
+            const fileInput = document.getElementById('file-jawaban-kuis');
+
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const submission = {
+                        id: Date.now(),
+                        namaSiswa: currentUser.nama,
+                        kelas: currentUser.kelas,
+                        judulKuis: judulKuis,
+                        jawabanRekap: `File: ${file.name}\nTeks: ${jawabanTeks || '-'}`,
+                        waktu: new Date().toLocaleTimeString() + ' WIB'
+                    };
+                    await saveCloud('kuis_submissions', submission);
+                    alert('Jawaban kuis beserta file berhasil dikumpulkan!');
+                    document.querySelector('.fixed').remove();
+                    location.reload();
+                };
+                reader.readAsDataURL(file);
+                return;
+            }
+
+            if (!jawabanTeks) {
+                alert('Harap isi lembar jawaban kuis Anda terlebih dahulu!');
+                return;
+            }
+
+            const submission = {
+                id: Date.now(),
+                namaSiswa: currentUser.nama,
+                kelas: currentUser.kelas,
+                judulKuis: judulKuis,
+                jawabanRekap: jawabanTeks,
+                waktu: new Date().toLocaleTimeString() + ' WIB'
+            };
+            await saveCloud('kuis_submissions', submission);
+            alert('Jawaban kuis berhasil dikumpulkan!');
+            document.querySelector('.fixed').remove();
+            location.reload();
         }
 
         window.kirimTugas = async function(judulTugas, tugasId) {
