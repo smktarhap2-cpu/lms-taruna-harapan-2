@@ -116,6 +116,7 @@
             { nama: "M. Akmal Julpadli", kelas: "XI TSM" }
         ];
 
+        // Sistem Penyimpanan Terpusat Universal
         function getData(table) {
             let primary = JSON.parse(localStorage.getItem(`th2_master_${table}`) || '[]');
             if (primary.length > 0) return primary;
@@ -151,7 +152,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Sinkronisasi Universal Siswa</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Fix Publikasi & Tombol Simpan</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -531,7 +532,7 @@
         function renderRuangBelajar(container) {
             const isSiswa = currentUser.role === 'siswa';
 
-            // SEMUA MATERI, TUGAS, KUIS DITAMPILKAN KE SEMUA SISWA TANPA BATASAN KELAS
+            // Mengambil data secara universal agar seluruh siswa langsung dapat melihat materi, tugas, dan kuis
             const materiList = getData('materi');
             const tugasList = getData('tugas');
             const kuisList = getData('kuis');
@@ -604,7 +605,7 @@
 
                     <!-- MODAL MATERI -->
                     <div id="modal-form-materi" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-primary">
-                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-materi">Unggah Materi Pembelajaran</h3>
+                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-materi">Publikasi / Simpan Materi Pembelajaran</h3>
                         <form id="form-add-materi" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <input type="hidden" id="edit-materi-id">
                             ${dropdownMapelHtml}
@@ -622,7 +623,7 @@
                                 <input type="file" id="m-file" accept="image/jpeg,image/png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Materi</button>
+                                <button type="submit" class="bg-primary text-white font-bold px-5 py-2.5 rounded-xl shadow">Publikasikan Materi</button>
                                 <button type="button" id="batal-materi" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
@@ -630,7 +631,7 @@
 
                     <!-- MODAL TUGAS -->
                     <div id="modal-form-tugas" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-slate-800">
-                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-tugas">Buat Tugas Baru</h3>
+                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-tugas">Publikasi / Simpan Tugas Baru</h3>
                         <form id="form-add-tugas" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <input type="hidden" id="edit-tugas-id">
                             <div class="md:col-span-2">
@@ -660,7 +661,7 @@
                                 <input type="file" id="t-file" accept="image/jpeg,image/png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full border p-2 rounded-xl bg-slate-50">
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow">Simpan Tugas</button>
+                                <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow">Publikasikan Tugas</button>
                                 <button type="button" id="batal-tugas" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
@@ -668,7 +669,7 @@
 
                     <!-- MODAL KUIS -->
                     <div id="modal-form-kuis" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-amber-500">
-                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-kuis">Buat Kuis / CBT</h3>
+                        <h3 class="font-bold text-slate-900 text-sm" id="title-form-kuis">Publikasi / Simpan Kuis / CBT</h3>
                         <form id="form-add-kuis" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                             <input type="hidden" id="edit-kuis-id">
                             <div class="md:col-span-2">
@@ -704,7 +705,7 @@
 2. ...? (A/B/C/D)</textarea>
                             </div>
                             <div class="md:col-span-2 flex space-x-2">
-                                <button type="submit" class="bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow">Simpan Kuis</button>
+                                <button type="submit" class="bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow">Publikasikan Kuis</button>
                                 <button type="button" id="batal-kuis" class="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
                             </div>
                         </form>
@@ -738,7 +739,7 @@
             if (bMat) {
                 bMat.addEventListener('click', () => {
                     document.getElementById('edit-materi-id').value = '';
-                    document.getElementById('title-form-materi').innerText = 'Unggah Materi Pembelajaran';
+                    document.getElementById('title-form-materi').innerText = 'Publikasi / Simpan Materi Pembelajaran';
                     document.getElementById('form-add-materi').reset();
                     document.getElementById('modal-form-materi').classList.toggle('hidden');
                 });
@@ -756,6 +757,7 @@
                             if (m.id == editId) {
                                 m.judul = document.getElementById('m-judul').value;
                                 m.targetKelas = targetKelasVal;
+                                m.status = 'published';
                                 if (linkUrl) m.link = linkUrl;
                                 if (fileObj) { m.link = fileObj.data; m.fileName = fileObj.name; m.format = fileObj.name; m.isFile = true; }
                             }
@@ -775,10 +777,11 @@
                             fileName: fileObj ? fileObj.name : '',
                             guru: currentUser.nama,
                             mapel: currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum',
-                            targetKelas: targetKelasVal
+                            targetKelas: targetKelasVal,
+                            status: 'published'
                         };
                         saveData('materi', newItem);
-                        alert('Materi berhasil diunggah!');
+                        alert('Materi berhasil dipublikasikan!');
                     }
                     renderRuangBelajar(container);
                 });
@@ -788,7 +791,7 @@
             if (bTug) {
                 bTug.addEventListener('click', () => {
                     document.getElementById('edit-tugas-id').value = '';
-                    document.getElementById('title-form-tugas').innerText = 'Buat Tugas Baru';
+                    document.getElementById('title-form-tugas').innerText = 'Publikasi / Simpan Tugas Baru';
                     document.getElementById('form-add-tugas').reset();
                     document.getElementById('modal-form-tugas').classList.toggle('hidden');
                 });
@@ -807,6 +810,7 @@
                                 t.judul = document.getElementById('t-judul').value;
                                 t.deadline = document.getElementById('t-deadline').value;
                                 t.targetKelas = targetKelasVal;
+                                t.status = 'published';
                                 if (linkUrl) t.link = linkUrl;
                                 if (fileObj) { t.link = fileObj.data; t.fileName = fileObj.name; t.isFile = true; }
                             }
@@ -823,11 +827,11 @@
                             fileName: fileObj ? fileObj.name : '',
                             isFile: !!fileObj,
                             targetKelas: targetKelasVal,
-                            status: 'Dibuka',
+                            status: 'published',
                             guru: currentUser.nama
                         };
                         saveData('tugas', newItem);
-                        alert('Tugas berhasil dibuat!');
+                        alert('Tugas berhasil dipublikasikan!');
                     }
                     renderRuangBelajar(container);
                 });
@@ -837,7 +841,7 @@
             if (bKuis) {
                 bKuis.addEventListener('click', () => {
                     document.getElementById('edit-kuis-id').value = '';
-                    document.getElementById('title-form-kuis').innerText = 'Buat Kuis / CBT';
+                    document.getElementById('title-form-kuis').innerText = 'Publikasi / Simpan Kuis / CBT';
                     document.getElementById('form-add-kuis').reset();
                     document.getElementById('modal-form-kuis').classList.toggle('hidden');
                 });
@@ -857,6 +861,7 @@
                                 k.waktu = document.getElementById('k-waktu').value;
                                 k.targetKelas = targetKelasVal;
                                 k.soalTemplate = document.getElementById('k-soal-template').value;
+                                k.status = 'published';
                                 if (linkUrl) k.link = linkUrl;
                                 if (fileObj) { k.link = fileObj.data; k.fileName = fileObj.name; k.isFile = true; }
                             }
@@ -874,11 +879,11 @@
                             isFile: !!fileObj,
                             soalTemplate: document.getElementById('k-soal-template').value,
                             targetKelas: targetKelasVal,
-                            status: 'Dibuka',
+                            status: 'published',
                             guru: currentUser.nama
                         };
                         saveData('kuis', newItem);
-                        alert('Kuis / CBT berhasil dibuat!');
+                        alert('Kuis / CBT berhasil dipublikasikan!');
                     }
                     renderRuangBelajar(container);
                 });
