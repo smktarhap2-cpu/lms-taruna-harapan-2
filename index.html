@@ -828,14 +828,14 @@
                 let fileNama = '';
                 let fileUrl = '';
 
-                // Proses upload fisik file ke Supabase Storage jika ada file dipilih
+                // Proses upload fisik file ke Supabase Storage menggunakan _supabase
                 if (fileInput && fileInput.files[0]) {
                     const file = fileInput.files[0];
                     fileNama = file.name;
                     const filePath = `materi_${Date.now()}_${file.name}`;
 
-                    const { data: uploadData, error: uploadError } = await supabase.storage
-                        .from('lampiran')
+                    const { data: uploadData, error: uploadError } = await _supabase.storage
+                        .from('lampiran') // Perhatikan huruf L besar sesuai nama bucket Anda
                         .upload(filePath, file);
 
                     if (uploadError) {
@@ -844,7 +844,7 @@
                     }
 
                     // Ambil Public URL dari file yang diunggah
-                    const { data: publicUrlData } = supabase.storage
+                    const { data: publicUrlData } = _supabase.storage
                         .from('lampiran')
                         .getPublicUrl(filePath);
 
