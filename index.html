@@ -140,28 +140,28 @@
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v15') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v15') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v15') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v15') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v15') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v15') || '[]'),
-                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v15') || '[]'),
-                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v15') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v16') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v16') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v16') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v16') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v16') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v16') || '[]'),
+                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v16') || '[]'),
+                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v16') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v15`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v16`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v15`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v16`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
         }
 
         async function deleteCloud(table, id) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v15`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v16`) || '[]');
             local = local.filter(item => item.id !== id);
-            localStorage.setItem(`th2_${table}_v15`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v16`, JSON.stringify(local));
             try { await supabase.from(table).delete().eq('id', id); } catch (e) {}
         }
 
@@ -174,7 +174,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Presensi Per Mapel & Filter Kelas</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Fix Filter Kelas Undefined</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -348,7 +348,6 @@
                         <button onclick="window.print()" class="bg-primary text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-red-700">🖨️ Cetak Laporan</button>
                     </div>
 
-                    <!-- REKAP KUIS SISWA -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📊 Rekapitulasi Hasil Kuis / CBT Siswa</div>
                         <div class="overflow-x-auto">
@@ -377,7 +376,6 @@
                         </div>
                     </div>
 
-                    <!-- REKAP TUGAS SISWA -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📈 Rekapitulasi Pengumpulan Tugas Siswa</div>
                         <div class="overflow-x-auto">
@@ -408,7 +406,6 @@
                         </div>
                     </div>
 
-                    <!-- REKAP PRESENSI PER MAPEL -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                         <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📋 Rekapitulasi Presensi Kehadiran Siswa Per Mata Pelajaran</div>
                         <div class="overflow-x-auto">
@@ -559,10 +556,10 @@
             const isSiswa = currentUser.role === 'siswa';
             const kelasSiswa = currentUser.kelas;
 
-            // Filter ketat materi, tugas, dan kuis berdasarkan kelas masing-masing siswa (tanpa pilihan "Semua Kelas")
-            const materiList = db.materi.filter(m => !isSiswa || m.targetKelas === kelasSiswa);
-            const tugasList = db.tugas.filter(t => !isSiswa || t.targetKelas === kelasSiswa);
-            const kuisList = db.kuis.filter(k => !isSiswa || k.targetKelas === kelasSiswa);
+            // Filter aman: Jika targetKelas kosong atau undefined, otomatis anggap "X AKL" atau tampilkan, agar tidak hilang
+            const materiList = db.materi.filter(m => !isSiswa || !m.targetKelas || m.targetKelas === 'undefined' || m.targetKelas === kelasSiswa);
+            const tugasList = db.tugas.filter(t => !isSiswa || !t.targetKelas || t.targetKelas === 'undefined' || t.targetKelas === kelasSiswa);
+            const kuisList = db.kuis.filter(k => !isSiswa || !k.targetKelas || k.targetKelas === 'undefined' || k.targetKelas === kelasSiswa);
             const chatList = db.chat.filter(c => currentUser.role === 'admin' || currentUser.role === 'kepsek' || currentUser.role === 'guru' || c.kelas === currentUser.kelas);
 
             let dropdownMapelHtml = '';
@@ -773,19 +770,20 @@
                     const editId = document.getElementById('edit-materi-id').value;
                     const fileObj = await convertFileToBase64('m-file');
                     const linkUrl = document.getElementById('m-link').value;
+                    const targetKelasVal = document.getElementById('target-kelas').value || 'X AKL';
 
-                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v15') || '[]');
+                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v16') || '[]');
                     if (editId) {
                         localMateri = localMateri.map(m => {
                             if (m.id == editId) {
                                 m.judul = document.getElementById('m-judul').value;
-                                m.targetKelas = document.getElementById('target-kelas').value;
+                                m.targetKelas = targetKelasVal;
                                 if (linkUrl) m.link = linkUrl;
                                 if (fileObj) { m.link = fileObj.data; m.fileName = fileObj.name; m.format = fileObj.name; m.isFile = true; }
                             }
                             return m;
                         });
-                        localStorage.setItem('th2_materi_v15', JSON.stringify(localMateri));
+                        localStorage.setItem('th2_materi_v16', JSON.stringify(localMateri));
                         alert('Materi berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -799,7 +797,7 @@
                             fileName: fileObj ? fileObj.name : '',
                             guru: currentUser.nama,
                             mapel: currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum',
-                            targetKelas: document.getElementById('target-kelas').value
+                            targetKelas: targetKelasVal
                         };
                         await saveCloud('materi', newItem);
                         alert('Materi berhasil diunggah!');
@@ -822,20 +820,21 @@
                     const editId = document.getElementById('edit-tugas-id').value;
                     const fileObj = await convertFileToBase64('t-file');
                     const linkUrl = document.getElementById('t-link').value;
+                    const targetKelasVal = document.getElementById('t-kelas').value || 'X AKL';
 
-                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v15') || '[]');
+                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v16') || '[]');
                     if (editId) {
                         localTugas = localTugas.map(t => {
                             if (t.id == editId) {
                                 t.judul = document.getElementById('t-judul').value;
                                 t.deadline = document.getElementById('t-deadline').value;
-                                t.targetKelas = document.getElementById('t-kelas').value;
+                                t.targetKelas = targetKelasVal;
                                 if (linkUrl) t.link = linkUrl;
                                 if (fileObj) { t.link = fileObj.data; t.fileName = fileObj.name; t.isFile = true; }
                             }
                             return t;
                         });
-                        localStorage.setItem('th2_tugas_v15', JSON.stringify(localTugas));
+                        localStorage.setItem('th2_tugas_v16', JSON.stringify(localTugas));
                         alert('Tugas berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -845,7 +844,7 @@
                             link: fileObj ? fileObj.data : linkUrl,
                             fileName: fileObj ? fileObj.name : '',
                             isFile: !!fileObj,
-                            targetKelas: document.getElementById('t-kelas').value,
+                            targetKelas: targetKelasVal,
                             status: 'Dibuka',
                             guru: currentUser.nama
                         };
@@ -870,21 +869,22 @@
                     const editId = document.getElementById('edit-kuis-id').value;
                     const fileObj = await convertFileToBase64('k-file');
                     const linkUrl = document.getElementById('k-link').value;
+                    const targetKelasVal = document.getElementById('k-kelas').value || 'X AKL';
 
-                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v15') || '[]');
+                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v16') || '[]');
                     if (editId) {
                         localKuis = localKuis.map(k => {
                             if (k.id == editId) {
                                 k.judul = document.getElementById('k-judul').value;
                                 k.waktu = document.getElementById('k-waktu').value;
-                                k.targetKelas = document.getElementById('k-kelas').value;
+                                k.targetKelas = targetKelasVal;
                                 k.soalTemplate = document.getElementById('k-soal-template').value;
                                 if (linkUrl) k.link = linkUrl;
                                 if (fileObj) { k.link = fileObj.data; k.fileName = fileObj.name; k.isFile = true; }
                             }
                             return k;
                         });
-                        localStorage.setItem('th2_kuis_v15', JSON.stringify(localKuis));
+                        localStorage.setItem('th2_kuis_v16', JSON.stringify(localKuis));
                         alert('Kuis berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -895,7 +895,7 @@
                             fileName: fileObj ? fileObj.name : '',
                             isFile: !!fileObj,
                             soalTemplate: document.getElementById('k-soal-template').value,
-                            targetKelas: document.getElementById('k-kelas').value,
+                            targetKelas: targetKelasVal,
                             status: 'Dibuka',
                             guru: currentUser.nama
                         };
@@ -922,7 +922,7 @@
                                     <div class="flex items-center space-x-2">
                                         <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${m.format}</span>
                                         <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-0.5 rounded">${m.mapel || 'Mapel Umum'}</span>
-                                        <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${m.targetKelas}</span>
+                                        <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${m.targetKelas && m.targetKelas !== 'undefined' ? m.targetKelas : 'X AKL'}</span>
                                     </div>
                                     <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
                                     <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
@@ -946,7 +946,7 @@
                         ${tugasList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada tugas untuk kelas Anda.</p></div>' : tugasList.map(t => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
-                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${t.targetKelas}</span>
+                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${t.targetKelas && t.targetKelas !== 'undefined' ? t.targetKelas : 'X AKL'}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${t.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${t.guru} • Tenggat: ${t.deadline}</p>
                                     ${t.link ? `<a href="${t.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">📁 Lihat Soal / Petunjuk (${t.fileName || 'Link'})</a>` : ''}
@@ -977,7 +977,7 @@
                         ${kuisList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada kuis untuk kelas Anda.</p></div>' : kuisList.map(k => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
-                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${k.targetKelas}</span>
+                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${k.targetKelas && k.targetKelas !== 'undefined' ? k.targetKelas : 'X AKL'}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${k.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${k.guru} • Durasi: ${k.waktu}</p>
                                     ${k.isFile ? `<a href="${k.link}" target="_blank" class="text-xs text-green-600 underline font-semibold block mt-1">📁 Unduh File Soal (${k.fileName})</a>` : (k.link ? `<a href="${k.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">🔗 Buka Link Kuis Eksternal</a>` : '')}
@@ -1069,39 +1069,39 @@
         }
 
         window.editMateri = function(id) {
-            const materiList = JSON.parse(localStorage.getItem('th2_materi_v15') || '[]');
+            const materiList = JSON.parse(localStorage.getItem('th2_materi_v16') || '[]');
             const m = materiList.find(item => item.id == id);
             if (m) {
                 document.getElementById('edit-materi-id').value = m.id;
                 document.getElementById('title-form-materi').innerText = 'Edit Materi Pembelajaran';
                 document.getElementById('m-judul').value = m.judul;
-                document.getElementById('target-kelas').value = m.targetKelas;
+                document.getElementById('target-kelas').value = m.targetKelas && m.targetKelas !== 'undefined' ? m.targetKelas : 'X AKL';
                 document.getElementById('modal-form-materi').classList.remove('hidden');
             }
         }
 
         window.editTugas = function(id) {
-            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v15') || '[]');
+            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v16') || '[]');
             const t = tugasList.find(item => item.id == id);
             if (t) {
                 document.getElementById('edit-tugas-id').value = t.id;
                 document.getElementById('title-form-tugas').innerText = 'Edit Tugas Pembelajaran';
                 document.getElementById('t-judul').value = t.judul;
                 document.getElementById('t-deadline').value = t.deadline;
-                document.getElementById('t-kelas').value = t.targetKelas;
+                document.getElementById('t-kelas').value = t.targetKelas && t.targetKelas !== 'undefined' ? t.targetKelas : 'X AKL';
                 document.getElementById('modal-form-tugas').classList.remove('hidden');
             }
         }
 
         window.editKuis = function(id) {
-            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v15') || '[]');
+            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v16') || '[]');
             const k = kuisList.find(item => item.id == id);
             if (k) {
                 document.getElementById('edit-kuis-id').value = k.id;
                 document.getElementById('title-form-kuis').innerText = 'Edit Kuis / CBT';
                 document.getElementById('k-judul').value = k.judul;
                 document.getElementById('k-waktu').value = k.waktu;
-                document.getElementById('k-kelas').value = k.targetKelas;
+                document.getElementById('k-kelas').value = k.targetKelas && k.targetKelas !== 'undefined' ? k.targetKelas : 'X AKL';
                 document.getElementById('k-soal-template').value = k.soalTemplate || '';
                 document.getElementById('modal-form-kuis').classList.remove('hidden');
             }
