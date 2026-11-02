@@ -886,7 +886,58 @@ ${currentUser.role === 'siswa' ? `
                 });
             }
         }
+// Event handler form tambah tugas (Guru)
+        const formT = document.getElementById('form-add-tugas');
+        if (formT) {
+            formT.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!currentUser || !currentUser.nama) {
+                    alert('Sesi login kedaluwarsa. Silakan login ulang.');
+                    return;
+                }
 
+                const fileInput = document.getElementById('t-file');
+                let fileNama = '';
+                let fileUrl = '';
+
+                // Proses upload file fisik ke Supabase Storage (bucket lampiran)
+                if (fileInput && fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    fileNama = file.name;
+                    const filePath = `tugas_${Date.now()}_${file.name}`;
+
+                    const { error: uploadError } = await _supabase.storage
+                        .from('lampiran')
+                        .upload(filePath, file);
+
+                    if (uploadError) {
+                        alert('Gagal mengunggah file tugas: ' + uploadError.message);
+                        return;
+                    }
+
+                    const { data: publicUrlData } = _supabase.storage
+                        .from('lampiran')
+                        .getPublicUrl(filePath);
+
+                    fileUrl = publicUrlData.publicUrl;
+                }
+                
+                await saveData('tugas', {
+                    mapel: document.getElementById('t-mapel').value,
+                    kelas: document.getElementById('t-kelas').value,
+                    judul: document.getElementById('t-judul').value,
+                    deadline: document.getElementById('t-deadline').value,
+                    instruksi: document.getElementById('t-instruksi').value,
+                    fileNama: fileNama,
+                    fileUrl: fileUrl,
+                    guru: currentUser.nama
+                });
+
+                toggleModal('modal-form-tugas');
+                renderActiveView();
+            });
+        }
         async function kumpulTugas(tugasId, judulTugas) {
             alert(`Tugas "${judulTugas}" berhasil dikirimkan ke guru pengampu melalui server cloud!`);
             await saveData('submissions', {
