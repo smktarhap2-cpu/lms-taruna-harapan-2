@@ -678,7 +678,7 @@
                         <p class="text-xs text-slate-600">${m.teks}</p>
                         <div class="flex flex-wrap gap-2 pt-1">
                             ${m.youtube ? `<a href="${m.youtube}" target="_blank" class="inline-flex items-center space-x-2 text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl border border-red-200 hover:bg-red-100"><span>📺 Buka Tautan / Video</span></a>` : ''}
-                           ${m.fileNama ? `<a href="#" onclick="alert('Membuka file lampiran: ${m.fileNama}'); return false;" class="inline-flex items-center space-x-2 text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200 hover:bg-blue-100"><span>📎 Lampiran File: ${m.fileNama}</span></a>` : ''}
+                           ${m.fileUrl ? `<a href="${m.fileUrl}" target="_blank" class="inline-flex items-center space-x-2 text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200 hover:bg-blue-100"><span>📎 Buka/Unduh Lampiran: ${m.fileNama || 'Dokumen'}</span></a>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -819,14 +819,37 @@
             formM.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                // Cek pengaman jika sesi login belum siap
                 if (!currentUser || !currentUser.nama) {
-                    alert('Sesi login kedaluwarsa atau tidak ditemukan. Silakan login ulang.');
+                    alert('Sesi login kedaluwarsa. Silakan login ulang.');
                     return;
                 }
 
                 const fileInput = document.getElementById('m-file');
-                const fileNama = fileInput && fileInput.files[0] ? fileInput.files[0].name : '';
+                let fileNama = '';
+                let fileUrl = '';
+
+                // Proses upload fisik file ke Supabase Storage jika ada file dipilih
+                if (fileInput && fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    fileNama = file.name;
+                    const filePath = `materi_${Date.now()}_${file.name}`;
+
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('lampiran')
+                        .upload(filePath, file);
+
+                    if (uploadError) {
+                        alert('Gagal mengunggah file ke server: ' + uploadError.message);
+                        return;
+                    }
+
+                    // Ambil Public URL dari file yang diunggah
+                    const { data: publicUrlData } = supabase.storage
+                        .from('lampiran')
+                        .getPublicUrl(filePath);
+
+                    fileUrl = publicUrlData.publicUrl;
+                }
                 
                 await saveData('materi', {
                     mapel: document.getElementById('m-mapel').value,
@@ -835,8 +858,10 @@
                     youtube: document.getElementById('m-youtube').value,
                     teks: document.getElementById('m-teks').value,
                     fileNama: fileNama,
+                    fileUrl: fileUrl,
                     guru: currentUser.nama
                 });
+
                 toggleModal('modal-form-materi');
                 renderActiveView();
             });
