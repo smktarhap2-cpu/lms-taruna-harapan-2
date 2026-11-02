@@ -813,25 +813,34 @@
                     });
                 }
             }
+// Event handler form tambah materi
+        const formM = document.getElementById('form-add-materi');
+        if (formM) {
+            formM.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Cek pengaman jika sesi login belum siap
+                if (!currentUser || !currentUser.nama) {
+                    alert('Sesi login kedaluwarsa atau tidak ditemukan. Silakan login ulang.');
+                    return;
+                }
 
-
-            // Event handler form tambah tugas
-            const formT = document.getElementById('form-add-tugas');
-            if (formT) {
-                formT.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    await saveData('tugas', {
-                        mapel: document.getElementById('t-mapel').value,
-                        kelas: document.getElementById('t-kelas').value,
-                        judul: document.getElementById('t-judul').value,
-                        deadline: document.getElementById('t-deadline').value,
-                        instruksi: document.getElementById('t-instruksi').value,
-                        guru: currentUser.nama
-                    });
-                    toggleModal('modal-form-tugas');
-                    renderActiveView();
+                const fileInput = document.getElementById('m-file');
+                const fileNama = fileInput && fileInput.files[0] ? fileInput.files[0].name : '';
+                
+                await saveData('materi', {
+                    mapel: document.getElementById('m-mapel').value,
+                    kelas: document.getElementById('m-kelas').value,
+                    judul: document.getElementById('m-judul').value,
+                    youtube: document.getElementById('m-youtube').value,
+                    teks: document.getElementById('m-teks').value,
+                    fileNama: fileNama,
+                    guru: currentUser.nama
                 });
-            }
+                toggleModal('modal-form-materi');
+                renderActiveView();
+            });
+        }
 
             // Event handler form tambah kuis
             const formK = document.getElementById('form-add-kuis');
