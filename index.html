@@ -664,7 +664,7 @@
             const container = document.getElementById('ruang-content');
             if (!container) return;
 
-            if (currentTabRuang === 'materi') {
+           if (currentTabRuang === 'materi') {
                 container.innerHTML = materiList.length === 0 ? `<div class="bg-white p-8 text-center rounded-2xl border text-slate-400 text-xs">Belum ada materi pembelajaran yang diunggah.</div>` : materiList.map(m => `
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-3">
                         <div class="flex justify-between items-start">
@@ -676,9 +676,13 @@
                             <span class="text-xs text-slate-400">Oleh: ${m.guru || 'Guru'}</span>
                         </div>
                         <p class="text-xs text-slate-600">${m.teks}</p>
-                        ${m.youtube ? `<a href="${m.youtube}" target="_blank" class="inline-flex items-center space-x-2 text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl border border-red-200 hover:bg-red-100"><span>📺 Buka Tautan / Video Materi</span></a>` : ''}
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            ${m.youtube ? `<a href="${m.youtube}" target="_blank" class="inline-flex items-center space-x-2 text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl border border-red-200 hover:bg-red-100"><span>📺 Buka Tautan / Video</span></a>` : ''}
+                            ${m.fileNama ? `<span class="inline-flex items-center space-x-2 text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200"><span>📎 Lampiran: ${m.fileNama}</span></span>` : ''}
+                        </div>
                     </div>
                 `).join('');
+            }
             } else if (currentTabRuang === 'tugas') {
                 container.innerHTML = tugasList.length === 0 ? `<div class="bg-white p-8 text-center rounded-2xl border text-slate-400 text-xs">Belum ada tugas aktif.</div>` : tugasList.map(t => `
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-3">
