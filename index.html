@@ -694,7 +694,8 @@
                             <span class="text-xs text-red-600 font-bold bg-red-50 px-3 py-1 rounded-xl border border-red-200">⏰ Deadline: ${t.deadline}</span>
                         </div>
                         <p class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border">${t.instruksi}</p>
-                        ${currentUser.role === 'siswa' ? `
+${t.fileUrl ? `<div class="mt-2"><a href="${t.fileUrl}" target="_blank" class="inline-flex items-center space-x-2 text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200 hover:bg-blue-100"><span>📎 Unduh Lampiran Soal / Petunjuk: ${t.fileNama || 'Dokumen'}</span></a></div>` : ''}
+${currentUser.role === 'siswa' ? `
                             <div class="pt-2 border-t space-y-2">
                                 <p class="text-xs font-bold text-slate-700">Kumpulkan Tugas Anda di Sini:</p>
                                 <input type="file" id="file-sub-${t.id}" class="w-full border p-2 rounded-xl bg-slate-50 text-xs">
