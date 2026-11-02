@@ -25,9 +25,7 @@
 
     <div id="app" class="h-full flex flex-col"></div>
 
-    <script type="module">
-        import { supabase } from './js/supabase.js';
-
+    <script>
         let currentUser = null;
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
@@ -118,51 +116,21 @@
             { nama: "M. Akmal Julpadli", kelas: "XI TSM" }
         ];
 
-        async function fetchDataFromSupabase() {
-            let mData = [], tData = [], kData = [], pData = [], pengData = [], chatData = [], subData = [], kuisSubData = [];
-            try {
-                const resM = await supabase.from('materi').select('*');
-                if (resM.data) mData = resM.data;
-                const resT = await supabase.from('tugas').select('*');
-                if (resT.data) tData = resT.data;
-                const resK = await supabase.from('kuis').select('*');
-                if (resK.data) kData = resK.data;
-                const resP = await supabase.from('presensi').select('*');
-                if (resP.data) pData = resP.data;
-                const resPeng = await supabase.from('pengumuman').select('*');
-                if (resPeng.data) pengData = resPeng.data;
-                const resChat = await supabase.from('chat_kelas').select('*');
-                if (resChat.data) chatData = resChat.data;
-                const resSub = await supabase.from('submissions').select('*');
-                if (resSub.data) subData = resSub.data;
-                const resKuisSub = await supabase.from('kuis_submissions').select('*');
-                if (resKuisSub.data) kuisSubData = resKuisSub.data;
-            } catch (err) {}
-
-            return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v16') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v16') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v16') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v16') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v16') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v16') || '[]'),
-                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v16') || '[]'),
-                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v16') || '[]')
-            };
+        // Storage Pusat Universal (Tanpa Ganti Versi)
+        function getData(table) {
+            return JSON.parse(localStorage.getItem(`th2_master_${table}`) || '[]');
         }
 
-        async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v16`) || '[]');
-            local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v16`, JSON.stringify(local));
-            try { await supabase.from(table).insert([newItem]); } catch (e) {}
+        function saveData(table, newItem) {
+            let data = getData(table);
+            data.unshift(newItem);
+            localStorage.setItem(`th2_master_${table}`, JSON.stringify(data));
         }
 
-        async function deleteCloud(table, id) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v16`) || '[]');
-            local = local.filter(item => item.id !== id);
-            localStorage.setItem(`th2_${table}_v16`, JSON.stringify(local));
-            try { await supabase.from(table).delete().eq('id', id); } catch (e) {}
+        function removeData(table, id) {
+            let data = getData(table);
+            data = data.filter(item => item.id !== Number(id));
+            localStorage.setItem(`th2_master_${table}`, JSON.stringify(data));
         }
 
         const appContainer = document.getElementById('app');
@@ -174,7 +142,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Fix Filter Kelas Undefined</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Sinkronisasi Universal</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -280,9 +248,8 @@
             muatBannerPengumuman();
         }
 
-        async function muatBannerPengumuman() {
-            const db = await fetchDataFromSupabase();
-            const peng = db.pengumuman;
+        function muatBannerPengumuman() {
+            const peng = getData('pengumuman');
             if (peng.length > 0) {
                 document.getElementById('banner-teks').innerHTML = `📢 <b>${peng[0].judul}:</b> ${peng[0].isi} <span class="text-[10px] text-slate-500">(${peng[0].waktu})</span>`;
             }
@@ -318,25 +285,24 @@
             });
         }
 
-        async function renderActiveView() {
+        function renderActiveView() {
             const mainView = document.getElementById('page-content');
 
             if (currentView === 'ruang_belajar') {
-                await renderRuangBelajar(mainView);
+                renderRuangBelajar(mainView);
             } else if (currentView === 'monitoring_siswa') {
-                await renderMonitoringSiswa(mainView);
+                renderMonitoringSiswa(mainView);
             } else if (currentView === 'monitoring_upload') {
-                await renderMonitoringUpload(mainView);
+                renderMonitoringUpload(mainView);
             } else if (currentView === 'pengumuman') {
-                await renderPengumumanView(mainView);
+                renderPengumumanView(mainView);
             }
         }
 
-        async function renderMonitoringSiswa(container) {
-            const db = await fetchDataFromSupabase();
-            const presensiList = db.presensi;
-            const subList = db.submissions;
-            const kuisSubList = db.kuisSubmissions;
+        function renderMonitoringSiswa(container) {
+            const presensiList = getData('presensi');
+            const subList = getData('submissions');
+            const kuisSubList = getData('kuis_submissions');
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -439,8 +405,10 @@
             `;
         }
 
-        async function renderMonitoringUpload(container) {
-            const db = await fetchDataFromSupabase();
+        function renderMonitoringUpload(container) {
+            const materiList = getData('materi');
+            const tugasList = getData('tugas');
+            const kuisList = getData('kuis');
 
             container.innerHTML = `
                 <div class="max-w-6xl mx-auto space-y-6">
@@ -469,9 +437,9 @@
                                 <tbody class="divide-y divide-slate-200">
                                     ${masterGuruLogin.map((g, idx) => {
                                         const kw = g.nama.split(',')[0].trim().toLowerCase();
-                                        const hasM = db.materi.some(m => (m.guru || '').toLowerCase().includes(kw));
-                                        const hasT = db.tugas.some(t => (t.guru || '').toLowerCase().includes(kw));
-                                        const hasK = db.kuis.some(k => (k.guru || '').toLowerCase().includes(kw));
+                                        const hasM = materiList.some(m => (m.guru || '').toLowerCase().includes(kw));
+                                        const hasT = tugasList.some(t => (t.guru || '').toLowerCase().includes(kw));
+                                        const hasK = kuisList.some(k => (k.guru || '').toLowerCase().includes(kw));
 
                                         return `
                                             <tr class="hover:bg-slate-50">
@@ -492,9 +460,8 @@
             `;
         }
 
-        async function renderPengumumanView(container) {
-            const db = await fetchDataFromSupabase();
-            const listPeng = db.pengumuman;
+        function renderPengumumanView(container) {
+            const listPeng = getData('pengumuman');
 
             container.innerHTML = `
                 <div class="max-w-4xl mx-auto space-y-6">
@@ -536,14 +503,15 @@
 
             const formPeng = document.getElementById('form-pengumuman');
             if (formPeng) {
-                formPeng.addEventListener('submit', async (e) => {
+                formPeng.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const newItem = {
+                        id: Date.now(),
                         judul: document.getElementById('p-judul').value,
                         isi: document.getElementById('p-isi').value,
                         waktu: new Date().toLocaleTimeString() + ' WIB'
                     };
-                    await saveCloud('pengumuman', newItem);
+                    saveData('pengumuman', newItem);
                     alert('Pengumuman berhasil disiarkan!');
                     renderPengumumanView(container);
                     muatBannerPengumuman();
@@ -551,16 +519,20 @@
             }
         }
 
-        async function renderRuangBelajar(container) {
-            const db = await fetchDataFromSupabase();
+        function renderRuangBelajar(container) {
             const isSiswa = currentUser.role === 'siswa';
             const kelasSiswa = currentUser.kelas;
 
-            // Filter aman: Jika targetKelas kosong atau undefined, otomatis anggap "X AKL" atau tampilkan, agar tidak hilang
-            const materiList = db.materi.filter(m => !isSiswa || !m.targetKelas || m.targetKelas === 'undefined' || m.targetKelas === kelasSiswa);
-            const tugasList = db.tugas.filter(t => !isSiswa || !t.targetKelas || t.targetKelas === 'undefined' || t.targetKelas === kelasSiswa);
-            const kuisList = db.kuis.filter(k => !isSiswa || !k.targetKelas || k.targetKelas === 'undefined' || k.targetKelas === kelasSiswa);
-            const chatList = db.chat.filter(c => currentUser.role === 'admin' || currentUser.role === 'kepsek' || currentUser.role === 'guru' || c.kelas === currentUser.kelas);
+            // Ambil dari master storage universal
+            const rawMateri = getData('materi');
+            const rawTugas = getData('tugas');
+            const rawKuis = getData('kuis');
+            const chatList = getData('chat_kelas').filter(c => currentUser.role === 'admin' || currentUser.role === 'kepsek' || currentUser.role === 'guru' || c.kelas === currentUser.kelas);
+
+            // Filter ketat kelas untuk siswa, Admin/Guru melihat semua
+            const materiList = rawMateri.filter(m => !isSiswa || m.targetKelas === kelasSiswa || !m.targetKelas);
+            const tugasList = rawTugas.filter(t => !isSiswa || t.targetKelas === kelasSiswa || !t.targetKelas);
+            const kuisList = rawKuis.filter(k => !isSiswa || k.targetKelas === kelasSiswa || !k.targetKelas);
 
             let dropdownMapelHtml = '';
             if (currentUser.role === 'guru') {
@@ -770,9 +742,9 @@
                     const editId = document.getElementById('edit-materi-id').value;
                     const fileObj = await convertFileToBase64('m-file');
                     const linkUrl = document.getElementById('m-link').value;
-                    const targetKelasVal = document.getElementById('target-kelas').value || 'X AKL';
+                    const targetKelasVal = document.getElementById('target-kelas').value;
 
-                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v16') || '[]');
+                    let localMateri = getData('materi');
                     if (editId) {
                         localMateri = localMateri.map(m => {
                             if (m.id == editId) {
@@ -783,7 +755,7 @@
                             }
                             return m;
                         });
-                        localStorage.setItem('th2_materi_v16', JSON.stringify(localMateri));
+                        localStorage.setItem('th2_master_materi', JSON.stringify(localMateri));
                         alert('Materi berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -799,7 +771,7 @@
                             mapel: currentUser.role === 'guru' ? document.getElementById('m-mapel-pilih').value : 'Admin Umum',
                             targetKelas: targetKelasVal
                         };
-                        await saveCloud('materi', newItem);
+                        saveData('materi', newItem);
                         alert('Materi berhasil diunggah!');
                     }
                     renderRuangBelajar(container);
@@ -820,9 +792,9 @@
                     const editId = document.getElementById('edit-tugas-id').value;
                     const fileObj = await convertFileToBase64('t-file');
                     const linkUrl = document.getElementById('t-link').value;
-                    const targetKelasVal = document.getElementById('t-kelas').value || 'X AKL';
+                    const targetKelasVal = document.getElementById('t-kelas').value;
 
-                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v16') || '[]');
+                    let localTugas = getData('tugas');
                     if (editId) {
                         localTugas = localTugas.map(t => {
                             if (t.id == editId) {
@@ -834,7 +806,7 @@
                             }
                             return t;
                         });
-                        localStorage.setItem('th2_tugas_v16', JSON.stringify(localTugas));
+                        localStorage.setItem('th2_master_tugas', JSON.stringify(localTugas));
                         alert('Tugas berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -848,7 +820,7 @@
                             status: 'Dibuka',
                             guru: currentUser.nama
                         };
-                        await saveCloud('tugas', newItem);
+                        saveData('tugas', newItem);
                         alert('Tugas berhasil dibuat!');
                     }
                     renderRuangBelajar(container);
@@ -869,9 +841,9 @@
                     const editId = document.getElementById('edit-kuis-id').value;
                     const fileObj = await convertFileToBase64('k-file');
                     const linkUrl = document.getElementById('k-link').value;
-                    const targetKelasVal = document.getElementById('k-kelas').value || 'X AKL';
+                    const targetKelasVal = document.getElementById('k-kelas').value;
 
-                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v16') || '[]');
+                    let localKuis = getData('kuis');
                     if (editId) {
                         localKuis = localKuis.map(k => {
                             if (k.id == editId) {
@@ -884,7 +856,7 @@
                             }
                             return k;
                         });
-                        localStorage.setItem('th2_kuis_v16', JSON.stringify(localKuis));
+                        localStorage.setItem('th2_master_kuis', JSON.stringify(localKuis));
                         alert('Kuis berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -899,7 +871,7 @@
                             status: 'Dibuka',
                             guru: currentUser.nama
                         };
-                        await saveCloud('kuis', newItem);
+                        saveData('kuis', newItem);
                         alert('Kuis / CBT berhasil dibuat!');
                     }
                     renderRuangBelajar(container);
@@ -922,7 +894,7 @@
                                     <div class="flex items-center space-x-2">
                                         <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${m.format}</span>
                                         <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-0.5 rounded">${m.mapel || 'Mapel Umum'}</span>
-                                        <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${m.targetKelas && m.targetKelas !== 'undefined' ? m.targetKelas : 'X AKL'}</span>
+                                        <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${m.targetKelas || 'X AKL'}</span>
                                     </div>
                                     <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
                                     <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
@@ -946,7 +918,7 @@
                         ${tugasList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada tugas untuk kelas Anda.</p></div>' : tugasList.map(t => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
-                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${t.targetKelas && t.targetKelas !== 'undefined' ? t.targetKelas : 'X AKL'}</span>
+                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${t.targetKelas || 'X AKL'}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${t.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${t.guru} • Tenggat: ${t.deadline}</p>
                                     ${t.link ? `<a href="${t.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">📁 Lihat Soal / Petunjuk (${t.fileName || 'Link'})</a>` : ''}
@@ -977,7 +949,7 @@
                         ${kuisList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada kuis untuk kelas Anda.</p></div>' : kuisList.map(k => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
-                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${k.targetKelas && k.targetKelas !== 'undefined' ? k.targetKelas : 'X AKL'}</span>
+                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${k.targetKelas || 'X AKL'}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${k.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${k.guru} • Durasi: ${k.waktu}</p>
                                     ${k.isFile ? `<a href="${k.link}" target="_blank" class="text-xs text-green-600 underline font-semibold block mt-1">📁 Unduh File Soal (${k.fileName})</a>` : (k.link ? `<a href="${k.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">🔗 Buka Link Kuis Eksternal</a>` : '')}
@@ -1032,10 +1004,11 @@
                         </form>
                     </div>
                 `;
-                document.getElementById('form-chat').addEventListener('submit', async (e) => {
+                document.getElementById('form-chat').addEventListener('submit', (e) => {
                     e.preventDefault();
                     const pesan = document.getElementById('chat-msg').value;
-                    await saveCloud('chat_kelas', {
+                    saveData('chat_kelas', {
+                        id: Date.now(),
                         pengirim: `${currentUser.nama} (${currentUser.role})`,
                         kelas: currentUser.kelas || 'Umum',
                         pesan,
@@ -1046,7 +1019,7 @@
             }
         }
 
-        window.kirimPresensiMapel = async function() {
+        window.kirimPresensiMapel = function() {
             const mapelPilihan = document.getElementById('presensi-mapel-pilih').value;
             const presensiItem = {
                 id: Date.now(),
@@ -1055,53 +1028,53 @@
                 mapel: mapelPilihan,
                 waktu: new Date().toLocaleTimeString() + ' WIB - ' + new Date().toLocaleDateString()
             };
-            await saveCloud('presensi', presensiItem);
+            saveData('presensi', presensiItem);
             alert(`Kehadiran untuk mata pelajaran ${mapelPilihan} berhasil dicatat!`);
             location.reload();
         }
 
-        window.hapusKonten = async function(table, id) {
+        window.hapusKonten = function(table, id) {
             if (confirm('Apakah Anda yakin ingin menghapus konten ini?')) {
-                await deleteCloud(table, Number(id));
+                removeData(table, id);
                 alert('Konten berhasil dihapus!');
                 location.reload();
             }
         }
 
         window.editMateri = function(id) {
-            const materiList = JSON.parse(localStorage.getItem('th2_materi_v16') || '[]');
+            const materiList = getData('materi');
             const m = materiList.find(item => item.id == id);
             if (m) {
                 document.getElementById('edit-materi-id').value = m.id;
                 document.getElementById('title-form-materi').innerText = 'Edit Materi Pembelajaran';
                 document.getElementById('m-judul').value = m.judul;
-                document.getElementById('target-kelas').value = m.targetKelas && m.targetKelas !== 'undefined' ? m.targetKelas : 'X AKL';
+                document.getElementById('target-kelas').value = m.targetKelas || 'X AKL';
                 document.getElementById('modal-form-materi').classList.remove('hidden');
             }
         }
 
         window.editTugas = function(id) {
-            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v16') || '[]');
+            const tugasList = getData('tugas');
             const t = tugasList.find(item => item.id == id);
             if (t) {
                 document.getElementById('edit-tugas-id').value = t.id;
                 document.getElementById('title-form-tugas').innerText = 'Edit Tugas Pembelajaran';
                 document.getElementById('t-judul').value = t.judul;
                 document.getElementById('t-deadline').value = t.deadline;
-                document.getElementById('t-kelas').value = t.targetKelas && t.targetKelas !== 'undefined' ? t.targetKelas : 'X AKL';
+                document.getElementById('t-kelas').value = t.targetKelas || 'X AKL';
                 document.getElementById('modal-form-tugas').classList.remove('hidden');
             }
         }
 
         window.editKuis = function(id) {
-            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v16') || '[]');
+            const kuisList = getData('kuis');
             const k = kuisList.find(item => item.id == id);
             if (k) {
                 document.getElementById('edit-kuis-id').value = k.id;
                 document.getElementById('title-form-kuis').innerText = 'Edit Kuis / CBT';
                 document.getElementById('k-judul').value = k.judul;
                 document.getElementById('k-waktu').value = k.waktu;
-                document.getElementById('k-kelas').value = k.targetKelas && k.targetKelas !== 'undefined' ? k.targetKelas : 'X AKL';
+                document.getElementById('k-kelas').value = k.targetKelas || 'X AKL';
                 document.getElementById('k-soal-template').value = k.soalTemplate || '';
                 document.getElementById('modal-form-kuis').classList.remove('hidden');
             }
@@ -1142,14 +1115,14 @@
             document.body.appendChild(modalDiv);
         }
 
-        window.kirimJawabanKuis = async function(judulKuis) {
+        window.kirimJawabanKuis = function(judulKuis) {
             const jawabanTeks = document.getElementById('input-jawaban-kuis').value.trim();
             const fileInput = document.getElementById('file-jawaban-kuis');
 
             if (fileInput && fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 const reader = new FileReader();
-                reader.onload = async function(e) {
+                reader.onload = function(e) {
                     const submission = {
                         id: Date.now(),
                         namaSiswa: currentUser.nama,
@@ -1158,7 +1131,7 @@
                         jawabanRekap: `File: ${file.name}\nTeks: ${jawabanTeks || '-'}`,
                         waktu: new Date().toLocaleTimeString() + ' WIB'
                     };
-                    await saveCloud('kuis_submissions', submission);
+                    saveData('kuis_submissions', submission);
                     alert('Jawaban kuis berhasil dikumpulkan!');
                     document.querySelector('.fixed').remove();
                     location.reload();
@@ -1180,20 +1153,20 @@
                 jawabanRekap: jawabanTeks,
                 waktu: new Date().toLocaleTimeString() + ' WIB'
             };
-            await saveCloud('kuis_submissions', submission);
+            saveData('kuis_submissions', submission);
             alert('Jawaban kuis berhasil dikumpulkan!');
             document.querySelector('.fixed').remove();
             location.reload();
         }
 
-        window.kirimTugas = async function(judulTugas, tugasId) {
+        window.kirimTugas = function(judulTugas, tugasId) {
             const teks = document.getElementById(`jawaban-teks-${tugasId}`).value.trim();
             const fileInput = document.getElementById(`jawaban-file-${tugasId}`);
 
             if (fileInput && fileInput.files && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 const reader = new FileReader();
-                reader.onload = async function(e) {
+                reader.onload = function(e) {
                     const submission = {
                         id: Date.now(),
                         namaSiswa: currentUser.nama,
@@ -1204,7 +1177,7 @@
                         fileName: file.name,
                         waktu: new Date().toLocaleTimeString() + ' WIB'
                     };
-                    await saveCloud('submissions', submission);
+                    saveData('submissions', submission);
                     alert('Tugas beserta file berhasil dikumpulkan!');
                     location.reload();
                 };
@@ -1226,7 +1199,7 @@
                 isFile: false,
                 waktu: new Date().toLocaleTimeString() + ' WIB'
             };
-            await saveCloud('submissions', submission);
+            saveData('submissions', submission);
             alert('Jawaban tugas teks berhasil dikumpulkan!');
             location.reload();
         }
