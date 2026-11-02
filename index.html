@@ -116,9 +116,20 @@
             { nama: "M. Akmal Julpadli", kelas: "XI TSM" }
         ];
 
-        // Storage Pusat Universal (Tanpa Ganti Versi)
+        // Sistem Penyimpanan Gabungan (Mengambil data dari semua versi lama agar tidak hilang)
         function getData(table) {
-            return JSON.parse(localStorage.getItem(`th2_master_${table}`) || '[]');
+            let primary = JSON.parse(localStorage.getItem(`th2_master_${table}`) || '[]');
+            if (primary.length > 0) return primary;
+
+            // Cek versi cadangan sebelumnya jika data utama kosong
+            for (let v = 10; v <= 16; v++) {
+                let oldData = JSON.parse(localStorage.getItem(`th2_${table}_v${v}`) || '[]');
+                if (oldData.length > 0) {
+                    localStorage.setItem(`th2_master_${table}`, JSON.stringify(oldData));
+                    return oldData;
+                }
+            }
+            return [];
         }
 
         function saveData(table, newItem) {
@@ -142,7 +153,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Sinkronisasi Universal</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Sinkronisasi Data Guru</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -523,13 +534,11 @@
             const isSiswa = currentUser.role === 'siswa';
             const kelasSiswa = currentUser.kelas;
 
-            // Ambil dari master storage universal
             const rawMateri = getData('materi');
             const rawTugas = getData('tugas');
             const rawKuis = getData('kuis');
             const chatList = getData('chat_kelas').filter(c => currentUser.role === 'admin' || currentUser.role === 'kepsek' || currentUser.role === 'guru' || c.kelas === currentUser.kelas);
 
-            // Filter ketat kelas untuk siswa, Admin/Guru melihat semua
             const materiList = rawMateri.filter(m => !isSiswa || m.targetKelas === kelasSiswa || !m.targetKelas);
             const tugasList = rawTugas.filter(t => !isSiswa || t.targetKelas === kelasSiswa || !t.targetKelas);
             const kuisList = rawKuis.filter(k => !isSiswa || k.targetKelas === kelasSiswa || !k.targetKelas);
