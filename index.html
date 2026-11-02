@@ -140,28 +140,28 @@
             } catch (err) {}
 
             return {
-                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v14') || '[]'),
-                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v14') || '[]'),
-                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v14') || '[]'),
-                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v14') || '[]'),
-                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v14') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
-                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v14') || '[]'),
-                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v14') || '[]'),
-                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v14') || '[]')
+                materi: mData.length > 0 ? mData : JSON.parse(localStorage.getItem('th2_materi_v15') || '[]'),
+                tugas: tData.length > 0 ? tData : JSON.parse(localStorage.getItem('th2_tugas_v15') || '[]'),
+                kuis: kData.length > 0 ? kData : JSON.parse(localStorage.getItem('th2_kuis_v15') || '[]'),
+                presensi: pData.length > 0 ? pData : JSON.parse(localStorage.getItem('th2_presensi_v15') || '[]'),
+                pengumuman: pengData.length > 0 ? pengData : JSON.parse(localStorage.getItem('th2_pengumuman_v15') || '[{"judul": "Selamat Datang PJJ", "isi": "Portal PJJ aktif.", "waktu": "Hari Ini"}]'),
+                chat: chatData.length > 0 ? chatData : JSON.parse(localStorage.getItem('th2_chat_v15') || '[]'),
+                submissions: subData.length > 0 ? subData : JSON.parse(localStorage.getItem('th2_submissions_v15') || '[]'),
+                kuisSubmissions: kuisSubData.length > 0 ? kuisSubData : JSON.parse(localStorage.getItem('th2_kuis_sub_v15') || '[]')
             };
         }
 
         async function saveCloud(table, newItem) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v14`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v15`) || '[]');
             local.unshift(newItem);
-            localStorage.setItem(`th2_${table}_v14`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v15`, JSON.stringify(local));
             try { await supabase.from(table).insert([newItem]); } catch (e) {}
         }
 
         async function deleteCloud(table, id) {
-            let local = JSON.parse(localStorage.getItem(`th2_${table}_v14`) || '[]');
+            let local = JSON.parse(localStorage.getItem(`th2_${table}_v15`) || '[]');
             local = local.filter(item => item.id !== id);
-            localStorage.setItem(`th2_${table}_v14`, JSON.stringify(local));
+            localStorage.setItem(`th2_${table}_v15`, JSON.stringify(local));
             try { await supabase.from(table).delete().eq('id', id); } catch (e) {}
         }
 
@@ -174,7 +174,7 @@
                         <div class="text-center space-y-2">
                             <div class="w-14 h-14 bg-primary text-white rounded-2xl mx-auto flex items-center justify-center text-xl font-bold shadow-lg">TH2</div>
                             <h1 class="text-xl font-bold text-slate-900">SMK TARUNA HARAPAN 2</h1>
-                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ Terpadu • Filter Kelas & Laporan Rekap</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Portal PJJ • Presensi Per Mapel & Filter Kelas</p>
                         </div>
                         <form id="login-form" class="space-y-4">
                             <div>
@@ -342,7 +342,7 @@
                 <div class="max-w-6xl mx-auto space-y-6">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-2 flex justify-between items-center">
                         <div>
-                            <h3 class="font-bold text-lg text-slate-900">Laporan & Rekapitulasi Hasil PJJ Siswa Per Kelas</h3>
+                            <h3 class="font-bold text-lg text-slate-900">Laporan & Rekapitulasi Hasil PJJ Siswa Per Kelas & Mapel</h3>
                             <p class="text-xs text-slate-500">Laporan lengkap untuk Admin dan Kepala Sekolah memantau kuis, tugas, dan presensi.</p>
                         </div>
                         <button onclick="window.print()" class="bg-primary text-white font-bold px-4 py-2 rounded-xl text-xs shadow hover:bg-red-700">🖨️ Cetak Laporan</button>
@@ -408,33 +408,32 @@
                         </div>
                     </div>
 
-                    <!-- REKAP PRESENSI -->
+                    <!-- REKAP PRESENSI PER MAPEL -->
                     <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📋 Rekapitulasi Presensi Kehadiran Siswa Per Kelas</div>
+                        <div class="p-4 border-b bg-slate-50 font-bold text-xs text-slate-700 uppercase">📋 Rekapitulasi Presensi Kehadiran Siswa Per Mata Pelajaran</div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead class="bg-slate-100 text-slate-600 border-b">
                                     <tr>
                                         <th class="p-3">Nama Siswa</th>
                                         <th class="p-3">Kelas</th>
+                                        <th class="p-3">Mata Pelajaran</th>
                                         <th class="p-3 text-center">Status Kehadiran</th>
                                         <th class="p-3">Waktu Presensi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200">
-                                    ${masterSiswaLogin.map(s => {
-                                        const pres = presensiList.find(p => p.nama.toLowerCase() === s.nama.toLowerCase());
-                                        return `
-                                            <tr class="hover:bg-slate-50">
-                                                <td class="p-3 font-bold text-slate-900">${s.nama}</td>
-                                                <td class="p-3 text-slate-600 font-semibold">${s.kelas}</td>
-                                                <td class="p-3 text-center">
-                                                    ${pres ? '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold">Hadir</span>' : '<span class="bg-slate-100 text-slate-500 px-3 py-1 rounded-full">Belum Absen</span>'}
-                                                </td>
-                                                <td class="p-3 text-slate-500">${pres ? pres.waktu : '-'}</td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
+                                    ${presensiList.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data presensi mapel yang tercatat.</td></tr>` : presensiList.map(p => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-3 font-bold text-slate-900">${p.nama}</td>
+                                            <td class="p-3 text-slate-600 font-semibold">${p.kelas}</td>
+                                            <td class="p-3 text-indigo-700 font-bold">${p.mapel}</td>
+                                            <td class="p-3 text-center">
+                                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold">Hadir</span>
+                                            </td>
+                                            <td class="p-3 text-slate-500">${p.waktu}</td>
+                                        </tr>
+                                    `).join('')}
                                 </tbody>
                             </table>
                         </div>
@@ -560,10 +559,10 @@
             const isSiswa = currentUser.role === 'siswa';
             const kelasSiswa = currentUser.kelas;
 
-            // Filter ketat materi, tugas, dan kuis berdasarkan kelas masing-masing siswa atau "Semua Kelas"
-            const materiList = db.materi.filter(m => !isSiswa || m.targetKelas === 'Semua Kelas' || m.targetKelas === kelasSiswa);
-            const tugasList = db.tugas.filter(t => !isSiswa || t.targetKelas === 'Semua Kelas' || t.targetKelas === kelasSiswa);
-            const kuisList = db.kuis.filter(k => !isSiswa || k.targetKelas === 'Semua Kelas' || k.targetKelas === kelasSiswa);
+            // Filter ketat materi, tugas, dan kuis berdasarkan kelas masing-masing siswa (tanpa pilihan "Semua Kelas")
+            const materiList = db.materi.filter(m => !isSiswa || m.targetKelas === kelasSiswa);
+            const tugasList = db.tugas.filter(t => !isSiswa || t.targetKelas === kelasSiswa);
+            const kuisList = db.kuis.filter(k => !isSiswa || k.targetKelas === kelasSiswa);
             const chatList = db.chat.filter(c => currentUser.role === 'admin' || currentUser.role === 'kepsek' || currentUser.role === 'guru' || c.kelas === currentUser.kelas);
 
             let dropdownMapelHtml = '';
@@ -583,7 +582,6 @@
                 <div>
                     <label class="block font-bold uppercase mb-1">Target Kelas Siswa</label>
                     <select id="target-kelas" class="w-full border p-2.5 rounded-xl font-semibold bg-slate-50" required>
-                        <option value="Semua Kelas">Semua Kelas</option>
                         <option value="X AKL">X AKL</option>
                         <option value="X TSM">X TSM</option>
                         <option value="XI AKL">XI AKL</option>
@@ -626,7 +624,7 @@
                             <button data-tab="materi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'materi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Materi (${materiList.length})</button>
                             <button data-tab="tugas" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'tugas' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Tugas (${tugasList.length})</button>
                             <button data-tab="kuis" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'kuis' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Kuis (${kuisList.length})</button>
-                            <button data-tab="presensi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'presensi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Presensi</button>
+                            <button data-tab="presensi" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'presensi' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">Presensi Mapel</button>
                             <button data-tab="chat" class="tab-ruang px-4 py-2 rounded-xl transition ${currentTabRuang === 'chat' ? 'bg-amber-400 text-slate-900 font-bold shadow' : 'hover:bg-slate-100'}">💬 Chat Kelas</button>
                         </div>
                     </div>
@@ -673,7 +671,6 @@
                             <div>
                                 <label class="block font-bold uppercase mb-1">Target Kelas</label>
                                 <select id="t-kelas" class="w-full border p-2.5 rounded-xl font-semibold bg-slate-50" required>
-                                    <option value="Semua Kelas">Semua Kelas</option>
                                     <option value="X AKL">X AKL</option>
                                     <option value="X TSM">X TSM</option>
                                     <option value="XI AKL">XI AKL</option>
@@ -711,7 +708,6 @@
                             <div>
                                 <label class="block font-bold uppercase mb-1">Target Kelas</label>
                                 <select id="k-kelas" class="w-full border p-2.5 rounded-xl font-semibold bg-slate-50" required>
-                                    <option value="Semua Kelas">Semua Kelas</option>
                                     <option value="X AKL">X AKL</option>
                                     <option value="X TSM">X TSM</option>
                                     <option value="XI AKL">XI AKL</option>
@@ -778,7 +774,7 @@
                     const fileObj = await convertFileToBase64('m-file');
                     const linkUrl = document.getElementById('m-link').value;
 
-                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v14') || '[]');
+                    let localMateri = JSON.parse(localStorage.getItem('th2_materi_v15') || '[]');
                     if (editId) {
                         localMateri = localMateri.map(m => {
                             if (m.id == editId) {
@@ -789,7 +785,7 @@
                             }
                             return m;
                         });
-                        localStorage.setItem('th2_materi_v14', JSON.stringify(localMateri));
+                        localStorage.setItem('th2_materi_v15', JSON.stringify(localMateri));
                         alert('Materi berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -827,7 +823,7 @@
                     const fileObj = await convertFileToBase64('t-file');
                     const linkUrl = document.getElementById('t-link').value;
 
-                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v14') || '[]');
+                    let localTugas = JSON.parse(localStorage.getItem('th2_tugas_v15') || '[]');
                     if (editId) {
                         localTugas = localTugas.map(t => {
                             if (t.id == editId) {
@@ -839,7 +835,7 @@
                             }
                             return t;
                         });
-                        localStorage.setItem('th2_tugas_v14', JSON.stringify(localTugas));
+                        localStorage.setItem('th2_tugas_v15', JSON.stringify(localTugas));
                         alert('Tugas berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -875,7 +871,7 @@
                     const fileObj = await convertFileToBase64('k-file');
                     const linkUrl = document.getElementById('k-link').value;
 
-                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v14') || '[]');
+                    let localKuis = JSON.parse(localStorage.getItem('th2_kuis_v15') || '[]');
                     if (editId) {
                         localKuis = localKuis.map(k => {
                             if (k.id == editId) {
@@ -888,7 +884,7 @@
                             }
                             return k;
                         });
-                        localStorage.setItem('th2_kuis_v14', JSON.stringify(localKuis));
+                        localStorage.setItem('th2_kuis_v15', JSON.stringify(localKuis));
                         alert('Kuis berhasil diperbarui!');
                     } else {
                         const newItem = { 
@@ -926,7 +922,7 @@
                                     <div class="flex items-center space-x-2">
                                         <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${m.format}</span>
                                         <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-0.5 rounded">${m.mapel || 'Mapel Umum'}</span>
-                                        <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${m.targetKelas || 'Semua Kelas'}</span>
+                                        <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${m.targetKelas}</span>
                                     </div>
                                     <h4 class="font-bold text-slate-900 text-sm">${m.judul}</h4>
                                     <p class="text-xs text-slate-500">Pengajar: ${m.guru || 'Guru'} • ${m.tanggal}</p>
@@ -950,7 +946,7 @@
                         ${tugasList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada tugas untuk kelas Anda.</p></div>' : tugasList.map(t => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
-                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${t.targetKelas || 'Semua Kelas'}</span>
+                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${t.targetKelas}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${t.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${t.guru} • Tenggat: ${t.deadline}</p>
                                     ${t.link ? `<a href="${t.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">📁 Lihat Soal / Petunjuk (${t.fileName || 'Link'})</a>` : ''}
@@ -981,7 +977,7 @@
                         ${kuisList.length === 0 ? '<div class="bg-white p-8 rounded-2xl border text-center"><p class="text-sm font-bold text-slate-700">Belum ada kuis untuk kelas Anda.</p></div>' : kuisList.map(k => `
                             <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="space-y-1">
-                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${k.targetKelas || 'Semua Kelas'}</span>
+                                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded">Kelas: ${k.targetKelas}</span>
                                     <h4 class="font-bold text-slate-900 text-sm">${k.judul}</h4>
                                     <p class="text-xs text-slate-500">Guru: ${k.guru} • Durasi: ${k.waktu}</p>
                                     ${k.isFile ? `<a href="${k.link}" target="_blank" class="text-xs text-green-600 underline font-semibold block mt-1">📁 Unduh File Soal (${k.fileName})</a>` : (k.link ? `<a href="${k.link}" target="_blank" class="text-xs text-blue-600 underline font-semibold block mt-1">🔗 Buka Link Kuis Eksternal</a>` : '')}
@@ -1000,10 +996,22 @@
                     </div>
                 `;
             } else if (currentTabRuang === 'presensi') {
+                const mapelListPilihan = currentUser.role === 'guru' ? (currentUser.mapels || [currentUser.mapel]) : ["PAI", "MTK", "Desain Grafis", "B. INGGRIS", "BP/BK", "B. SUNDA", "SEJARAH", "Seni Budaya", "Projek IPAS", "B. INDONESIA", "AK. Keuangan", "KOMP.AK", "PJOK", "INFORMATIKA", "DD TSM", "P. PANCASILA"];
+                
                 tabContent.innerHTML = `
                     <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h3 class="font-bold text-lg text-slate-900">Presensi Kehadiran PJJ</h3>
-                        <button onclick="saveCloud('presensi', {nama: currentUser.nama, kelas: currentUser.kelas, waktu: new Date().toLocaleTimeString() + ' WIB'}); alert('Kehadiran berhasil dicatat!'); location.reload();" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Saya Hadir (Absen)</button>
+                        <h3 class="font-bold text-lg text-slate-900">Presensi Kehadiran Per Mata Pelajaran</h3>
+                        <p class="text-xs text-slate-500">Pilih mata pelajaran yang sedang berlangsung sesuai jadwal jam pelajaran Anda saat ini.</p>
+                        
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="block font-bold uppercase mb-1">Mata Pelajaran</label>
+                                <select id="presensi-mapel-pilih" class="w-full border p-2.5 rounded-xl font-semibold bg-slate-50" required>
+                                    ${mapelListPilihan.map(mp => `<option value="${mp}">${mp}</option>`).join('')}
+                                </select>
+                            </div>
+                            <button onclick="kirimPresensiMapel()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl text-sm shadow hover:bg-green-700">Kirim Kehadiran (Absen Mapel)</button>
+                        </div>
                     </div>
                 `;
             } else if (currentTabRuang === 'chat') {
@@ -1038,6 +1046,20 @@
             }
         }
 
+        window.kirimPresensiMapel = async function() {
+            const mapelPilihan = document.getElementById('presensi-mapel-pilih').value;
+            const presensiItem = {
+                id: Date.now(),
+                nama: currentUser.nama,
+                kelas: currentUser.kelas,
+                mapel: mapelPilihan,
+                waktu: new Date().toLocaleTimeString() + ' WIB - ' + new Date().toLocaleDateString()
+            };
+            await saveCloud('presensi', presensiItem);
+            alert(`Kehadiran untuk mata pelajaran ${mapelPilihan} berhasil dicatat!`);
+            location.reload();
+        }
+
         window.hapusKonten = async function(table, id) {
             if (confirm('Apakah Anda yakin ingin menghapus konten ini?')) {
                 await deleteCloud(table, Number(id));
@@ -1047,39 +1069,39 @@
         }
 
         window.editMateri = function(id) {
-            const materiList = JSON.parse(localStorage.getItem('th2_materi_v14') || '[]');
+            const materiList = JSON.parse(localStorage.getItem('th2_materi_v15') || '[]');
             const m = materiList.find(item => item.id == id);
             if (m) {
                 document.getElementById('edit-materi-id').value = m.id;
                 document.getElementById('title-form-materi').innerText = 'Edit Materi Pembelajaran';
                 document.getElementById('m-judul').value = m.judul;
-                document.getElementById('target-kelas').value = m.targetKelas || 'Semua Kelas';
+                document.getElementById('target-kelas').value = m.targetKelas;
                 document.getElementById('modal-form-materi').classList.remove('hidden');
             }
         }
 
         window.editTugas = function(id) {
-            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v14') || '[]');
+            const tugasList = JSON.parse(localStorage.getItem('th2_tugas_v15') || '[]');
             const t = tugasList.find(item => item.id == id);
             if (t) {
                 document.getElementById('edit-tugas-id').value = t.id;
                 document.getElementById('title-form-tugas').innerText = 'Edit Tugas Pembelajaran';
                 document.getElementById('t-judul').value = t.judul;
                 document.getElementById('t-deadline').value = t.deadline;
-                document.getElementById('t-kelas').value = t.targetKelas || 'Semua Kelas';
+                document.getElementById('t-kelas').value = t.targetKelas;
                 document.getElementById('modal-form-tugas').classList.remove('hidden');
             }
         }
 
         window.editKuis = function(id) {
-            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v14') || '[]');
+            const kuisList = JSON.parse(localStorage.getItem('th2_kuis_v15') || '[]');
             const k = kuisList.find(item => item.id == id);
             if (k) {
                 document.getElementById('edit-kuis-id').value = k.id;
                 document.getElementById('title-form-kuis').innerText = 'Edit Kuis / CBT';
                 document.getElementById('k-judul').value = k.judul;
                 document.getElementById('k-waktu').value = k.waktu;
-                document.getElementById('k-kelas').value = k.targetKelas || 'Semua Kelas';
+                document.getElementById('k-kelas').value = k.targetKelas;
                 document.getElementById('k-soal-template').value = k.soalTemplate || '';
                 document.getElementById('modal-form-kuis').classList.remove('hidden');
             }
