@@ -630,6 +630,10 @@
     <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Teks Soal / Pertanyaan Kuis</label>
     <textarea id="k-soal" rows="4" placeholder="Tuliskan daftar pertanyaan atau instruksi soal kuis di sini..." class="w-full border p-2.5 rounded-xl bg-slate-50 font-normal text-xs"></textarea>
 </div>
+<div class="mt-3">
+    <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Unggah File Soal (Word / PDF / Gambar - Opsional)</label>
+    <input type="file" id="k-file" class="w-full border p-2 rounded-xl bg-slate-50 text-xs">
+</div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Durasi Ujian</label>
@@ -717,6 +721,7 @@ ${currentUser.role === 'siswa' ? `
                                 <span class="bg-amber-500 text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-full">${k.mapel || 'Kuis'}</span>
                                 <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2.5 py-1 rounded-full ml-1">${k.kelas || 'Kelas'}</span>
                                 <h3 class="font-bold text-base text-slate-900 mt-2">${k.judul}</h3>
+                                ${k.fileUrl ? `<div class="mt-2"><a href="${k.fileUrl}" target="_blank" class="inline-flex items-center text-xs text-amber-700 font-bold bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 hover:bg-amber-100"><i class="fa-solid fa-download mr-1.5"></i> Unduh Lampiran Soal: ${k.fileNama}</a></div>` : ''}
                             </div>
                             <span class="text-xs text-amber-800 font-bold bg-amber-50 px-3 py-1 rounded-xl border border-amber-200">⏳ Durasi: ${k.durasi}</span>
                         </div>
@@ -897,23 +902,52 @@ if (formM && !formM.dataset.listenerAttached) {
             }
 
             try {
-                await saveData('kuis', {
-                    mapel: document.getElementById('k-mapel').value,
-                    kelas: document.getElementById('k-kelas').value,
-                    judul: document.getElementById('k-judul').value,
-                    durasi: document.getElementById('k-durasi').value,
-                    link: document.getElementById('k-link').value || '',
-                    soalTeks: document.getElementById('k-soal').value,
-                    guru: currentUser.nama
-                });
+            const fileInput = document.getElementById('k-file');
+            let fileNama = '';
+            let fileUrl = '';
 
-                toggleModal('modal-form-kuis');
-                renderActiveView();
-                alert('Kuis berhasil dipublikasikan!');
-            } catch (err) {
-                console.error("Error Simpan Kuis:", err);
-                alert('Terjadi kesalahan sistem: ' + err.message);
+            // Proses unggah file lampiran soal kuis ke Supabase Storage
+            if (fileInput && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                fileNama = file.name;
+                const filePath = `kuis_${Date.now()}_${file.name}`;
+
+                const { error: uploadError } = await _supabase.storage
+                    .from('lampiran')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    alert('Gagal mengunggah file kuis: ' + uploadError.message);
+                    return;
+                }
+
+                const { data: publicUrlData } = _supabase.storage
+                    .from('lampiran')
+                    .getPublicUrl(filePath);
+
+                fileUrl = publicUrlData.publicUrl;
             }
+
+            // Simpan data kuis ke database
+            await saveData('kuis', {
+                mapel: document.getElementById('k-mapel').value,
+                kelas: document.getElementById('k-kelas').value,
+                judul: document.getElementById('k-judul').value,
+                durasi: document.getElementById('k-durasi').value,
+                link: document.getElementById('k-link').value || '',
+                soalTeks: document.getElementById('k-soal').value,
+                fileNama: fileNama,
+                fileUrl: fileUrl,
+                guru: currentUser.nama
+            });
+
+            toggleModal('modal-form-kuis');
+            renderActiveView();
+            alert('Kuis berhasil dipublikasikan!');
+        } catch (err) {
+            console.error("Error Simpan Kuis:", err);
+            alert('Terjadi kesalahan sistem: ' + err.message);
+        }
         }); // <-- Penutup addEventListener
     } // <-- Penutup if (formK)
 // Event handler form tambah tugas (Guru)
