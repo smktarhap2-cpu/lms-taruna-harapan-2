@@ -595,7 +595,7 @@
                             </div>
                             <!-- Pastikan tombol memiliki type="submit" -->
     <div class="flex justify-end space-x-2 pt-2">
-        <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-slate-800 text-xs">Simpan Tugas</button>
+        <button type="button" onclick="simpanTugasBaru()" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-slate-800 text-xs">Simpan Tugas</button>
 <button type="button" onclick="toggleModal('modal-form-tugas')" class="bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl hover:bg-slate-300 text-xs">Batal</button>
     </div>
 </form>
@@ -898,9 +898,12 @@ ${currentUser.role === 'siswa' ? `
             formT.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
+                // Cek apakah data user aktif ada
                 if (!currentUser || !currentUser.nama) {
-                    alert('Sesi login kedaluwarsa. Silakan login ulang.');
+                    console.error("currentUser kosong:", currentUser);
+                    alert('Sesi login kedaluwarsa atau data guru tidak ditemukan. Silakan login ulang.');
+                    renderLogin();
                     return;
                 }
 
@@ -944,8 +947,8 @@ ${currentUser.role === 'siswa' ? `
                     toggleModal('modal-form-tugas');
                     renderActiveView();
                 } catch (err) {
-                    console.error(err);
-                    alert('Terjadi kesalahan saat menyimpan tugas: ' + err.message);
+                    console.error("Error saat menyimpan tugas:", err);
+                    alert('Terjadi kesalahan sistem: ' + err.message);
                 }
             });
         }
