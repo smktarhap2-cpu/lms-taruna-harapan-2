@@ -557,7 +557,7 @@
                     <!-- MODAL TAMBAH TUGAS -->
                     <div id="modal-form-tugas" class="hidden bg-white p-6 rounded-2xl border shadow-sm space-y-4 border-l-4 border-slate-800">
                         <h3 class="font-bold text-slate-900 text-sm">Buat Tugas Baru</h3>
-                        <form id="form-add-tugas" class="space-y-3 text-xs">
+                        <form id="form-add-tugas" onsubmit="return false;" class="space-y-3 text-xs">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block font-bold text-slate-700 mb-1 uppercase text-[10px]">Pilih Mata Pelajaran</label>
@@ -816,56 +816,61 @@ ${currentUser.role === 'siswa' ? `
                 }
             }
 // Event handler form tambah materi
-        const formM = document.getElementById('form-add-materi');
-        if (formM) {
-            formM.addEventListener('submit', async (e) => {
+        const formT = document.getElementById('form-add-tugas');
+        if (formT) {
+            formT.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+                e.stopPropagation();
+
                 if (!currentUser || !currentUser.nama) {
                     alert('Sesi login kedaluwarsa. Silakan login ulang.');
                     return;
                 }
 
-                const fileInput = document.getElementById('m-file');
-                let fileNama = '';
-                let fileUrl = '';
+                try {
+                    const fileInput = document.getElementById('t-file');
+                    let fileNama = '';
+                    let fileUrl = '';
 
-                // Proses upload fisik file ke Supabase Storage menggunakan _supabase
-                if (fileInput && fileInput.files[0]) {
-                    const file = fileInput.files[0];
-                    fileNama = file.name;
-                    const filePath = `materi_${Date.now()}_${file.name}`;
+                    // Proses upload file jika dipilih
+                    if (fileInput && fileInput.files[0]) {
+                        const file = fileInput.files[0];
+                        fileNama = file.name;
+                        const filePath = `tugas_${Date.now()}_${file.name}`;
 
-                    const { data: uploadData, error: uploadError } = await _supabase.storage
-                        .from('lampiran') // Perhatikan huruf L besar sesuai nama bucket Anda
-                        .upload(filePath, file);
+                        const { error: uploadError } = await _supabase.storage
+                            .from('lampiran')
+                            .upload(filePath, file);
 
-                    if (uploadError) {
-                        alert('Gagal mengunggah file ke server: ' + uploadError.message);
-                        return;
+                        if (uploadError) {
+                            alert('Gagal mengunggah file tugas: ' + uploadError.message);
+                            return;
+                        }
+
+                        const { data: publicUrlData } = _supabase.storage
+                            .from('lampiran')
+                            .getPublicUrl(filePath);
+
+                        fileUrl = publicUrlData.publicUrl;
                     }
+                    
+                    await saveData('tugas', {
+                        mapel: document.getElementById('t-mapel').value,
+                        kelas: document.getElementById('t-kelas').value,
+                        judul: document.getElementById('t-judul').value,
+                        deadline: document.getElementById('t-deadline').value,
+                        instruksi: document.getElementById('t-instruksi').value,
+                        fileNama: fileNama,
+                        fileUrl: fileUrl,
+                        guru: currentUser.nama
+                    });
 
-                    // Ambil Public URL dari file yang diunggah
-                    const { data: publicUrlData } = _supabase.storage
-                        .from('lampiran')
-                        .getPublicUrl(filePath);
-
-                    fileUrl = publicUrlData.publicUrl;
+                    toggleModal('modal-form-tugas');
+                    renderActiveView();
+                } catch (err) {
+                    console.error(err);
+                    alert('Terjadi kesalahan sistem: ' + err.message);
                 }
-                
-                await saveData('materi', {
-                    mapel: document.getElementById('m-mapel').value,
-                    kelas: document.getElementById('m-kelas').value,
-                    judul: document.getElementById('m-judul').value,
-                    youtube: document.getElementById('m-youtube').value,
-                    teks: document.getElementById('m-teks').value,
-                    fileNama: fileNama,
-                    fileUrl: fileUrl,
-                    guru: currentUser.nama
-                });
-
-                toggleModal('modal-form-materi');
-                renderActiveView();
             });
         }
 
