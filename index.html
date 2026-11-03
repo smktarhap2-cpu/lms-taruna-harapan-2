@@ -996,7 +996,6 @@ async function prosesSimpanTugas() {
         let fileNama = '';
         let fileUrl = '';
 
-        // Proses unggah file lampiran ke Supabase Storage
         if (fileInput && fileInput.files[0]) {
             const file = fileInput.files[0];
             fileNama = file.name;
@@ -1018,7 +1017,6 @@ async function prosesSimpanTugas() {
             fileUrl = publicUrlData.publicUrl;
         }
         
-        // Simpan data ke database tabel tugas
         await saveData('tugas', {
             mapel: document.getElementById('t-mapel').value,
             kelas: document.getElementById('t-kelas').value,
@@ -1030,15 +1028,15 @@ async function prosesSimpanTugas() {
             guru: currentUser.nama
         });
 
-        // Tutup modal dan refresh tampilan
         toggleModal('modal-form-tugas');
         renderActiveView();
     } catch (err) {
         console.error("Error Simpan Tugas:", err);
         alert('Terjadi kesalahan sistem: ' + err.message);
     }
-}
-        renderLogin();
-    </script>
+} // <-- Penutup fungsi prosesSimpanTugas
+
+renderLogin();
+</script>
 </body>
 </html>
