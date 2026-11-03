@@ -736,9 +736,15 @@ ${currentUser.role === 'siswa' ? `
                             <form id="form-presensi" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-slate-50 p-4 rounded-xl border">
                                 <select id="p-mapel" class="border p-2.5 rounded-xl font-semibold bg-white">
     <option value="">-- Pilih Mata Pelajaran --</option>
-    ${ (Array.isArray(currentUser.mapels) ? currentUser.mapels : [currentUser.mapel || 'PJOK'])
-        .flatMap(m => m.split('/').map(s => s.trim()))
-        .map(m => `<option value="${m}">${m}</option>`).join('') }
+    <option value="PJOK">PJOK</option>
+    <option value="Informatika">Informatika</option>
+    <option value="Desain Grafis">Desain Grafis</option>
+    <option value="Matematika">Matematika</option>
+    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+    <option value="Bahasa Inggris">Bahasa Inggris</option>
+    <option value="Sejarah">Sejarah</option>
+    <option value="Seni Budaya">Seni Budaya</option>
+    <option value="Akuntansi Keuangan">Akuntansi Keuangan</option>
 </select>
                                 <select id="p-status" class="border p-2.5 rounded-xl font-semibold bg-white" required>
                                     <option value="Hadir">Hadir</option>
