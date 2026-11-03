@@ -816,63 +816,65 @@ ${currentUser.role === 'siswa' ? `
                 }
             }
 // Event handler form tambah materi
-        const formT = document.getElementById('form-add-tugas');
-        if (formT) {
-            formT.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+        // Event handler form tambah materi
+const formM = document.getElementById('form-add-materi');
+if (formM && !formM.dataset.listenerAttached) {
+    formM.dataset.listenerAttached = "true";
+    
+    formM.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-                if (!currentUser || !currentUser.nama) {
-                    alert('Sesi login kedaluwarsa. Silakan login ulang.');
+        if (!currentUser || !currentUser.nama) {
+            alert('Sesi login kedaluwarsa. Silakan login ulang.');
+            renderLogin();
+            return;
+        }
+
+        try {
+            const fileInput = document.getElementById('m-file'); // Sesuaikan dengan id input file materi Anda
+            let fileNama = '';
+            let fileUrl = '';
+
+            if (fileInput && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                fileNama = file.name;
+                const filePath = `materi_${Date.now()}_${file.name}`;
+
+                const { error: uploadError } = await _supabase.storage
+                    .from('lampiran')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    alert('Gagal mengunggah file materi: ' + uploadError.message);
                     return;
                 }
 
-                try {
-                    const fileInput = document.getElementById('t-file');
-                    let fileNama = '';
-                    let fileUrl = '';
+                const { data: publicUrlData } = _supabase.storage
+                    .from('lampiran')
+                    .getPublicUrl(filePath);
 
-                    // Proses upload file jika dipilih
-                    if (fileInput && fileInput.files[0]) {
-                        const file = fileInput.files[0];
-                        fileNama = file.name;
-                        const filePath = `tugas_${Date.now()}_${file.name}`;
-
-                        const { error: uploadError } = await _supabase.storage
-                            .from('lampiran')
-                            .upload(filePath, file);
-
-                        if (uploadError) {
-                            alert('Gagal mengunggah file tugas: ' + uploadError.message);
-                            return;
-                        }
-
-                        const { data: publicUrlData } = _supabase.storage
-                            .from('lampiran')
-                            .getPublicUrl(filePath);
-
-                        fileUrl = publicUrlData.publicUrl;
-                    }
-                    
-                    await saveData('tugas', {
-                        mapel: document.getElementById('t-mapel').value,
-                        kelas: document.getElementById('t-kelas').value,
-                        judul: document.getElementById('t-judul').value,
-                        deadline: document.getElementById('t-deadline').value,
-                        instruksi: document.getElementById('t-instruksi').value,
-                        fileNama: fileNama,
-                        fileUrl: fileUrl,
-                        guru: currentUser.nama
-                    });
-
-                    toggleModal('modal-form-tugas');
-                    renderActiveView();
-                } catch (err) {
-                    console.error(err);
-                    alert('Terjadi kesalahan sistem: ' + err.message);
-                }
+                fileUrl = publicUrlData.publicUrl;
+            }
+            
+            await saveData('materi', {
+                mapel: document.getElementById('m-mapel').value,
+                kelas: document.getElementById('m-kelas').value,
+                judul: document.getElementById('m-judul').value,
+                teks: document.getElementById('m-teks').value,
+                fileNama: fileNama,
+                fileUrl: fileUrl,
+                guru: currentUser.nama
             });
+
+            toggleModal('modal-form-materi');
+            renderActiveView();
+        } catch (err) {
+            console.error("Error Simpan Materi:", err);
+            alert('Terjadi kesalahan sistem: ' + err.message);
         }
+    });
+}
 
             // Event handler form tambah kuis
             const formK = document.getElementById('form-add-kuis');
