@@ -595,7 +595,7 @@
                             </div>
                             <!-- Pastikan tombol memiliki type="submit" -->
     <div class="flex justify-end space-x-2 pt-2">
-        <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-slate-800 text-xs">Simpan Tugas</button>
+        <button type="button" onclick="prosesSimpanTugas()" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-slate-800 text-xs">Simpan Tugas</button>
 <button type="button" onclick="toggleModal('modal-form-tugas')" class="bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl hover:bg-slate-300 text-xs">Batal</button>
     </div>
 </form>
@@ -966,7 +966,60 @@ if (formT && !formT.dataset.listenerAttached) {
             });
             renderActiveView();
         }
+async function prosesSimpanTugas() {
+    if (!currentUser || !currentUser.nama) {
+        alert('Sesi login kedaluwarsa. Silakan login ulang.');
+        renderLogin();
+        return;
+    }
 
+    try {
+        const fileInput = document.getElementById('t-file');
+        let fileNama = '';
+        let fileUrl = '';
+
+        // Proses unggah file lampiran ke Supabase Storage
+        if (fileInput && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            fileNama = file.name;
+            const filePath = `tugas_${Date.now()}_${file.name}`;
+
+            const { error: uploadError } = await _supabase.storage
+                .from('lampiran')
+                .upload(filePath, file);
+
+            if (uploadError) {
+                alert('Gagal mengunggah file tugas: ' + uploadError.message);
+                return;
+            }
+
+            const { data: publicUrlData } = _supabase.storage
+                .from('lampiran')
+                .getPublicUrl(filePath);
+
+            fileUrl = publicUrlData.publicUrl;
+        }
+        
+        // Simpan data ke database tabel tugas
+        await saveData('tugas', {
+            mapel: document.getElementById('t-mapel').value,
+            kelas: document.getElementById('t-kelas').value,
+            judul: document.getElementById('t-judul').value,
+            deadline: document.getElementById('t-deadline').value,
+            instruksi: document.getElementById('t-instruksi').value,
+            fileNama: fileNama,
+            fileUrl: fileUrl,
+            guru: currentUser.nama
+        });
+
+        // Tutup modal dan refresh tampilan
+        toggleModal('modal-form-tugas');
+        renderActiveView();
+    } catch (err) {
+        console.error("Error Simpan Tugas:", err);
+        alert('Terjadi kesalahan sistem: ' + err.message);
+    }
+}
         renderLogin();
     </script>
 </body>
