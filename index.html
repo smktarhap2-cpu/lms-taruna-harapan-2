@@ -876,24 +876,42 @@ if (formM && !formM.dataset.listenerAttached) {
     });
 }
 
-            // Event handler form tambah kuis
-            const formK = document.getElementById('form-add-kuis');
-            if (formK) {
-                formK.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    await saveData('kuis', {
-                        mapel: document.getElementById('k-mapel').value,
-                        kelas: document.getElementById('k-kelas').value,
-                        judul: document.getElementById('k-judul').value,
-                        durasi: document.getElementById('k-durasi').value,
-                        link: document.getElementById('k-link').value,
-                        guru: currentUser.nama
-                    });
-                    toggleModal('modal-form-kuis');
-                    renderActiveView();
-                });
+// Event handler form tambah kuis
+// Event handler form tambah kuis
+    const formK = document.getElementById('form-add-kuis');
+    if (formK && !formK.dataset.listenerAttached) {
+        formK.dataset.listenerAttached = "true";
+        
+        formK.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!currentUser || !currentUser.nama) {
+                alert('Sesi login kedaluwarsa. Silakan login ulang.');
+                renderLogin();
+                return;
             }
-        }
+
+            try {
+                await saveData('kuis', {
+                    mapel: document.getElementById('k-mapel').value,
+                    kelas: document.getElementById('k-kelas').value,
+                    judul: document.getElementById('k-judul').value,
+                    durasi: document.getElementById('k-durasi').value,
+                    link: document.getElementById('k-link').value || '',
+                    soalTeks: document.getElementById('k-soal').value,
+                    guru: currentUser.nama
+                });
+
+                toggleModal('modal-form-kuis');
+                renderActiveView();
+                alert('Kuis berhasil dipublikasikan!');
+            } catch (err) {
+                console.error("Error Simpan Kuis:", err);
+                alert('Terjadi kesalahan sistem: ' + err.message);
+            }
+        }); // <-- Penutup addEventListener
+    } // <-- Penutup if (formK)
 // Event handler form tambah tugas (Guru)
         // Event handler form tambah tugas
 const formT = document.getElementById('form-add-tugas');
