@@ -893,65 +893,67 @@ ${currentUser.role === 'siswa' ? `
             }
         }
 // Event handler form tambah tugas (Guru)
-        const formT = document.getElementById('form-add-tugas');
-        if (formT) {
-            formT.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+        // Event handler form tambah tugas
+const formT = document.getElementById('form-add-tugas');
+if (formT && !formT.dataset.listenerAttached) {
+    formT.dataset.listenerAttached = "true"; // Mencegah listener terpasang ganda
+    
+    formT.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-                // Cek apakah data user aktif ada
-                if (!currentUser || !currentUser.nama) {
-                    console.error("currentUser kosong:", currentUser);
-                    alert('Sesi login kedaluwarsa atau data guru tidak ditemukan. Silakan login ulang.');
-                    renderLogin();
+        if (!currentUser || !currentUser.nama) {
+            alert('Sesi login kedaluwarsa. Silakan login ulang.');
+            renderLogin();
+            return;
+        }
+
+        try {
+            const fileInput = document.getElementById('t-file');
+            let fileNama = '';
+            let fileUrl = '';
+
+            // Proses upload file jika dipilih
+            if (fileInput && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                fileNama = file.name;
+                const filePath = `tugas_${Date.now()}_${file.name}`;
+
+                const { error: uploadError } = await _supabase.storage
+                    .from('lampiran')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    alert('Gagal mengunggah file tugas: ' + uploadError.message);
                     return;
                 }
 
-                try {
-                    const fileInput = document.getElementById('t-file');
-                    let fileNama = '';
-                    let fileUrl = '';
+                const { data: publicUrlData } = _supabase.storage
+                    .from('lampiran')
+                    .getPublicUrl(filePath);
 
-                    if (fileInput && fileInput.files[0]) {
-                        const file = fileInput.files[0];
-                        fileNama = file.name;
-                        const filePath = `tugas_${Date.now()}_${file.name}`;
-
-                        const { error: uploadError } = await _supabase.storage
-                            .from('lampiran')
-                            .upload(filePath, file);
-
-                        if (uploadError) {
-                            alert('Gagal mengunggah file tugas: ' + uploadError.message);
-                            return;
-                        }
-
-                        const { data: publicUrlData } = _supabase.storage
-                            .from('lampiran')
-                            .getPublicUrl(filePath);
-
-                        fileUrl = publicUrlData.publicUrl;
-                    }
-                    
-                    await saveData('tugas', {
-                        mapel: document.getElementById('t-mapel').value,
-                        kelas: document.getElementById('t-kelas').value,
-                        judul: document.getElementById('t-judul').value,
-                        deadline: document.getElementById('t-deadline').value,
-                        instruksi: document.getElementById('t-instruksi').value,
-                        fileNama: fileNama,
-                        fileUrl: fileUrl,
-                        guru: currentUser.nama
-                    });
-
-                    toggleModal('modal-form-tugas');
-                    renderActiveView();
-                } catch (err) {
-                    console.error("Error saat menyimpan tugas:", err);
-                    alert('Terjadi kesalahan sistem: ' + err.message);
-                }
+                fileUrl = publicUrlData.publicUrl;
+            }
+            
+            await saveData('tugas', {
+                mapel: document.getElementById('t-mapel').value,
+                kelas: document.getElementById('t-kelas').value,
+                judul: document.getElementById('t-judul').value,
+                deadline: document.getElementById('t-deadline').value,
+                instruksi: document.getElementById('t-instruksi').value,
+                fileNama: fileNama,
+                fileUrl: fileUrl,
+                guru: currentUser.nama
             });
+
+            toggleModal('modal-form-tugas');
+            renderActiveView();
+        } catch (err) {
+            console.error("Error Simpan Tugas:", err);
+            alert('Terjadi kesalahan sistem: ' + err.message);
         }
+    });
+}
         async function kumpulTugas(tugasId, judulTugas) {
             alert(`Tugas "${judulTugas}" berhasil dikirimkan ke guru pengampu melalui server cloud!`);
             await saveData('submissions', {
