@@ -595,7 +595,7 @@
                             </div>
                             <!-- Pastikan tombol memiliki type="submit" -->
     <div class="flex justify-end space-x-2 pt-2">
-        <button type="button" onclick="simpanTugasBaru()" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-slate-800 text-xs">Simpan Tugas</button>
+        <button type="submit" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-slate-800 text-xs">Simpan Tugas</button>
 <button type="button" onclick="toggleModal('modal-form-tugas')" class="bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl hover:bg-slate-300 text-xs">Batal</button>
     </div>
 </form>
@@ -898,8 +898,8 @@ if (formM && !formM.dataset.listenerAttached) {
         // Event handler form tambah tugas
 const formT = document.getElementById('form-add-tugas');
 if (formT && !formT.dataset.listenerAttached) {
-    formT.dataset.listenerAttached = "true"; // Mencegah listener terpasang ganda
-    
+    formT.dataset.listenerAttached = "true";
+
     formT.addEventListener('submit', async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -915,7 +915,6 @@ if (formT && !formT.dataset.listenerAttached) {
             let fileNama = '';
             let fileUrl = '';
 
-            // Proses upload file jika dipilih
             if (fileInput && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 fileNama = file.name;
@@ -936,7 +935,7 @@ if (formT && !formT.dataset.listenerAttached) {
 
                 fileUrl = publicUrlData.publicUrl;
             }
-            
+
             await saveData('tugas', {
                 mapel: document.getElementById('t-mapel').value,
                 kelas: document.getElementById('t-kelas').value,
