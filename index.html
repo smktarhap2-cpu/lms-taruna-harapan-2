@@ -1020,7 +1020,8 @@ if (formT && !formT.dataset.listenerAttached) {
             });
             renderActiveView();
         }
-async function prosesSimpanTugas() {
+// Letakkan di luar fungsi lain (di tingkat global skrip)
+window.prosesSimpanTugas = async function() {
     try {
         const mapel = document.getElementById('t-mapel')?.value;
         const kelas = document.getElementById('t-kelas')?.value;
@@ -1067,10 +1068,8 @@ async function prosesSimpanTugas() {
         console.error(err);
     }
 }
-
 }// <-- Penutup fungsi prosesSimpanTugas
 
-renderLogin();
 </script>
 </body>
 </html>
