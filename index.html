@@ -1019,7 +1019,9 @@ if (formT && !formT.dataset.listenerAttached) {
                 waktu: new Date().toLocaleString()
             });
             renderActiveView();
-        }
+    }
+} // <-- TAMBAHKAN KURUNG KURAWAL INI UNTUK MENUTUP setupTabRuang
+
 // Letakkan di luar fungsi lain (di tingkat global skrip)
 window.prosesSimpanTugas = async function() {
     try {
@@ -1068,7 +1070,6 @@ window.prosesSimpanTugas = async function() {
         console.error(err);
     }
 }
-}// <-- Penutup fungsi prosesSimpanTugas
 
 </script>
 </body>
