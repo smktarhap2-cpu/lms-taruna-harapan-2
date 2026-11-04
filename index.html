@@ -1070,6 +1070,13 @@ window.prosesSimpanTugas = async function() {
         console.error(err);
     }
 };
+
+// --- TAMBAHKAN PEMANGGIL AWAL INI DI BAGIAN PALING BAWAH ---
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof renderLogin === 'function') {
+        renderLogin();
+    }
+});
 </script>
 </body>
 </html>
