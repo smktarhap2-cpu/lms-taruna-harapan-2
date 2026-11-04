@@ -1021,38 +1021,32 @@ if (formT && !formT.dataset.listenerAttached) {
             renderActiveView();
         }
 async function prosesSimpanTugas() {
-    if (!currentUser || !currentUser.nama) {
-        alert('Sesi login kedaluwarsa. Silakan login ulang.');
-        renderLogin();
-        return;
-    }
-
     try {
-        const fileInput = document.getElementById('t-file');
-        let fileNama = '';
-        let fileUrl = '';
+        if (!currentUser || !currentUser.nama) {
+            alert('Sesi login kedaluwarsa. Silakan login ulang.');
+            renderLogin();
+            return;
+        }
 
-        if (fileInput && fileInput.files[0]) {
+        // Ambil elemen file jika ada lampiran
+        const fileInput = document.getElementById('t-file'); // Sesuaikan ID input file tugas Anda
+        let fileUrl = '';
+        let fileNama = '';
+
+        if (fileInput && fileInput.files && fileInput.files[0]) {
             const file = fileInput.files[0];
             fileNama = file.name;
-            const filePath = `tugas_${Date.now()}_${file.name}`;
-
-            const { error: uploadError } = await _supabase.storage
-                .from('lampiran')
-                .upload(filePath, file);
-
-            if (uploadError) {
-                alert('Gagal mengunggah file tugas: ' + uploadError.message);
-                return;
-            }
-
-            const { data: publicUrlData } = _supabase.storage
-                .from('lampiran')
-                .getPublicUrl(filePath);
-
+            const filePath = `tugas/${Date.now()}_${file.name}`;
+            
+            // Upload ke Supabase Storage (pastikan bucket 'materi' atau bucket tugas Anda sudah siap)
+            const { data, error } = await supabase.storage.from('materi').upload(filePath, file);
+            if (error) throw error;
+            
+            const { data: publicUrlData } = supabase.storage.from('materi').getPublicUrl(filePath);
             fileUrl = publicUrlData.publicUrl;
         }
-        
+
+        // Simpan data ke tabel database 'tugas'
         await saveData('tugas', {
             mapel: document.getElementById('t-mapel').value,
             kelas: document.getElementById('t-kelas').value,
@@ -1064,11 +1058,10 @@ async function prosesSimpanTugas() {
             guru: currentUser.nama
         });
 
-        toggleModal('modal-form-tugas');
-        renderActiveView();
+        alert('Tugas berhasil disimpan!');
+        renderActiveView(); // Memuat ulang tampilan agar data tugas langsung muncul
     } catch (err) {
-        console.error("Error Simpan Tugas:", err);
-        alert('Terjadi kesalahan sistem: ' + err.message);
+        alert('Gagal menyimpan tugas: ' + err.message);
     }
 }
 
