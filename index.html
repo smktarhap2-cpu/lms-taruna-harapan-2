@@ -34,7 +34,7 @@
         const SUPABASE_URL = 'https://sfzurfsovwfqucwnfkdc.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_z9Q9dF6IcFqRpnCl362uWQ_BCfFHGfQ';
         window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+const _supabase = window.supabase; // <-- Tambahkan baris ini sebagai jembatan penghubung
         let currentUser = null;
         let currentView = 'ruang_belajar';
         let currentTabRuang = 'materi';
