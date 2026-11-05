@@ -33,7 +33,7 @@
         // ==========================================
         const SUPABASE_URL = 'https://sfzurfsovwfqucwnfkdc.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_z9Q9dF6IcFqRpnCl362uWQ_BCfFHGfQ';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
         let currentView = 'ruang_belajar';
